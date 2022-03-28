@@ -429,5 +429,11 @@ Chapter 2. Data Abstraction
   : unparse_lc_exp : LcExp -> String
 
 
-
+  ;;   ((lambda (a) (a b)) c)
+  
+  ;;   (lambda (x)
+  ;;     (lambda (y)
+  ;;       ((lambda (x)
+  ;;          (x y))
+  ;;        x)))
 
