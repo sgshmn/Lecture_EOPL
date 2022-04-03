@@ -4,6 +4,8 @@ Chapter 2. Data Abstraction
 > module Main where
 
 > import Lib
+> import Data.Maybe(isJust) -- for parser
+> import Text.Read(readMaybe)  -- for parser
 
 > main :: IO ()
 > main = putStrLn "Chapter 2. Data Abstraction"
@@ -429,6 +431,45 @@ Chapter 2. Data Abstraction
   : unparse_lc_exp : LcExp -> String
 
 
+
+Obj as HaskellVal !!
+
+> data Obj = L [Obj] | S String deriving Show
+>
+> type Env = [(String,Obj)]
+>
+> tokenize :: String -> [String]
+> tokenize str = words $ concat $ map (\ch -> if ch=='(' || ch==')' then " " ++ [ch] ++ " " else [ch]) str
+
+> parse :: String -> Obj
+> parse program = fst $ read_from_tokens $ tokenize $ program
+
+> read_from_tokens :: [String] -> (Obj, [String])
+> read_from_tokens [] = error "Syntax error: unexpected EOF while reading"
+> read_from_tokens ("(":tokens) = 
+>     let build list [] = (list, [])
+>         build list (token:tokens) =
+>             if token /= ")"
+>             then let (list',tokens') = read_from_tokens (token:tokens)
+>                  in  build (list ++ [list']) tokens'
+>             else (list, tokens)
+>         (list'', tokens'') = build [] tokens
+>     in (L list'', tokens'')
+> read_from_tokens (")":tokens) = error "Syntax error: unexpected )"
+> read_from_tokens (token:tokens) = (atom token, tokens)
+> 
+> atom :: String -> Obj
+> atom token =  S token
+>
+> unparse :: Obj -> String
+> unparse (S s) = s
+> unparse (L []) = "()"
+> unparse (L [obj]) = "(" ++ unparse obj  ++  ")"
+> unparse (L (obj:objs)) = "(" ++ concat (unparse obj : map ((" "++) . unparse) objs)  ++  ")"
+
+
+Exercise 2.27
+
   ;;   ((lambda (a) (a b)) c)
   
   ;;   (lambda (x)
@@ -436,4 +477,46 @@ Chapter 2. Data Abstraction
   ;;       ((lambda (x)
   ;;          (x y))
   ;;        x)))
+
+
+  ghci> :type tokenize
+  tokenize :: String -> [String]
+
+  ghci> tokenize "((lambda (a) (a b)) c)"
+  ["(","(","lambda","(","a",")","(","a","b",")",")","c",")"]
+
+
+  ghci> read_from_tokens (tokenize "((lambda (a) (a b)) c)")
+  (L [L [S "lambda",L [S "a"],L [S "a",S "b"]],S "c"],[])
+
+  ghci> read_from_tokens (tokenize "(lambda (x) (lambda (y) ((lambda (x) (x y)) x)))")
+  (L [S "lambda",L [S "x"],L [S "lambda",L [S "y"],L [L [S "lambda",L [S "x"],L [S "x",S "y"]],S "x"]]],[])
+
+
+
+> parse_expression :: Obj -> Lc_exp
+> parse_expression (S v) = Var_exp v
+> parse_expression (L (S "lambda":(L [S v]):[body])) =  -- No multiple arguments are supported!!
+>  Lambda_exp v (parse_expression body)
+> parse_expression (L [f,arg]) =
+>  App_exp (parse_expression f) (parse_expression arg)
+> parse_expression obj = error ("invalid concrete syntax: " ++ show obj)
+
+
+  ghci> parse_expression (fst (read_from_tokens (tokenize "((lambda (a) (a b)) c)")))
+  App_exp (Lambda_exp "a" (App_exp (Var_exp "a") (Var_exp "b"))) (Var_exp "c")
+
+
+  ghci> parse_expression (fst (read_from_tokens (tokenize "(lambda (x) (lambda (y) ((lambda (x) (x y)) x)))")))
+  Lambda_exp "x" (Lambda_exp "y" (App_exp (Lambda_exp "x" (App_exp (Var_exp "x") (Var_exp "y"))) (Var_exp "x")))
+
+
+> unparse_lc_exp :: Lc_exp -> Obj
+> unparse_lc_exp (Var_exp v) = S v
+> unparse_lc_exp (Lambda_exp v body) =
+>   L [S "lambda", L [S v], unparse_lc_exp body]
+> unparse_lc_exp (App_exp fun arg) =
+>   L [unparse_lc_exp fun, unparse_lc_exp arg]
+>
+
 
