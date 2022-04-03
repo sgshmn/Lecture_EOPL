@@ -431,20 +431,19 @@ Chapter 2. Data Abstraction
   : unparse_lc_exp : LcExp -> String
 
 
+  SchemeVal : S-expressions (either a symbol or a list of S-expressions)
 
-Obj as HaskellVal !!
-
-> data Obj = L [Obj] | S String deriving Show
+> data SchemeVal = S String | L [SchemeVal]  deriving Show
 >
-> type Env = [(String,Obj)]
+> type Env = [(String,SchemeVal)]
 >
 > tokenize :: String -> [String]
 > tokenize str = words $ concat $ map (\ch -> if ch=='(' || ch==')' then " " ++ [ch] ++ " " else [ch]) str
 
-> parse :: String -> Obj
+> parse :: String -> SchemeVal
 > parse program = fst $ read_from_tokens $ tokenize $ program
 
-> read_from_tokens :: [String] -> (Obj, [String])
+> read_from_tokens :: [String] -> (SchemeVal, [String])
 > read_from_tokens [] = error "Syntax error: unexpected EOF while reading"
 > read_from_tokens ("(":tokens) = 
 >     let build list [] = (list, [])
@@ -458,10 +457,10 @@ Obj as HaskellVal !!
 > read_from_tokens (")":tokens) = error "Syntax error: unexpected )"
 > read_from_tokens (token:tokens) = (atom token, tokens)
 > 
-> atom :: String -> Obj
+> atom :: String -> SchemeVal
 > atom token =  S token
 >
-> unparse :: Obj -> String
+> unparse :: SchemeVal -> String
 > unparse (S s) = s
 > unparse (L []) = "()"
 > unparse (L [obj]) = "(" ++ unparse obj  ++  ")"
@@ -494,7 +493,7 @@ Exercise 2.27
 
 
 
-> parse_expression :: Obj -> Lc_exp
+> parse_expression :: SchemeVal -> Lc_exp
 > parse_expression (S v) = Var_exp v
 > parse_expression (L (S "lambda":(L [S v]):[body])) =  -- No multiple arguments are supported!!
 >  Lambda_exp v (parse_expression body)
@@ -511,7 +510,7 @@ Exercise 2.27
   Lambda_exp "x" (Lambda_exp "y" (App_exp (Lambda_exp "x" (App_exp (Var_exp "x") (Var_exp "y"))) (Var_exp "x")))
 
 
-> unparse_lc_exp :: Lc_exp -> Obj
+> unparse_lc_exp :: Lc_exp -> SchemeVal
 > unparse_lc_exp (Var_exp v) = S v
 > unparse_lc_exp (Lambda_exp v body) =
 >   L [S "lambda", L [S v], unparse_lc_exp body]
@@ -519,4 +518,12 @@ Exercise 2.27
 >   L [unparse_lc_exp fun, unparse_lc_exp arg]
 >
 
+
+   ghci> unparse (unparse_lc_exp (parse_expression (fst (read_from_tokens (tokenize "((lambda (a) (a b)) c)")))))
+
+   "((lambda (a) (a b)) c)"
+
+
+   ghci> unparse (unparse_lc_exp (parse_expression (fst (read_from_tokens (tokenize "(lambda (x) (lambda (y) ((lambda (x) (x y)) x)))")))))
+   "(lambda (x) (lambda (y) ((lambda (x) (x y)) x)))"
 
