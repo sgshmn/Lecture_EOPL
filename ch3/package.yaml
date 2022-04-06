@@ -50,6 +50,17 @@ executables:
     dependencies:
     - ch3
 
+  letreclang-exe:
+    main:                Main.lhs
+    source-dirs:         
+    - app/letreclang
+    ghc-options:
+    - -threaded
+    - -rtsopts
+    - -with-rtsopts=-N
+    dependencies:
+    - ch3
+
 tests:
   ch3-test:
     main:                Spec.hs
