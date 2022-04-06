@@ -1,4 +1,4 @@
 > module ProcLang where
 >
-> letlang = "LetLang"
+> proclang = "ProcLang"
 > 

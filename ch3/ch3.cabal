@@ -32,7 +32,7 @@ library
       src
   build-depends:
       base >=4.7 && <5
-    , yapb >=0.2.2
+    , yapb >=0.2.3
   default-language: Haskell2010
 
 executable letlang-exe
@@ -52,13 +52,19 @@ executable letlang-exe
   build-depends:
       base >=4.7 && <5
     , ch3
-    , yapb >=0.2.2
+    , yapb >=0.2.3
   default-language: Haskell2010
 
 executable proclang-exe
   main-is: Main.lhs
   other-modules:
+      Env
+      Expr
+      Interp
+      Lexer
+      Parser
       ProcLang
+      Token
       Paths_ch3
   hs-source-dirs:
       app/proclang
@@ -66,7 +72,7 @@ executable proclang-exe
   build-depends:
       base >=4.7 && <5
     , ch3
-    , yapb >=0.2.2
+    , yapb >=0.2.3
   default-language: Haskell2010
 
 test-suite ch3-test
@@ -80,5 +86,5 @@ test-suite ch3-test
   build-depends:
       base >=4.7 && <5
     , ch3
-    , yapb >=0.2.2
+    , yapb >=0.2.3
   default-language: Haskell2010
