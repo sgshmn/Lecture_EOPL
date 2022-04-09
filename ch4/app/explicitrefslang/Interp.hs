@@ -1,3 +1,6 @@
+{-# OPTIONS_GHC -Wno-unrecognised-pragmas #-}
+{-# HLINT ignore "Use camelCase" #-}
+{-# OPTIONS_GHC -Wno-incomplete-patterns #-}
 module Interp where
 
 import Expr
@@ -37,10 +40,10 @@ value_of (Let_Exp var exp1 body) env store =
     value_of body (extend_env var val1 env) store1
 
 value_of (Letrec_Exp letbindings letrec_body) env store =
-  value_of letrec_body (extend env letbindings) store
-  where extend env [] = env
-        extend env ((proc_name, bound_var, proc_body):letbindings) =
-          extend (extend_env_rec proc_name bound_var proc_body env) letbindings
+  value_of letrec_body (extend_env_rec (extend letbindings) env) store
+  where extend [] = []
+        extend ((proc_name, bound_var, proc_body):letbindings) =
+          (proc_name,bound_var,proc_body) : extend letbindings
 
 value_of (Proc_Exp var body) env store =
   (Proc_Val (procedure var body env),store)

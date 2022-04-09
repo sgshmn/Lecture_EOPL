@@ -46,8 +46,8 @@ parserSpec = ParserSpec
       rule "LetRecBindings -> identifier ( identifier ) = Expression"
         (\rhs -> return $ fromIdIdExpList [(getText rhs 1, getText rhs 3, expFrom (get rhs 6))]),
 
-      rule "LetRecBindings -> identifier ( identifier ) = Expression ; LetRecBindings"
-        (\rhs -> return $ fromIdIdExpList ((getText rhs 1, getText rhs 3, expFrom (get rhs 6)) : idIdExpListFrom (get rhs 8))),
+      rule "LetRecBindings -> identifier ( identifier ) = Expression LetRecBindings"
+        (\rhs -> return $ fromIdIdExpList ((getText rhs 1, getText rhs 3, expFrom (get rhs 6)) : idIdExpListFrom (get rhs 7))),
 
       rule "Expression -> proc ( identifier ) Expression"
         (\rhs -> return $ fromExp $ Proc_Exp (getText rhs 3) (expFrom (get rhs 5))),
