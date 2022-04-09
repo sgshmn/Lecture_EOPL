@@ -28,7 +28,7 @@ library:
 
 executables:
   expref-exe:
-    main:                Main.lhs
+    main:                Main.hs
     source-dirs:         app/explicitrefslang
     ghc-options:
     - -threaded

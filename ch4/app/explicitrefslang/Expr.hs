@@ -26,6 +26,7 @@ data PET =
     PET_IdIdExpList {idIdExpListFrom :: [(Identifier, Identifier, Exp)] }
   | PET_ExpList {expListFrom :: [Exp] }
   | PET_Exp {expFrom :: Exp}
+  deriving Show
 
 fromExp exp                 = PET_Exp exp
 fromExpList expList         = PET_ExpList expList
