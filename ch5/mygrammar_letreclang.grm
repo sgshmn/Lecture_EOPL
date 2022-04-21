@@ -1,0 +1,17 @@
+(CFG "Expression'" [
+ ProductionRule "Expression'" [Nonterminal "Expression"],
+ ProductionRule "Expression" [Terminal "integer_number"],
+ ProductionRule "Expression" [Terminal "-", Terminal "integer_number"],
+ ProductionRule "Expression" [Terminal "-", Terminal "(", Nonterminal "Expression", Terminal ",", Nonterminal "Expression", Terminal ")"],
+ ProductionRule "Expression" [Terminal "zero?", Terminal "(", Nonterminal "Expression", Terminal ")"],
+ ProductionRule "Expression" [Terminal "if", Nonterminal "Expression", Terminal "then", Nonterminal "Expression", Terminal "else", Nonterminal "Expression"],
+ ProductionRule "Expression" [Terminal "identifier"],
+ ProductionRule "Expression" [Terminal "let", Terminal "identifier", Terminal "=", Nonterminal "Expression", Terminal "in", Nonterminal "Expression"],
+ ProductionRule "Expression" [Terminal "letrec", Terminal "identifier", Terminal "(", Terminal "identifier", Terminal ")", Terminal "=", Nonterminal "Expression", Terminal "in", Nonterminal "Expression"],
+ ProductionRule "Expression" [Terminal "proc", Terminal "(", Terminal "identifier", Terminal ")", Nonterminal "Expression"],
+ ProductionRule "Expression" [Terminal "(", Nonterminal "Expression", Nonterminal "Expression", Terminal ")"]
+ ]
+,
+TokenAttrs [],
+ProdRuleAttrs [],
+"$")
