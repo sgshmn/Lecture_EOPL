@@ -47,6 +47,16 @@ executables:
     dependencies:
     - ch5
 
+  threads-exe:
+    main:                Main.hs
+    source-dirs:         app/threads
+    ghc-options:
+    - -threaded
+    - -rtsopts
+    - -with-rtsopts=-N
+    dependencies:
+    - ch5
+
 tests:
   ch5-test:
     main:                Spec.hs
