@@ -8,12 +8,22 @@
 7: Expression -> letrec identifier ( identifier ) = Expression in Expression
 8: Expression -> proc ( identifier ) Expression
 9: Expression -> ( Expression Expression )
-10: Expression -> list ( NumberList )
-11: NumberList -> integer_number
-12: NumberList -> integer_number , NumberList
-13: Expression -> zero? ( Expression )
-14: Expression -> null? ( Expression )
-15: Expression -> car ( Expression )
-16: Expression -> cdr ( Expression )
-17: Expression -> try Expression catch ( identifier ) Expression
-18: Expression -> raise Expression
+10: Expression -> begin ExpressionList end
+11: ExpressionList -> Expression
+12: ExpressionList -> Expression ; ExpressionList
+13: Expression -> set identifier = Expression
+14: Expression -> spawn ( Expression )
+15: Expression -> yield ( )
+16: Expression -> mutex ( )
+17: Expression -> wait ( Expression )
+18: Expression -> signal ( Expression )
+19: Expression -> [ NumberList ]
+20: NumberList -> integer_number
+21: NumberList -> integer_number , NumberList
+22: Expression -> zero? ( Expression )
+23: Expression -> null? ( Expression )
+24: Expression -> car ( Expression )
+25: Expression -> cdr ( Expression )
+26: Expression -> print ( Expression )
+27: Expression -> try Expression catch ( identifier ) Expression
+28: Expression -> raise Expression
