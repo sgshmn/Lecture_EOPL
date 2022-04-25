@@ -17,6 +17,11 @@
 --                                                                                                                      ^^^^^^^^^^^^^^^^^^^^^^^^
 --    ...
 --
+--  - Grading
+--
+--     (1) 10 points for each (sub-)problem
+--     (2) + 10 points on the earlest submission (in the start date + 1day)
+--         + 5points on an early submission (in the start date + 2day)
 --
 -- +--!Warning! |--------------------------------------------------------------+
 -- |                                                                           |
@@ -246,7 +251,13 @@ data Lc_exp = Var_exp    Identifier
 example_lcexp1 :: Lc_exp
 example_lcexp1 = error "TODO: write Lc_exp for \f g x -> f x (g x)"
 
--- (05-2) Write a occursFree function.
+-- (05-2) Write a occursFree function that returns true if a given
+--        variable is free in a given lambda calculus expression,
+--        returns false otherwise.
+--
+--  The formal definition of free variables
+--       - https://en.wikipedia.org/wiki/Lambda_calculus#Free_and_bound_variables
+--       - https://ko.wikipedia.org/wiki/람다_대수#자유_변수와_제한_변수
 --
 --  Examples)
 --
