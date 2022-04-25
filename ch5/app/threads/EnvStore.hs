@@ -7,26 +7,29 @@ import Data.List(intersperse)
 -- Environment
 data Env =
     Empty_env
-  | Extend_env Identifier ExpVal Env
-  | Extend_env_rec Identifier Identifier Exp Env
+  | Extend_env Identifier DenVal Env
+  | Extend_env_rec [(Identifier,Identifier,Exp)] Env
 
 empty_env :: Env
 empty_env = Empty_env
 
-apply_env :: Env -> Identifier -> ExpVal
-apply_env Empty_env search_var = error (search_var ++ " is not found.")
-apply_env (Extend_env saved_var saved_val saved_env) search_var
-  | search_var==saved_var = saved_val
-  | otherwise             = apply_env saved_env search_var
-apply_env (Extend_env_rec p_name b_var p_body saved_env) search_var
-  | p_name==search_var = Proc_Val (procedure b_var p_body (Extend_env_rec p_name b_var p_body saved_env))
-  | otherwise          = apply_env saved_env search_var
+apply_env :: Env -> Store -> Identifier -> (DenVal, Store)
+apply_env Empty_env store search_var = error (search_var ++ " is not found.")
+apply_env (Extend_env saved_var saved_val saved_env) store search_var
+  | search_var==saved_var = (saved_val,store)
+  | otherwise             = apply_env saved_env store search_var
+apply_env (Extend_env_rec idIdExpList saved_env) store search_var
+  | isIn      = newref store procVal
+  | otherwise = apply_env saved_env store search_var
+  where isIn      = or [ p_name==search_var | (p_name,b_var,p_body) <- idIdExpList ]
+        procVal = head [ Proc_Val (procedure b_var p_body (Extend_env_rec idIdExpList saved_env)) 
+                       | (p_name,b_var,p_body) <- idIdExpList, p_name==search_var ]
 
-extend_env :: Identifier -> ExpVal -> Env -> Env
+extend_env :: Identifier -> DenVal -> Env -> Env
 extend_env x v env = Extend_env x v env
 
-extend_env_rec :: Identifier -> Identifier -> Exp -> Env -> Env
-extend_env_rec f x exp env = Extend_env_rec f x exp env
+extend_env_rec :: [(Identifier,Identifier,Exp)] -> Env -> Env
+extend_env_rec idIdExpList env = Extend_env_rec idIdExpList env
 
 -- Expressed values
 data ExpVal =
@@ -42,7 +45,7 @@ instance Show ExpVal where
   show (List_Val nums) = show "[" ++ concat (intersperse "," (map show nums)) ++ show "]"
 
 -- Denoted values
-type DenVal = ExpVal   
+otype DenVal = Location
 
 -- Procedure values : data structures
 data Proc = Procedure {var :: Identifier, body :: Exp, saved_env :: Env}

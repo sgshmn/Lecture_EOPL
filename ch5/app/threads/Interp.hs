@@ -23,6 +23,7 @@ data Cont =
   | Unop_Arg_Cont UnaryOp Cont
   | Try_Cont Identifier Exp Env Cont
   | Raise1_Cont Cont
+  | Set_Rhs_Cont Location Cont
 
 apply_cont :: Store -> Cont -> ExpVal -> (FinalAnswer, Store)
 apply_cont store End_Cont v = (v, store)
@@ -34,7 +35,8 @@ apply_cont store (Zero1_Cont cont) num1 =
      else Bool_Val False)
     
 apply_cont store (Let_Exp_Cont var body env cont) val1 =
-  value_of_k body (extend_env var val1 env) store cont
+  let (loc,store') = newref store val1
+  value_of_k body (extend_env var loc env) store' cont
 
 apply_cont store (If_Test_Cont exp2 exp3 env cont) v =
   if expval_bool v
@@ -64,6 +66,10 @@ apply_cont store (Try_Cont var handler_exp env cont) val =
                            
 apply_cont store (Raise1_Cont cont) val =
   apply_handler val store cont
+
+apply_cont store (Set_Rhs_Cont loc cont) val =
+  let store' = setref store loc val in
+    apply_cont store' cont (Num_Val 23)
 
 
 apply_handler :: ExpVal -> Store -> Cont -> (FinalAnswer, Store)
@@ -108,7 +114,11 @@ value_of_k (Const_Exp n) env store cont = apply_cont store cont (Num_Val n)
 
 value_of_k (Const_List_Exp nums) env store cont = apply_cont store cont (List_Val (map Num_Val nums))
 
-value_of_k (Var_Exp var) env store cont = apply_cont store cont (apply_env env var)
+value_of_k (Var_Exp var) env store cont =
+  let (loc,store') = apply_env env store var
+      val = deref store' loc
+  in
+    apply_cont store cont val
 
 value_of_k (Diff_Exp exp1 exp2) env store cont =
   value_of_k exp1 env store (Diff1_Cont exp2 env cont)
@@ -137,6 +147,15 @@ value_of_k (Try_Exp exp var handler_exp) env store cont =
 value_of_k (Raise_Exp exp) env store cont =
   value_of_k exp env store (Raise1_Cont cont)
 
+value_of_k (Block_Exp []) env store cont =
+  apply_cont store cont (Num_Val 23)
+
+value_of_k (Block_Exp exps) env store cont = x
+
+value_of_k (Set_Exp x exp) env store cont =
+  let (loc,store') = apply_env env store x in
+  value_of_k exp env store' (Set_Rhs_Cont loc cont)
+
 --
 value_of_program :: Exp -> ExpVal
 
@@ -149,4 +168,5 @@ initEnv = empty_env
 --
 apply_procedure_k :: Proc -> ExpVal -> Store -> Cont -> (FinalAnswer, Store)
 apply_procedure_k proc arg store cont =
-   value_of_k (body proc) (extend_env (var proc) arg (saved_env proc)) store cont
+  let (loc,store') = newref store arg in
+   value_of_k (body proc) (extend_env (var proc) loc (saved_env proc)) store' cont
