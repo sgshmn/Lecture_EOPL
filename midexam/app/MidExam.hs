@@ -66,7 +66,7 @@ midExam = putStrLn ("Mid-term examination(중간고사): " ++ studentId ++ ", " 
 --             lengthList (Cons 1 (Cons 2 ( ... (Cons 10 Nil)... ))) = 10
 --------------------------------------------------------------------------------
 
-data List a = Nil | Cons a (List a) deriving Show
+data List a = Nil | Cons a (List a) deriving (Eq,Show)
 
 lengthList :: List a -> Int
 lengthList = error "TODO: implement a lengthList function"
@@ -149,7 +149,7 @@ numberElements = error "TODO: implement a numberElements function"
 
 data Tree a = Node a (Tree a) (Tree a)
             | Empty
-   deriving Show
+   deriving (Eq,Show)
 
 treeToList :: Tree a -> List a
 treeToList = error "TODO: implement treeToList"
@@ -301,6 +301,4 @@ example_lcexp1 = error "TODO: write Lc_exp for \f g x -> f x (g x)"
 
 occurFree :: Identifier -> Lc_exp -> Bool
 occurFree = error "TODO: write occurFree for Lc_exp"
-
-
 

@@ -27,13 +27,13 @@ spec = hspec $ do
   describe "Problem 02-2 ; concatList" $ do
     it ("concatList (Cons (Cons 1 (Cons 2 (Cons 3 Nil))) \
                       \   (Cons (Cons 4 Nil) \
-		      \    (Cons (Cons 5 (Cons 6 Nil)) Nil))) \
-		      \ = Cons 1 (Cons 2 (Cons 3 (Cons 4 \
-		      \           (Cons 5 (Cons 6 Nil)))))") $
-      do concatList (Cons (Cons 1 (Cons 2 (Cons 3 Nil)))
+                      \    (Cons (Cons 5 (Cons 6 Nil)) Nil))) \
+                      \ = Cons 1 (Cons 2 (Cons 3 (Cons 4 \
+                      \           (Cons 5 (Cons 6 Nil)))))") $
+      do concatList (Cons (Cons (1 :: Int) (Cons 2 (Cons 3 Nil)))
                            (Cons (Cons 4 Nil)
-			    (Cons (Cons 5 (Cons 6 Nil)) Nil)))
-	    `shouldBe` Cons 1 (Cons 2 (Cons 3 (Cons 4 (Cons 5 (Cons 6 Nil)))))
+                            (Cons (Cons 5 (Cons 6 Nil)) Nil)))
+            `shouldBe` Cons (1 :: Int) (Cons 2 (Cons 3 (Cons 4 (Cons 5 (Cons 6 Nil)))))
 
   describe "Problem 02-3 : nthElement" $ do
     it ("nthElement (Cons 'a' (Cons 'b' (Cons 'c' Nil))) 1 = 'b'") $
@@ -43,7 +43,7 @@ spec = hspec $ do
       do nthElement (Cons 7 (Cons 3 (Cons 9 Nil))) 2 `shouldBe` 9
 
     it ("nthElement (Cons 'a' (Cons 'b' (Cons 'c' Nil))) 3 = error") $
-      do nthElement (Cons 'a' (Cons 'b' (Cons 'c' Nil))) 3 `shouldBe` anyException
+      do return (nthElement (Cons 'a' (Cons 'b' (Cons 'c' Nil))) 3) `shouldThrow` anyException
 
   describe "Problem 02-4 : removeFirst" $ do
     it ("removeFirst 'a' (Cons 'a' (Cons 'b' (Cons 'c' Nil))) = Cons 'b' (Cons 'c' Nil)") $
@@ -63,50 +63,45 @@ spec = hspec $ do
     it ("treeToList (...) = ...") $
       do treeToList
           (Node 'F'
-	     (Node 'B' (Node 'A' Empty Empty)
-	               (Node 'D' (Node 'C' Empty Empty) (Node 'E' Empty Empty)))
-	     (Node 'G' Empty (Node 'I' (Node 'H' Empty Empty) Empty)))
+            (Node 'B' (Node 'A' Empty Empty)
+                       (Node 'D' (Node 'C' Empty Empty) (Node 'E' Empty Empty)))
+             (Node 'G' Empty (Node 'I' (Node 'H' Empty Empty) Empty)))
             `shouldBe` Cons 'F' (Cons 'B' (Cons 'A' (Cons 'D' (Cons 'C'
-	                  (Cons 'E' (Cons 'G' (Cons 'I' (Cons 'H' Nil))))))))
+                          (Cons 'E' (Cons 'G' (Cons 'I' (Cons 'H' Nil))))))))
 
   describe "Problem 04-1 : environment" $ do
     it ("Example environment - 1") $
-      do apply_env example_env "x" `shouldBe` (NumVal 1)
+      do apply_env example_env "x" `shouldBe` (Num_Val 1)
 
     it ("Example environment - 2") $
-      do apply_env example_env "y" `shouldBe` (NumVal 2)
+      do apply_env example_env "y" `shouldBe` (Num_Val 2)
 
     it ("Example environment - 3") $
-      do apply_env example_env "z" `shouldBe` (BoolVal True)
+      do apply_env example_env "z" `shouldBe` (Bool_Val True)
 
   describe "Problem 04-2 : empty_env, apply_env, extend_env" $ do
     it ("Example environment - 1") $
-      do apply_env (extend_env "z"
-                     (extend_env "y"
-		       (extend_env "x" (NumVal 1) empty_env)
-		          (NumVal 2))
-			      (BoolVal True)) "x" `shouldBe` (NumVal 1)
+      do apply_env (extend_env "z" (Bool_Val True)
+                     (extend_env "y" (Num_Val 2)
+                       (extend_env "x" (Num_Val 1) empty_env))) "x"
+                              `shouldBe` (Num_Val 1)
 
     it ("Example environment - 1") $
-      do apply_env (extend_env "z"
-                     (extend_env "y"
-		       (extend_env "x" (NumVal 1) empty_env)
-		          (NumVal 2))
-			      (BoolVal True)) "y" `shouldBe` (NumVal 2)
+      do apply_env (extend_env "z" (Bool_Val True)
+                     (extend_env "y" (Num_Val 2)
+                       (extend_env "x" (Num_Val 1) empty_env))) "y" 
+                              `shouldBe` (Num_Val 2)
 
     it ("Example environment - 1") $
-      do apply_env (extend_env "z"
-                     (extend_env "y"
-		       (extend_env "x" (NumVal 1) empty_env)
-		          (NumVal 2))
-			      (BoolVal True)) "z" `shouldBe` (BoolVal True)
+      do apply_env (extend_env "z" (Bool_Val True)
+                     (extend_env "y" (Num_Val 2)
+                       (extend_env "x" (Num_Val 1) empty_env))) "z"
+                              `shouldBe` (Bool_Val True)
 
     it ("Example environment - 1") $
-      do apply_env (extend_env "z"
-                     (extend_env "y"
-		       (extend_env "x" (NumVal 1) empty_env)
-		          (NumVal 2))
-			      (BoolVal True)) "k" `shouldBe` anyException
+      do return (apply_env (extend_env "z" (Bool_Val True)
+                     (extend_env "y" (Num_Val 2)
+                       (extend_env "x" (Num_Val 1) empty_env))) "k") `shouldThrow` anyException
 
 
   describe "Problem 05-1 : Lambda calculus expressions" $ do
