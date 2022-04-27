@@ -3,6 +3,7 @@ module Main where
 import MidExam
 import Test.Hspec
 
+import Control.Exception 
 import Data.Maybe (isJust)
 import System.IO (readFile)
 
@@ -42,8 +43,8 @@ spec = hspec $ do
     it ("nthElement (Cons 7 (Cons 3 (Cons 9 Nil))) 2 = 9") $
       do nthElement (Cons 7 (Cons 3 (Cons 9 Nil))) 2 `shouldBe` 9
 
-    it ("nthElement (Cons 'a' (Cons 'b' (Cons 'c' Nil))) 3 = error") $
-      do return (nthElement (Cons 'a' (Cons 'b' (Cons 'c' Nil))) 3) `shouldThrow` anyException
+    it ("nthElement (Cons 'a' (Cons 'b' (Cons 'c' Nil))) 3 = index out of range!") $
+      do return (nthElement (Cons 'a' (Cons 'b' (Cons 'c' Nil))) 3 :: Char) `shouldThrow` errorCall "index out of range!"
 
   describe "Problem 02-4 : removeFirst" $ do
     it ("removeFirst 'a' (Cons 'a' (Cons 'b' (Cons 'c' Nil))) = Cons 'b' (Cons 'c' Nil)") $
@@ -101,7 +102,7 @@ spec = hspec $ do
     it ("Example environment - 1") $
       do return (apply_env (extend_env "z" (Bool_Val True)
                      (extend_env "y" (Num_Val 2)
-                       (extend_env "x" (Num_Val 1) empty_env))) "k") `shouldThrow` anyException
+                       (extend_env "x" (Num_Val 1) empty_env))) "k") `shouldThrow` errorCall "variable not found!"
 
 
   describe "Problem 05-1 : Lambda calculus expressions" $ do
@@ -123,7 +124,7 @@ spec = hspec $ do
       do occurFree "x" (Var_exp "y") `shouldBe` False
 
     it ("occurFree - 3") $
-      do occurFree "x" (Lambda_exp "y" (App_exp (Var_exp "x") (Var_exp "y"))) `shouldBe` False
+      do occurFree "x" (Lambda_exp "x" (App_exp (Var_exp "x") (Var_exp "y"))) `shouldBe` False
 
     it ("occurFree - 4") $
       do occurFree "x" (Lambda_exp "y" (App_exp (Var_exp "x") (Var_exp "y"))) `shouldBe` False

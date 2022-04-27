@@ -98,7 +98,7 @@ concatList = error "TODO: implement a concatList function"
 --                  = 'b' 
 --
 --                  nthElement (Cons 'a' (Cons 'b' (Cons 'c' Nil))) 3
---                  ===> error!!
+--                  ===> index out of range!
 --
 --                  nthElement (Cons 7 (Cons 3 (Cons 9 Nil))) 2
 --                  = 9
@@ -209,7 +209,7 @@ example_env = error "TODO write an example environment"
 --                  = Num_Val 2
 --
 --                  apply_env example_env "a"
---                  ===> error!
+--                  ===> variable not found!
 --
 
 empty_env :: Env
@@ -271,7 +271,7 @@ example_lcexp1 = error "TODO: write Lc_exp for \f g x -> f x (g x)"
 --
 --    Does x occurrs free in \x -> x y? no!
 --
---         occurFree "x" (Lambda_exp "y"
+--         occurFree "x" (Lambda_exp "x"
 --                           (App_exp
 --                               (Var_exp "x")
 --                               (Var_exp "y"))) = False
