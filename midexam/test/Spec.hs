@@ -87,19 +87,19 @@ spec = hspec $ do
                        (extend_env "x" (Num_Val 1) empty_env))) "x"
                               `shouldBe` (Num_Val 1)
 
-    it ("Example environment - 1") $
+    it ("Example environment - 2") $
       do apply_env (extend_env "z" (Bool_Val True)
                      (extend_env "y" (Num_Val 2)
                        (extend_env "x" (Num_Val 1) empty_env))) "y" 
                               `shouldBe` (Num_Val 2)
 
-    it ("Example environment - 1") $
+    it ("Example environment - 3") $
       do apply_env (extend_env "z" (Bool_Val True)
                      (extend_env "y" (Num_Val 2)
                        (extend_env "x" (Num_Val 1) empty_env))) "z"
                               `shouldBe` (Bool_Val True)
 
-    it ("Example environment - 1") $
+    it ("Example environment - 4") $
       do evaluate (apply_env (extend_env "z" (Bool_Val True)
                      (extend_env "y" (Num_Val 2)
                        (extend_env "x" (Num_Val 1) empty_env))) "k") `shouldThrow` errorCall "variable not found!"
@@ -114,6 +114,8 @@ spec = hspec $ do
 
     it ("Example lcexp1 - 3") $
       do occurFree "g" example_lcexp1 `shouldBe` False
+
+    -- Todo: Need to refine this testcase!!
 
 
   describe "Problem 05-2 : occursFree for lambda calculus expressions" $ do
