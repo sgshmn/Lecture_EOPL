@@ -2,8 +2,8 @@
 
 -- [MID-TERM EXAMINATION]
 --
---  - Solve the problems, and submit <midexamp-0.1.0.0.tar.gz> to E-class!
---    (문제를 풀고 <midexampl-0.1.0.0.tar.gz>를 E-class에 제출하면 됩니다.)
+--  - Solve the problems, and submit <midexamp-0.1.1.0.tar.gz> to E-class!
+--    (문제를 풀고 <midexampl-0.1.1.0.tar.gz>를 E-class에 제출하면 됩니다.)
 --
 --  - You are only required to rewrite <error "TODO" ...> in Main.hs, and
 --    do not modify anything elsewhere.
@@ -13,7 +13,7 @@
 --
 --  - $ stack sdist
 --    ...
---    Wrote sdist tarball to /home/khchoi/work/lecture/pl/exams/midexam/.stack-work/dist/x86_64-linux-tinfo6/Cabal-3.4.1.0/midexam-0.1.0.0.tar.gz
+--    Wrote sdist tarball to /home/khchoi/work/lecture/pl/exams/midexam/.stack-work/dist/x86_64-linux-tinfo6/Cabal-3.4.1.0/midexam-0.1.1.0.tar.gz
 --                                                                                                                      ^^^^^^^^^^^^^^^^^^^^^^^^
 --    ...
 --
