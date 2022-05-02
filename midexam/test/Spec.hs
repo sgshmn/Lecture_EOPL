@@ -44,7 +44,7 @@ spec = hspec $ do
       do nthElement (Cons 7 (Cons 3 (Cons 9 Nil))) 2 `shouldBe` 9
 
     it ("nthElement (Cons 'a' (Cons 'b' (Cons 'c' Nil))) 3 = index out of range!") $
-      do return (nthElement (Cons 'a' (Cons 'b' (Cons 'c' Nil))) 3 :: Char) `shouldThrow` errorCall "index out of range!"
+      do evaluate (nthElement (Cons 'a' (Cons 'b' (Cons 'c' Nil))) 3 :: Char) `shouldThrow` errorCall "index out of range!"
 
   describe "Problem 02-4 : removeFirst" $ do
     it ("removeFirst 'a' (Cons 'a' (Cons 'b' (Cons 'c' Nil))) = Cons 'b' (Cons 'c' Nil)") $
@@ -100,7 +100,7 @@ spec = hspec $ do
                               `shouldBe` (Bool_Val True)
 
     it ("Example environment - 1") $
-      do return (apply_env (extend_env "z" (Bool_Val True)
+      do evaluate (apply_env (extend_env "z" (Bool_Val True)
                      (extend_env "y" (Num_Val 2)
                        (extend_env "x" (Num_Val 1) empty_env))) "k") `shouldThrow` errorCall "variable not found!"
 
