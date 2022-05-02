@@ -1,0 +1,447 @@
+\documentclass{article}
+\usepackage{fleqn}
+\usepackage{epsf}
+\usepackage{aima2e-slides}
+\usepackage{graphicx}
+\usepackage{listings}
+
+\usepackage[landscape]{geometry}
+
+%\usepackage{amsmath}
+\usepackage{amssymb}
+
+\newcommand{\mm}{\!\!-\!\!}
+\newcommand{\prompt}{$> \ $}
+\newcommand{\rep}[1]{\ulcorner #1 \urcorner}
+
+\begin{document}
+
+\begin{huge}
+\titleslide{Chapter 7. Types \\ (Essentials of Programming Languages)}{Kwanghoon Choi \\ \ \\ Software Languages and Systems Laboratory\\ Chonnam National University}
+
+\sf
+
+%%%%%%%%%%%% Slide %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\heading{Outline}
+
+This chapter discusses how to use the same technology as for building interpreters to analyze or predict the behavior of 
+programs without running them through type analysis.
+
+\blob Values and Their Types
+
+\blob Assigning a Type to an Expression
+
+\blob CHECKED: A Type-Checked Language
+
+\blob INFERRED: A Language with Type Inference
+
+%%%%%%%%%%%% Slide %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\heading{Introduction}
+
+Our goal is to analyze a program to predict whether evaluation of a program is safe without certain kinds of errors.
+
+In LETREC, an evaluation is {\it safe} if and only if
+\begin{itemize}
+\item For every evaluation of a variable, the variable is bound.
+\item For every evaluation of (diff-exp exp1 exp2), the values of exp1 and exp2 are both num-vals.
+\item For every evaluation of (zero?-exp exp1), the value of exp1 is a num-val.
+\item For every evaluation of (if-exp exp1 exp2 exp3), the value of exp1 is a bool-val.
+\item For every evaluation of (call-exp rator rand), the value of rator is a proc-val.
+\end{itemize}
+
+%%%%%%%%%%%% Slide %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\heading{Introduction (Cont.)}
+
+These conditions assert that each operator is performed only on operands of the correct type. 
+
+Violations of these conditions are called {\it type errors}.
+
+A safe evaluation may still fail by divide-by-zero, taking the car of an empty list, nontermination, etc. 
+\begin{itemize}
+\item Predicting safety for these conditions is much harder than guaranteeing the conditions in the previous slide
+\end{itemize}
+
+%%%%%%%%%%%% Slide %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\heading{Introduction (Cont.)}
+
+Our goal is to write a procedure that looks at the program text and either accepts or rejects it. 
+(cf. The soundness of a type analysis)
+
+\begin{lstlisting}[language=Lisp]
+if 3 then 88 else 99
+proc (x) (3 x)
+proc (x) (x 3)
+proc (f) proc (x) (f x)
+let x = 4 in (x 3)
+(proc (x) (x 3) 4)
+let x = zero?(0) in -(3, x)
+(proc (x) -(3,x) zero?(0))
+let f = 3 in proc (x) (f x)
+(proc (f) proc (x) (f x) 3)
+letrec f(x) = (f -(x,-1)) in (f 1)
+\end{lstlisting}
+
+%%%%%%%%%%%% Slide %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\heading{7.1 Values and Their Types}
+
+Since the safety conditions talk only about num-val, bool-val, and proc-val, one might think that it would be enough to
+keep track of these three types. But that is not enough. \al
+- e.g., (f 1)
+
+A finer information about procedures is needed. Therefore, the type structure of LETREC is: \al
+Type ::= int \fbox{int-type ()} \al
+Type ::= bool \fbox{bool-type ()} \al
+Type ::= (Type $\rightarrow$ Type) \fbox{proc-type (arg-type result-type)}
+
+See examples of values and their types in the next slide.
+
+Q. Explain differences between the two kinds of function type, proc-val and Type $\rightarrow$ Type.
+
+%%%%%%%%%%%% Slide %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\heading{7.1 Values and Their Types (Cont.)} 
+
+Examples: The value of an expression {\it exp} has type {\it ty}.
+
+\begin{tabular}{l | l | l} 
+& an expression & has type \\ \hline 
+&  3 &  int \\
+& -(33, 22) & int \\
+& zero? (11) & bool \\
+& proc (x) - (x,11) & (int $\rightarrow$ int) \\
+The & proc (x) let y = -(x,11) in -(x,y) & (int $\rightarrow$ int) \\
+value & proc (x) if x then 11 else 22 &  (bool $\rightarrow$ int) \\
+of & proc (x) if x then 11 else zero? (11) &  no type \\
+& proc (x) proc (y) if y then x else 11 &  (int $\rightarrow$ (bool $\rightarrow$ int)) \\
+& proc (f) (f 3) & ((int $\rightarrow$ t) $\rightarrow$ t) \\
+& proc (f) proc (x) (f (f x)) & ((t $\rightarrow$ t) $\rightarrow$ (t $\rightarrow$ t)) \\ \hline
+& & for any type t
+\end{tabular}
+
+   
+%%%%%%%%%%%% Slide %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\heading{7.1 Values and Their Types (Cont.)}
+
+``{\it An expressed value v is of type t}" is defined by induction on t:
+\begin{itemize}
+\item v is of type int if and only if v is a num-val.
+\item v is of type bool if and only if v is a bool-val.
+\item v is of type (t1 $\rightarrow$ t2) if and only if v is a proc-val with the property that if
+it is given an argument of type t1, then one of the following things happens:
+\begin{itemize}
+\item[1.] it returns a value of type t2
+\item[2.] it fails to terminate
+\item[3.] it fails with an error other than a type error.
+\end{itemize} 
+\end{itemize}
+
+``v has type t" instead of ``v is of type t"
+
+Some value can be of more than one type, and some value can have no type.
+
+%%%%%%%%%%%% Slide %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\heading{7.1 Values and Their Types (Cont.)}
+
+``{\it An environment env is of type tenv}" is defined as
+\begin{itemize}
+\item env=[x1=val1, ..., xn=valn]
+\item tenv=[x1=t1, ..., xn=tn]
+\item val1 is of type t1, ..., valn is of type tn.
+\end{itemize}
+
+Then env is said to {\it respect} tenv. 
+
+%%%%%%%%%%%% Slide %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\heading{7.2 Assigning a Type to an Expression}
+
+In order to analyze programs, we write a procedure {\it type-of} that takes an expression and predicts the type of its value.
+\begin{itemize}
+\item (type-of exp tenv) = t
+\item tenv: a type environment mapping each variable to a type
+\item t: a type assigned to the expression with the property that 
+whenever exp is evaluated in an environment respecting tenv, one of the following happens
+\begin{itemize}
+\item the resulting value v has type t
+\item the evaluation does not terminate, or 
+\item the evaluation fails on an error other than a type error.
+\end{itemize}
+\end{itemize}
+
+Well-typed expression, ill-typed expression
+
+%%%%%%%%%%%% Slide %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\heading{7.2 Assigning a Type to an Expression (Cont.)}
+
+Simple typing rules
+
+(type-of (const-exp num) tenv) = int
+
+(type-of (var-exp var) tenv) = tenv (var)
+
+\begin{tabular}{c}
+(type-of exp1 tenv) = int \\ \hline
+(type-of (zero?-exp exp1) tenv) = bool
+\end{tabular}
+
+\begin{tabular}{c}
+(type-of exp1 tenv) = int \ \ \ (type-of exp2 tenv) = int  \\ \hline
+(type-of (diff-exp exp1 exp2) tenv) = int
+\end{tabular}
+
+\begin{tabular}{c}
+(type-of exp1 tenv) = t1 \ \ \ (type-of body [var=t1]tenv) = t2  \\ \hline
+(type-of (let-exp var exp1 body) tenv) = t2
+\end{tabular}
+
+%%%%%%%%%%%% Slide %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\heading{7.2 Assigning a Type to an Expression (Cont.)}
+
+Simple typing rules (Cont.)
+
+\begin{tabular}{c}
+(type-of exp1 tenv) = bool  \\
+(type-of exp2 tenv) = t \\
+(type-of exp3 tenv) = t \\ \hline
+(type-of (if-exp exp1 exp2 exp3) tenv) = t
+\end{tabular}
+
+\begin{tabular}{c}
+(type-of rator tenv) = (t1$\rightarrow$t2) \ \ \ (type-of rand tenv) = t1  \\ \hline
+(type-of (call-exp rator rand) tenv) = t2
+\end{tabular}
+
+\begin{tabular}{c}
+(type-of body [var=t1]tenv) = t2  \\ \hline
+(type-of (proc-exp var body) tenv) = (t1$\rightarrow$t2)
+\end{tabular}
+
+%%%%%%%%%%%% Slide %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\heading{7.2 Assigning a Type to an Expression (Cont.)}
+
+How can we find the type t1 in the typing rule for procedure expression?
+
+\begin{tabular}{c}
+(type-of body [var=t1]tenv) = t2  \\ \hline
+(type-of (proc-exp var body) tenv) = (t1$\rightarrow$t2)
+\end{tabular}
+
+Two standard designs for resolving this problem are type checking and type inference.
+\begin{itemize}
+\item Type checking: Programmers supply the missing type information
+\item Type inference: Type checkers attempt to infer the missing type information based on how the variables are used in the program.
+\end{itemize}
+
+
+%%%%%%%%%%%% Slide %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\heading{7.3 CHECKED: A Type-Checked Language}
+
+CHECKED = LETREC + the programmer's annotation of the types of all bound variables
+
+Examples
+\begin{lstlisting}
+proc (x : int) - (x,1)
+
+letrec 
+ int double (x : int) = 
+       if zero? (x) then 0 
+       else -((double -(x,1)), -2)
+in double
+
+proc (f : (bool->int)) 
+  proc (n : int) 
+    (f zero? (n))
+\end{lstlisting}
+
+
+%%%%%%%%%%%% Slide %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\heading{7.3 CHECKED: A Type-Checked Language (Cont.)}
+
+The syntax \al
+Expression ::= proc (Identifier : Type) Expression 
+         \fbox{proc-exp (var ty body)} \al
+Expression ::=  \al
+        \ \ \ letrec Type Identifier (Identifier : Type) = \al
+        \ \ \ Expression in Expression \al
+        \ \ \ \ \ \  \fbox{letrec-exp (p-result-type p-name b-var b-var-type p-body letrec-body)}
+
+%%%%%%%%%%%% Slide %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\heading{7.3 CHECKED: A Type-Checked Language (Cont.)}
+
+Typing ``proc (var : t1) body":
+
+\begin{tabular}{c}
+(type-of body [var=t1]tenv) = t2  \\ \hline
+(type-of (proc-exp var t1 body) tenv) = (t1$\rightarrow$t2)
+\end{tabular}
+
+\ \\
+
+Typing ``letrec t2 p (var : t1) procbody in letrecbody"
+
+\begin{tabular}{c}
+(type-of procbody [var=t1][p=t1$\rightarrow$t2]tenv) = t2  \\ 
+(type-of letrecbody [p=t1$\rightarrow$t2]tenv]) = t \\ \hline
+(type-of (letrec-exp t2 p var t1 procbody lterecbody) tenv) = t
+\end{tabular}
+
+%%%%%%%%%%%% Slide %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\heading{7.3 CHECKED: A Type-Checked Language (Cont.)}
+
+An implementation of type-of-program and type-of in Figure 7.1, 7.2, 7.3. with auxiliary 
+functions \al
+- check-equal-type! \al
+- report-unequal-type \al
+- type-to-external-form
+
+%%%%%%%%%%%% Slide %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\heading{7.4 INFERRED: A Language with Type Inference}
+
+Writing down the types in the program is helpful for documentation, but it can be time-consuming.
+
+Another design is to have the compiler figure out the types of all the variables, based on
+\begin{itemize}
+\item how the variables are used, and
+\item utilizing any hints the programmers might give
+\end{itemize}
+
+$\Rightarrow$ Type inference 
+
+%%%%%%%%%%%% Slide %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\heading{7.4 INFERRED: A Lang. with Type Inf. (Cont.)}
+
+Examples
+\begin{lstlisting}
+letrec
+ ? foo (x : ?) = if zero? (x)
+       then 1
+       else -(x, (foo -(x,1)))
+in foo
+
+letrec
+ ? even (x : int) = 
+     if zero?(x) then 1 else (odd -(x,1))
+ bool odd (x : >) = 
+    if zero?(x) then 0 else (even -(x,1))
+in (odd 13)
+\end{lstlisting}
+
+%%%%%%%%%%%% Slide %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\heading{7.4 INFERRED: A Lang. with Type Inf. (Cont.)}
+
+To specify this syntax of optional type, a new grammar is:
+\begin{itemize}
+\item Optional-type ::= ? \fbox{no-type ()}
+\item Optional-type ::= Type \fbox{a-type (ty)}
+\item Expression ::= proc (Identifier : Optional-type) Expression \\
+         \fbox{proc-exp (var otype body)}
+\item Expression ::= letrec Optional-type Identifier (Identifier : Optional-type) = Expression in Expression \\
+         \fbox{letrec-exp (p-result-otype p-name b-var b-var-otype p-body letrec-body)}
+\end{itemize}
+
+%%%%%%%%%%%% Slide %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\heading{7.4 INFERRED: A Lang. with Type Inf. (Cont.)}
+
+The omitted types are treated as unknowns that we need to find. 
+
+We traverse the abstract syntax tree and generate equations between these types, possibly including these unknowns. 
+
+We then solve the equations for the unknown types.
+
+%%%%%%%%%%%% Slide %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\heading{7.4 INFERRED: A Lang. with Type Inf. (Cont.)}
+
+In other words, to infer the type of an expression, 
+\begin{itemize}
+\item we'll introduce a type variable for every subexpression and every bound variable,
+\item generate the constraints for each subexperssion, and then 
+\item solve the resulting equations.
+\end{itemize}
+
+%%%%%%%%%%%% Slide %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\heading{7.4 INFERRED: A Lang. with Type Inf. (Cont.)}
+
+For each type rule, there are some equations that must hold between the types of subexpressions.
+
+\begin{tabular}{l l l}
+$(diff-exp \ e_1 \ e_2)$ & : & $t_{e_1} = int$, $t_{e_2} =int$, $t_{(diff-exp \ e_1 \ e_2)} = int$ \\
+$(zero?-exp \ e_1)$ & : & $t_{e_1}=int$, $t_{zero?-exp \ e_1}=bool$ \\
+$(proc-exp \ var \ body)$ & : & $t_{(proc-exp \ var \ body)} = (t_{var} \rightarrow t_{body})$ \\
+$(call-exp \ rator \ rand)$ & : & $t_{rator} = (t_{rand} \rightarrow t_{(call-exp \ rator \ rand)})$
+\end{tabular}
+
+%%%%%%%%%%%% Slide %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\heading{7.4 INFERRED: A Lang. with Type Inf. (Cont.)}
+
+Examples for Type Inference: 
+\begin{itemize}
+\item proc (f) proc (x) -((f 3), (f x))
+\begin{itemize}
+\item substitution
+\end{itemize}
+\item proc (f) (f 11)
+\begin{itemize}
+\item polymorphism
+\end{itemize}
+\item if x then -(x,1) else 0
+\begin{itemize}
+\item inconsistent types
+\end{itemize}
+\item proc (f) zero? ((f f))
+\begin{itemize}
+\item occurrence check
+\end{itemize}
+\end{itemize}
+
+%%%%%%%%%%%% Slide %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\heading{7.4.1 Substitutions}
+
+A substitution is a set of equations where the left-hand sides are all variables.
+
+Type Expressions \al
+Type ::= \%tvar-type Number \fbox{tvar-type (serial-number)}
+
+Basic operations on type expressions
+\begin{itemize}
+\item
+(apply-one-subst ty0 tvar ty1): the type obtained by substituting ty1 for every occurrence of tvar in ty0
+\item
+(apply-subst-to-type ty subst): the type obtained by replacing each type variable by its binding in the substitution
+\end{itemize}
+
+Constructors for substitutions
+\begin{itemize}
+\item (empty-subst), (extend-subst subst tvar ty)
+\end{itemize}
+
+%%%%%%%%%%%% Slide %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\heading{7.4.2 The Unifier}
+
+(unifier t1 t2 subst)
+returns another substitution subst', which is the smallest extension of subst satisfying (subst' t1 = subst' t2).
+
+\begin{itemize}
+\item It applies subst to ty1 and ty2 resulting in ty1' and ty2'.
+\item If ty1' is equal to ty2',  it returns subst.
+\item If ty1' is a type variable that does not occur in ty2', it returns (extend-subst subst ty1 ty2)
+\item If ty2' is a type variable that does not occur in ty1', it returns (extend-subst subst ty2 ty1)
+\item If neither ty1' nor ty2' is a type variable, we analyze the substructure of these types further.
+\begin{itemize}
+\item If both of ty1' and ty2 are int or bool, return subst.
+\item If ty1'=ty1'' $\rightarrow$ ty1''', ty2'= ty2'' $\rightarrow$ ty2''', 
+(unifier ty1'' ty2'' (unifier ty1''' ty2''' subst))
+\end{itemize}
+\end{itemize}
+
+%%%%%%%%%%%% Slide %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\heading{7.4.3 Finding the Type of an Expression}
+
+We convert optional types to types with unknowns by defining a fresh type variable for each ? using otype-\textgreater type.
+
+(type-of exp tenv subst) = (ty, subst') \al
+: Figure 7.6, 7.7, 7.8, and 7.9
+
+For testing type inference, a way of comparison of two types in external form is needed. \al
+: e.g., tvar1 -\textgreater tvar1 is considered equal to tvar2 -\textgreater tvar2
+
+\end{huge} 
+\end{document}
+

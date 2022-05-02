@@ -1,0 +1,964 @@
+\documentclass{article}
+\usepackage{fleqn}
+\usepackage{epsf}
+\usepackage{aima2e-slides}
+\usepackage{graphicx}
+\usepackage{listings}
+
+\usepackage[landscape]{geometry}
+
+%\usepackage{amsmath}
+\usepackage{amssymb}
+
+\newcommand{\mm}{\!\!-\!\!}
+\newcommand{\prompt}{$> \ $}
+\newcommand{\rep}[1]{\ulcorner #1 \urcorner}
+
+\begin{document}
+
+\begin{huge}
+\titleslide{Chapter 5. Continuation-Passing Interpreters \\ (Essentials of Programming Languages)}{Kwanghoon Choi \\ \ \\ Software Languages and Systems Laboratory\\ Chonnam National University}
+
+\sf
+
+%%%%%%%%%%%% Slide %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\heading{Outline}
+
+The concept of environment in Ch.3 establishes the data context of program execution, 
+and the concept of {\it continuation} here does the control context of program execution.
+
+\blob A Continuation-Passing Interpreters
+
+\blob A Trampolined Interpreter
+
+\blob An Imperative Interpreter
+
+\blob Exceptions
+
+\blob Threads
+
+%%%%%%%%%%%% Slide %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\heading{Introduction: Data Context}
+
+Data context \al
+- What is the value of a given variable in this context? \al
+
+\begin{lstlisting}[language=Lisp]
+(let ((x 3)                    { }
+      (y 4)) 
+  (+ (let ((x (+ y 5)))        {x=3, y=4}
+           (* x y))            {x=9, y=4}
+       x))
+\end{lstlisting}
+
+The concept of environment sets the data context of program execution.
+
+%%%%%%%%%%%% Slide %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\heading{Introduction: Control Context}
+
+Control context \al
+- Where do the program execute in the next? \al
+
+\begin{lstlisting}[language=Lisp]
+(define fact 
+    (lambda (n) 
+        (if (zero? n) 1 (* n (fact (- n 1))))))
+        
+  (fact 3)                     [ ]
+= (* 3 (fact 2))               (*3 [ ])
+= (* 3 (* 2 (fact 1)))         (*3 (* 2 [ ]))
+= (* 3 (* 2 (* 1 (fact 0))))   (*3 (*2 (* 1 [ ])))
+= (* 3 (* 2 (* 1 1)))
+= (* 3 (* 2 1))
+= (* 3 2)
+= 6
+\end{lstlisting}
+
+%%%%%%%%%%%% Slide %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\heading{Introduction: Control Context (Cont.)}
+
+Control context \al
+- Where do the program execute in the next? 
+\begin{lstlisting}[language=Lisp]
+(define fact-iter 
+   (lambda (n) 
+       (fact-iter-acc n 1)))
+(define fact-iter-acc
+   (lambda (n a)
+    (if (zero? n) a (fact-iter-acc (- n 1) (* n a)))))
+        
+  (fact-iter 3)                [ ]
+= (fact-iter-acc 3 1)          [ ]  
+= (fact-iter-acc 2 3)          [ ]
+= (fact-iter-acc 1 6)          [ ] 
+= (fact-iter-acc 0 6)          [ ]
+= 6
+\end{lstlisting}
+
+\heading{Introduction: Control Context (Cont.)}
+
+In the two examples of control contexts,
+{\it it is evaluation of operands, not the calling of procedures, that makes the control context grow.}
+
+Expressions with a hole (e.g., [ ] , (*3 [ ]), and (*3 (*2 []))) are 
+called {\it continuation}, which captures control context. 
+
+Continuation is also called as the rest of the computation.
+
+%%%%%%%%%%%% Slide %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\heading{Introduction: Control Context (Cont.)}
+
+Continuation as an abstraction of the control context \al
+\ \al
+\begin{tabular}{| c | c | l |} \hline
+Concepts & Program Execution Context &  \\ \hline \hline
+Environment & Data Context & in Ch.3 \\ \hline
+Continuation & Control Context & in this chapter \\ \hline
+\end{tabular}
+
+In this chapter, we will learn how to track and manipulate control contexts.
+
+Our central tool will be the data type of continuations.
+   
+%%%%%%%%%%%% Slide %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\heading{5.1 A Continuation-Passing Interpreters}
+
+In our new interpreter, the major procedures such as value-of will take a third parameter, the {\it continuation}, \al
+- which is intended to be an abstraction of the control context where each expression is evaluated.
+
+Beginning with an interpreter of LETREC (Fig. 5.1), the main goal is to rewrite it so that no calls to value-of builds control context.
+
+The continuation of an expression represents a procedure that takes the result of the expression
+and completes the (rest of ) computation. 
+
+Two interfaces for continuations (Cont) \al
+- apply-cont : Cont $\times$ ExpVal $\rightarrow$ FinalAnswer (i.e., ExpVal) \al
+- end-cont $\in$ Cont : (apply-cont end-cont val) = val
+
+%%%%%%%%%%%% Slide %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\heading{5.1 A Continuation-Passing Interpreters (Cont.)}
+
+value-of/k : Exp $\times$ Env $\times$ Cont $\rightarrow$ FinalAnswer \al
+- (lambda (exp env cont) ... )
+
+The main goal is to rewrite the LETREC interpreter (Fig. 5.1) with value-of/k 
+so that no call to value-or builds control context. \al
+
+For zero? expression:
+\begin{lstlisting}
+(define value-of
+ (lambda (exp env) 
+  (cases expression exp 
+   (zero?-exp (exp1) 
+     (let ((num1 (expval-> (value-of exp1 env))))
+       (if (zero? num1) (bool-val #t) (bool-val #f)))
+         ... )))
+\end{lstlisting}
+
+%%%%%%%%%%%% Slide %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\heading{5.1 A Continuation-Passing Interpreters (Cont.)}
+
+For zero? expression (cont.): 
+\begin{lstlisting}[escapeinside={(*}{*)}]
+(define value-of/k
+ (lambda (exp env (*\bfseries cont*)) 
+  (cases expression exp 
+   (zero?-exp (exp1) 
+     (value-of/k exp1 env 
+        (zero1-cont cont))
+              ... )))
+         
+(apply-cont ((*\bfseries zero1-cont*) cont) (*\bfseries val*))
+= (apply-cont cont
+     (bool-val 
+       (zero? (expval->num val))))
+\end{lstlisting}
+
+%%%%%%%%%%%% Slide %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\heading{5.1 A Continuation-Passing Interpreters (Cont.)}
+
+Const, variable, and procedure are expressions that are already values. No further evaluation is needed to get a result value from each. 
+
+For const, variable, and procedure:
+\begin{lstlisting}
+(define value-of
+ (lambda (exp env) 
+  (cases expression exp 
+    (const-exp (num) (num-val num))
+    (var-exp (var) (apply-env env var))
+    (proc-exp (var body) 
+       (proc-val (procedure var body env)))
+    ... )))
+\end{lstlisting}
+
+The expression value gets returned to the control context by applying cont to itself. 
+
+%%%%%%%%%%%% Slide %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\heading{5.1 A Continuation-Passing Interpreters (Cont.)}
+
+For const, variable, and procedure:
+\begin{lstlisting}[escapeinside={(*}{*)}]
+(define value-of/k
+ (lambda (exp env (*\bfseries cont*)) 
+  (cases expression exp 
+    (const-exp (num) 
+      ((*\bfseries apply-cont cont*) (num-val num)))
+    (var-exp (var) 
+      ((*\bfseries apply-cont cont*) (apply-env env var)))
+    (proc-exp (var body) 
+       ((*\bfseries apply-cont cont*) (proc-val 
+         (procedure var body env))) )
+    ... )))
+\end{lstlisting}
+
+%%%%%%%%%%%% Slide %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\heading{5.1 A Continuation-Passing Interpreters (Cont.)}
+
+Control context will grow when the let bound expression is evaluated. \al
+- This is where a continuation is needed to be introduced.
+
+For let expression:
+\begin{lstlisting}
+(define value-of
+ (lambda (exp env) 
+  (cases expression exp 
+   (let-exp (var exp1 body) 
+     (let ((val1 (value-of exp1 env)))
+       (value-of body (extend-env var val1 env))))
+         ... )))
+\end{lstlisting}
+
+%%%%%%%%%%%% Slide %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\heading{5.1 A Continuation-Passing Interpreters (Cont.)}
+
+let-exp-cont is introduced. \al
+- it takes a value for the let variable, and \al
+- it continues to evaluate the body of the let expression
+
+For let expression (cont.): 
+\begin{lstlisting}[escapeinside={(*}{*)}]
+(define value-of/k
+ (lambda (exp env (*\bfseries cont*)) 
+  (cases expression exp 
+   (let-exp (var exp1 body) 
+     ((*\bfseries value-of/k*) exp1 env
+      ((*\bfseries let-exp-cont*) var body env cont))
+         ... )))
+         
+(apply-cont ((*\bfseries let-exp-cont*) var body env cont) (*\bfseries val*))
+= (value-of/k body (extend-env var val env) cont)
+\end{lstlisting}
+
+%%%%%%%%%%%% Slide %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\heading{5.1 A Continuation-Passing Interpreters (Cont.)}
+
+Question. Do we need to introduce a continuation for letrec expression as well?
+
+For letrec expression:
+\begin{lstlisting}
+(define value-of
+ (lambda (exp env) 
+  (cases expression exp 
+   (letrec-exp (p-name b-var p-body letrec-body) 
+     (value-of letrec-body
+       (extend-env-rec p-name b-var p-body env)))
+         ... )))
+\end{lstlisting}
+
+%%%%%%%%%%%% Slide %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\heading{5.1 A Continuation-Passing Interpreters (Cont.)}
+
+value-of for letrec expression is in tail position where control context does not grow.
+
+For letrec expression:
+\begin{lstlisting}[escapeinside={(*}{*)}]
+(define value-of/k
+ (lambda (exp env (*\bfseries cont*)) 
+  (cases expression exp 
+   (letrec-exp (p-name b-var p-body letrec-body) 
+     ((*\bfseries value-of/k*) letrec-body
+       (extend-env-rec p-name b-var p-body env)) (*\bfseries cont*))
+         ... )))
+\end{lstlisting}
+
+%%%%%%%%%%%% Slide %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\heading{5.1 A Continuation-Passing Interpreters (Cont.)}
+For diff-exp and call-exp, more than one continuation is needed to be introduced.
+
+Question. Explain the reason.
+
+For difference expression:
+\begin{lstlisting}
+(define value-of
+ (lambda (exp env) 
+  (cases expression exp 
+   (diff-exp (exp1 exp2) 
+     (value-of letrec-body
+       (let ((num1 (expval->num (value-of exp1 env))) 
+             (num2 (expval->num (value-of exp2 env))) 
+          (num-val (- num1 num2)))))
+         ... )))
+\end{lstlisting}
+
+%%%%%%%%%%%% Slide %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\heading{5.1 A Continuation-Passing Interpreters (Cont.)}
+For difference expression:
+
+\begin{lstlisting}[escapeinside={(*}{*)}]
+(define value-of/k
+ (lambda (exp env (*\bfseries cont*)) 
+  (cases expression exp 
+   (diff-exp (exp1 exp2) 
+     (value-of/k exp1 env 
+        (diff1-cont exp2 env cont)))  ... )))
+         
+(apply-cont ((*\bfseries diff1-cont*) exp2 env cont) (*\bfseries val1*))
+= (value-of/k exp2 env (diff2-cont val1 cont))         
+(apply-cont ((*\bfseries diff2-cont*) val1 cont) (*\bfseries val2*))
+= (num-val (- num1 num2))  
+\end{lstlisting}
+  
+Question. Explain the relationship among the three continuations above: cont, (diff1-cont exp2 env cont), and (diff2-cont val1 cont). 
+
+%%%%%%%%%%%% Slide %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\heading{5.1 A Continuation-Passing Interpreters (Cont.)}
+
+Trace examples using value-of/k in Page 149, 150, and152. \al
+with an example, -( -(44, 11) , 3 )
+
+For procedure call expression, explain what continuations are needed to introduced. \al
+- (call-exp (rator rand))
+
+%%%%%%%%%%%% Slide %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\heading{5.2 A Trampolined Interpreters}
+
+In most procedural languages, writing the interpreter is difficult because the implementation adds to the control context (the stack) 
+on every procedure call instead of growing control context only when necessary.
+
+Question. Recall that when it is necessary to grow control context.
+
+Question. Read the textbook to understand two reasons that most procedural languages are designed to add to the control context
+on every procedure call.
+
+A solution to resolve the difficulty in writing interpreters \al
+- Trampolining
+
+%%%%%%%%%%%% Slide %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\heading{5.2 A Trampolined Interpreters (Cont.)}
+
+Trampolining : To avoid having an unbounded chain of procedure calls, we break the chain by having
+one of the procedures in the interpreter actually return a zero-argument procedure.
+
+value-of/k is redesigned to return either an ExpVal or a zero-argument procedure \al
+- Bounce ::= ExpVal \ \ + \ \ () $\rightarrow$ Bounce
+
+\begin{lstlisting}[escapeinside={(*}{*)}]
+(define trampoline
+ (lambda (bounce)
+  (if (expval? bounce) 
+   bounce 
+   (trampoline (*\bfseries (bounce)*))))) 
+\end{lstlisting}
+
+%%%%%%%%%%%% Slide %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\heading{5.2 A Trampolined Interpreters (Cont.)}
+
+The {\it contracts} of all the procedures in the trampolined interpreter are reviewed to be satisfied. \al
+- In value-of-program : \al
+\ \ \ (trampoline (value-of/k exp (init-env) (end-cont))) \al
+- value-of/k : \al 
+\ \ \ Exp $\times$ Env $\times$ Cont $\rightarrow$ FinalAnswer \al
+\ \ \ changes to Exp $\times$ Env $\times$ Cont $\rightarrow$ Bounce \al
+- apply-cont : \al
+\ \ \ Cont $\times$ ExpVal $\rightarrow$ FinalAnswer \al
+\ \ \ changes to Cont $\times$ ExpVal $\rightarrow$ Bounce \al
+- and so on
+
+%%%%%%%%%%%% Slide %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\heading{5.3 An Imperative Interpreter}
+
+Assignment to shared variables  can somtimes be used in place of binding. (c.f. Sec. 4.2.3)
+
+For example, we rewrite the following mutually recursive functions even and odd
+\begin{lstlisting}
+letrec
+ even(x) = if zero?(x) then 1 else (odd sub1 (x))
+ odd(x) = if zero?(x) then 0 else (even sub1 (x))
+in (odd 13)
+\end{lstlisting}
+
+into one with a shared variable x in place of passing it as an argument.
+
+This rewritten program will then be shown to produce the same trace as the original program does.
+
+%%%%%%%%%%%% Slide %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\heading{5.3 An Imperative Interpreter (Cont.)}
+
+Version 1:
+\begin{lstlisting}
+letrec
+ even(x) = if zero?(x) then 1 else (odd sub1 (x))
+ odd(x) = if zero?(x) then 0 else (even sub1 (x))
+in (odd 13)
+\end{lstlisting}
+
+Version 2:
+\begin{lstlisting}
+let x = 0 in
+letrec  even() = if zero?(x) then 1 
+                 else let d = set x = sub1 (x) 
+                      in (odd)
+        odd() = if zero?(x) then 0 
+                 else let d = set x = sub1 (x) 
+                      in (even)
+in let d = set x = 13 in (odd)
+\end{lstlisting}
+
+%%%%%%%%%%%% Slide %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\heading{5.3 An Imperative Interpreter (Cont.)}
+Version 2:
+\begin{lstlisting}
+let x = 0 in
+letrec  even() = if zero?(x) then 1 
+                 else let d = set x = sub1 (x) 
+                      in (odd)
+        odd() = if zero?(x) then 0 
+                 else let d = set x = sub1 (x) 
+                      in (even)
+in let d = set x = 13 in (odd)
+\end{lstlisting}
+Version 3:
+\begin{lstlisting}
+      x = 13;
+      goto odd;
+even: if (x=0) then return(1) else { x = x-1; goto odd; }
+odd: if (x=0) then return(0) else { x = x-1; goto even; } 
+\end{lstlisting}
+
+%%%%%%%%%%%% Slide %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\heading{5.3 An Imperative Interpreter (Cont.)}
+
+In version 1, the procedure bodies look for x in the environment whereas version 2 look for it in the store.
+
+Version 1, 2 and 3 all have the same trace of the computation 
+\begin{lstlisting}
+  (odd 13)
+= (even 12)
+= (odd 11)
+...
+= (odd 1)
+= (even 0)
+= 1
+\end{lstlisting}
+
+The 3rd interpretation is the trace of gotos (called a flowchart program), in which we keep track of the location of the program counter and the contents of the register x.
+
+%%%%%%%%%%%% Slide %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\heading{5.3 An Imperative Interpreter (Cont.)}
+
+This transformation works only because the original code the calls to even and odd do not grow any control context; they are tail calls. 
+
+A 0-argument tail call is the same as a jump!
+
+If a group of procedures call each other only by tail calls, \\
+ then we can translate the calls to use assignment instead of binding, \\
+ and then we can translate such an assignment program into a flowchart program. 
+
+%%%%%%%%%%%% Slide %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\heading{5.3 An Imperative Interpreter (Cont.)}
+
+A group of procedures \al
+- (value-of/k exp evn cont) \al
+- (apply-cont cont val) \al
+- (apply-procedure/k proc1 val cont)
+
+Five global registers \al
+- exp, env, cont, val,  proc1
+
+Then we can systematically go through each of our four procedures (including value-of-program) and perform this transformation. \al
+- Each of the three procedures above will be replaced by a zero-argument one. 
+(value-of/k), (apply-cont), (apply-procedure/k)
+
+Each call to one of these procedures will be replaced by code: \al
+- It shares the value of each actual parameter in the corresponding register and then invokes the new zero-argument proceudre.
+
+%%%%%%%%%%%% Slide %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\heading{5.3 An Imperative Interpreter (Cont.)}
+
+\begin{lstlisting}
+(define value-of/k (lambda (exp env cont)
+  (cases expression exp
+     (const-exp (num) 
+        (apply-cont cont (num-val num))) ... )))
+\end{lstlisting}
+$\Rightarrow$
+\begin{lstlisting}
+(define value-of/k (lambda ()
+    (cases expression exp
+        (const-exp (num)
+          (set! cont cont)
+          (set! val (num-val num))
+          (apply-cont)) ... )))
+\end{lstlisting}
+
+The result of this translation is shown in Figures 5.11- 5.14. \al
+
+%%%%%%%%%%%% Slide %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\heading{5.3 An Imperative Interpreter (Cont.)}
+
+Registerization: a process to translate a continuation-passing interpreter into an imperative language that supports gotos.
+
+%%%%%%%%%%%% Slide %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\heading{5.4 Exceptions}
+
+So far we have used continuations only to manage the ordinary flow of control in our languages.
+
+But continuations allow us to alter the control context as well. 
+
+{\it Exception handling} will be added to our defined language. \al
+Expression :: = try Expression catch (Identifier) Expression \al
+\ \ \ \ \ \ \ \  \fbox{try-exp (exp1 var handler-exp)} \al
+Expression ::= raise Expression\al
+\ \ \ \ \ \ \ \  \fbox{raise-exp (exp)} 
+
+
+%%%%%%%%%%%% Slide %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\heading{5.4 Exceptions (Cont.)}
+
+Examples using exceptions
+
+\begin{lstlisting}
+let list-index = 
+  proc (str) 
+     letrec inner (lst)
+        = if null? (lst) 
+           then raise (``List Index Failed'')
+           else if string-equal? (car (lst), str) 
+                  then 0
+                  else -((inner cdr (lst)), -1)
+\end{lstlisting}
+
+%%%%%%%%%%%% Slide %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\heading{5.4 Exceptions (Cont.)}
+
+Examples using exceptions (cont.)
+
+\begin{lstlisting}
+let find-member-number =
+   proc (member-name)
+     ...
+       try ((list-index member-name) member-list)
+       catch (exn)
+           raise (``Can't Find Member Number'')
+\end{lstlisting}
+
+%%%%%%%%%%%% Slide %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\heading{5.4 Exceptions (Cont.)}
+
+Implementing this exception handling mechanism using the continuation-passing interpreter is straightforward.
+
+1) When the body of the try expression returns normally:
+\begin{lstlisting}
+(try-exp (exp1 var handler-exp)
+   (value-of/k exp1 env
+        (try-cont var handler-exp env cont)))
+\end{lstlisting}
+
+\begin{lstlisting}
+(apply-cont (try-cont var handler-exp env cont) val)
+= (apply-cont cont val)
+\end{lstlisting}
+
+%%%%%%%%%%%% Slide %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\heading{5.4 Exceptions (Cont.)}
+
+2) When the body of the try expression returns an exception (val):
+
+\begin{lstlisting}
+(apply-cont (raise1-cont cont) val)
+= (apply-handler val cont)
+\end{lstlisting}
+
+We attempt to find the closest exception handler and applies it.
+\begin{lstlisting}
+(define apply-handler (lambda (val cont)
+  (cases continuation cont
+    (try-cont (var handler-exp saved-env saved-cont)
+      (value-of/k handler-exp 
+        (extend-env var val saved-env) saved-cont))
+    (end-cont () report-uncaught-exception))
+    (diff1-cont (exp2 saved-env saved-cont) 
+      (apply-handler val saved-cont))
+    ... ))
+\end{lstlisting}
+
+%%%%%%%%%%%% Slide %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\heading{5.4 Exceptions (Cont.)}
+
+Example:
+
+\begin{lstlisting}
+let index = proc (n) 
+  letrec inner (lst) = if null? (lst)
+    then raise 99 else
+     if zero? (- (car (lst), n)) then 0 else 
+      -((inner cdr (lst)), -1)
+  in proc (lst)
+     try (inner lst) catch (x) -1
+in ((index 5) list (2, 3))
+\end{lstlisting}
+
+%%%%%%%%%%%% Slide %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\heading{5.5 Threads}
+
+Threads : multiple computations running in the same address space. 
+
+Goal: To modify our interpreter to simulate the execution of multithreaded programs communicating through a single shared memory.
+
+The entire computation in our system consists of a pool of threads. \al
+- Each thread is running, runnable, or blocked. \al
+- The runnable threads will be kept on a ready queue. \al
+- Exactly on thread is running \al
+- Threads that are not ready to be run are blocked
+
+Threads are scheduled for execution by a scheduler with the ready queue and a timer \al
+- A thread completes a certain number of steps, and then \al
+- it is interrupted and put back on the ready queue, and \al
+- a new thread is selected from the ready queue to run
+
+%%%%%%%%%%%% Slide %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\heading{5.5 Threads (Cont.)}
+
+The three main topics on threads
+\begin{itemize}
+\item Creation of a new thread (spawn)
+\item No busy-wait (mutex, wait, signal)
+\item No interferences by synchronization (mutex, wait, signal)
+\end{itemize}
+
+
+%%%%%%%%%%%% Slide %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\heading{5.5 Threads (Cont.)}
+
+A new language THREADS extending IMPLICIT-REFS \al
+- new threads are created by a construct called {\it spawn}
+
+1) Two non-cooperating therads
+\begin{lstlisting}
+letrec 
+ noisy (l) = if null?(l) then 0 else 
+    begin print (car (l)); (noisy cdr (l)) end
+in begin
+ spawn (proc (d) (noisy [1,2,3,4,5]));
+ spawn (proc (d) (noisy [6,7,8,9,10]));
+ print (100);
+ 33
+end
+\end{lstlisting}
+
+%%%%%%%%%%%% Slide %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\heading{5.5 Threads (Cont.)}
+
+2) Producer and consumer, linked by a buffer
+\begin{lstlisting}
+let buffer = 0 in
+let producer = proc (n) 
+ letrec
+  wait (k) = if zero?(k) then set buffer = n 
+         else begin print (-(k,-200)); (wait -(k,1)) end
+ in (wait 5)
+let consumer = proc (d) 
+ letrec
+  busywait (k) = if zero?(buffer) then
+     begin print (-(k,-100)); (busywait -(k,-1)) end
+   else buffer
+ in (busywait 0)
+in begin spawn (proc (d) (producer 44)); print (300);
+     (consumer 96) end
+\end{lstlisting}
+
+%%%%%%%%%%%% Slide %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\heading{5.5 Threads (Cont.)}
+
+Implementation of an interpreter using a scheduler \al
+- cf. a continuation-passing interpreter for IMPLICIT-REFS
+
+The scheduler keeps a state of four values: \al
+- the ready-queue, the-final-answer, \al
+- the-max-time-slice, the-time-remaining
+
+The scheduler provides six interfaces: \al
+- initialize-scheduler!, place-on-ready-queue!,  run-next-thread, \al
+- time-expired?, decrement-timer!, set-final-answer!
+
+Q. Explain where each of the six interfaces is used.
+
+A thread is represented by a Scheme procedure of no arguments that returns an expressed value: \al
+- Thread = () $\rightarrow$ ExpVal
+
+%%%%%%%%%%%% Slide %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\heading{5.5 Threads (Cont.)}
+
+A spawn expression evaluates its argument in a continuation which, when executed, places a new thread on the ready queue and continues.
+
+\begin{lstlisting}
+(value-of/k exp env cont
+ (case expression exp 
+  ...
+  (spawn-exp (exp1) 
+   (value-of/k exp env (spawn-cont cont)) ... )))
+\end{lstlisting}
+
+The definition of spawn-cont is in the next slide.
+
+%%%%%%%%%%%% Slide %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\heading{5.5 Threads (Cont.)}
+The new thread is placed on the ready queue and we continue our computation (saved-cont).
+
+\begin{lstlisting}
+(define apply-cont
+ (lambda (cont val)
+  ...
+  (case continuation cont
+  ...
+   (spawn-cont (saved-cont) 
+    (let ((proc1 (expval-proc val)))
+     (place-on-ready-queue!
+      (lambda ()
+       (apply-procedure/k proc1
+        (num-val 28)
+        (end-subthread-cont))))
+     (apply-cont saved-cont (num-val 73)))) ... )))
+\end{lstlisting}
+
+%%%%%%%%%%%% Slide %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\heading{5.5 Threads (Cont.)}
+
+Two new ending continuations: \al
+- the main thread runs with a continuation that records the value of the main thread as the final answer. \al
+- When the subthread finishes, we do not report its value. \al
+
+\begin{lstlisting}
+(end-main-thread-cont ()
+ (set-final-answer! val)
+ (run-next-thread))
+ 
+ (end-subthread-cont ()
+  (run-next-thread))
+\end{lstlisting}
+
+%%%%%%%%%%%% Slide %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\heading{5.5 Threads (Cont.)}
+The entire system starts with value-of-program which first initializes the scheduler and then runs an expression with end-main-thread-cont.
+
+\begin{lstlisting}
+(define value-of-program
+ (lambda (timeslice pgm)
+  (initialize-store!)
+  (initialize-scheduler! timesclie)
+  (cases program pgm
+   (a-program (exp1)
+    (value-of/k 
+     exp1
+     (init-env)
+     (end-main-thread-cont))))))
+\end{lstlisting}
+
+%%%%%%%%%%%% Slide %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\heading{5.5 Threads (Cont.)}
+
+apply-cont is modified to decrement the timer each time it is called. 
+If the timer has expired, the then current computation is suspended.
+
+\begin{lstlisting}
+(define apply-cont
+ (lambda (cont val)
+  (if (time-expreid?)
+  
+   (begin
+    (place-on-ready-queue!
+     (lambda () (apply-cont cont val)))
+    (run-next-thread))
+    
+   (begin
+    (decrement-timer!)
+    (case continuation cont
+     ...   )))))
+\end{lstlisting}
+
+%%%%%%%%%%%% Slide %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\heading{5.5 Threads: Synchronization}
+
+Shared variables are an unreliable method of communication because serveral threads may try to write to the same variable.
+
+\begin{lstlisting}
+let x = 0
+in let incr_x = proc (id)
+                 proc (dummy)
+                  set x = -(x, 1)
+in begin
+  spawn ((incr_x 100));
+  spawn ((incr_x 200));
+  spawn ((incr_x 300))
+end             
+\end{lstlisting}
+
+Q. Interferences among threads
+
+%%%%%%%%%%%% Slide %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\heading{5.5 Threads: Synchronization (Cont.)}
+
+A synchronization facility to ensure that \al
+- no race condition: no interferences occur and \al
+- no busy-wait as in the consumer example
+
+Instead of busy-wait, the program should be able to put itself to sleep and be awakened when the procedure has inserted a value in the shared buffer.
+
+
+%%%%%%%%%%%% Slide %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\heading{5.5 Threads: Synchronization (Cont.)}
+
+Mutex (short for mutual exclusion) or binary semaphore
+
+A mutex is either open or closed. It contains a queue of threads that are waiting for the mutex to become open. 
+
+Three operations on mutex \al
+- mutex: to create an initial open mutex \al
+- wait: to try to access to a mutex given as its argument \al
+- signal: to release a mutex given as its argument \al
+
+It is guaranteed that only one thread can execute between a successive pair of calls to wait and signal. \al
+- critical region
+
+%%%%%%%%%%%% Slide %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\heading{5.5 Threads: Synchronization (Cont.)}
+
+A safe counter using a mutex
+\begin{lstlisting}
+let x = 0
+in let mut = mutex ()
+in let incr_x = proc (id)
+                 proc (dummy)
+                  begin
+                   wait(mut);
+                   set x = -(x, 1)
+                   signal (mut)
+                  end
+in begin
+  spawn ((incr_x 100));
+  spawn ((incr_x 200));
+  spawn ((incr_x 300))
+end             
+\end{lstlisting}
+
+%%%%%%%%%%%% Slide %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\heading{5.5 Threads: Synchronization (Cont.)}
+
+A mutex is modeled as two references: one to its state (either open or closed)
+
+\begin{lstlisting}
+(define-datatype mutex mutex?
+ (a-mutex
+  (ref-to-closed? reference?)
+  (ref-to-wait-queue reference?)))
+\end{lstlisting}
+
+- ref-to-closed? : \#t or \#f 
+
+- ref-to-wait-queue : a list of procedures representing threads
+
+Mutexs are made one of expressed values.
+
+The three new operations on mutex \al
+- mutex, wait, and signal over the two references (See P.187)
+
+%%%%%%%%%%%% Slide %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\heading{5.5 Threads: Synchronization (Cont.)}
+
+In value-of/k, three new cases for mutex-exp, wait-exp, and signal-exp:
+\begin{lstlisting}
+(value-of/k exp env cont
+ (case expression exp 
+  ...
+   (mutex-exp ()
+    (apply-cont cont (mutex-val (new-mutex))))
+   (wait-exp (exp1)
+    (value-of/k exp1 env (wait-cont cont)))
+   (signal-exp (exp1)
+    (value-of/k exp1 env (signal-cont cont)))
+  ... ))
+\end{lstlisting}
+
+The definitions of wait-cont and signal-cont are in the next slides.
+
+%%%%%%%%%%%% Slide %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\heading{5.5 Threads: Synchronization (Cont.)}
+
+\begin{lstlisting}
+(wait-exp (exp1)
+ (value-of/k exp1 env (wait-cont cont)))
+
+(define apply-cont
+ (lambda (cont val)
+  ...
+    (case continuation cont
+    
+     (wait-cont (saved-cont)
+      (wait-for-mutex
+       (expval-mutex val)
+       (lambda () (apply-cont saved-cont (num-val 52)))))
+     ... )))
+ \end{lstlisting}
+ 
+ See the def. of wait-for-mutex in Figure 5.22.
+   
+%%%%%%%%%%%% Slide %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\heading{5.5 Threads: Synchronization (Cont.)}
+\begin{lstlisting}
+(signal-exp (exp1)
+ (value-of/k exp1 env (signal-cont cont))
+
+(define apply-cont
+ (lambda (cont val)
+  ...
+    (case continuation cont
+    
+     (signal-cont (saved-cont)
+      (singla-mutex
+       (expval-mutex val)
+       (lambda () (apply-cont saved-cont (num-val 53)))))
+    ... )))
+\end{lstlisting}
+ 
+ See the def. of signal-mutex in Figure 5.22.
+ 
+%%%%%%%%%%%% Slide %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\heading{5.5 Threads: Synchronization (Cont.)}
+ 
+mutex
+\begin{itemize}
+\item It takes no arguments and creates an initially open mutex.
+\end{itemize}
+
+wait 
+\begin{itemize}
+\item If the mutex is closed, the current thread gets into the mutex's wait queue,
+and is suspended. ({\it blocked})
+\item If the mutex is open, it becomes closed and the current thread continues to run.
+\end{itemize}
+
+%%%%%%%%%%%% Slide %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\heading{5.5 Threads: Synchronization (Cont.)}
+
+signal
+\begin{itemize}
+\item If the mutex is closed and no threads wait on the queue, then the mutex
+becomes open and the current thread proceeds.
+\item If the mutex is closed and some threads are on the queue, then one of them
+is put on the scheduler's ready queue, and the mutex remains closed.
+\item The thread that executed the signal continues to compute 
+\end{itemize}
+
+
+\end{huge} 
+\end{document}
