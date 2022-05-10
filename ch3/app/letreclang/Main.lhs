@@ -47,3 +47,12 @@
 >        parserSpec ((), 1, 1, text)           -- into a program in abstract syntax tree (Expr)
 >        (aLexer lexerSpec)
 >        (fromToken (endOfToken lexerSpec))
+
+> run text = do 
+>   expression <- parser text
+> 
+>   putStrLn (show expression)
+>
+>   let val = value_of_program expression      -- interpreter
+>   putStrLn (show val)
+
