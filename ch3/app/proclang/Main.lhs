@@ -41,3 +41,9 @@
 >   let val = value_of_program expression
 >   putStrLn (show val)
 
+> parser text = do
+>     parsing False                            -- parser converting a text-based program
+>        parserSpec ((), 1, 1, text)           -- into a program in abstract syntax tree (Expr)
+>        (aLexer lexerSpec)
+>        (fromToken (endOfToken lexerSpec))
+>

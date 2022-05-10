@@ -138,9 +138,9 @@ Chapter 1. Inductive Sets of Data
 
 > type Identifier = String
 > 
-> data LcExp = Var Identifier
->            | Lam Identifier LcExp
->            | App LcExp LcExp
+> data LcExp = Var Identifier                           --  ex)   x                     in Haskell
+>            | Lam Identifier LcExp                     --  ex)   \x -> x         
+>            | App LcExp LcExp                          -- ex0   \f g x -> [f x ] [ (g x)]
 
 
 - Induction

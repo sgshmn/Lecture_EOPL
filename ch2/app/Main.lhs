@@ -527,3 +527,16 @@ Exercise 2.27
    ghci> unparse (unparse_lc_exp (parse_expression (fst (read_from_tokens (tokenize "(lambda (x) (lambda (y) ((lambda (x) (x y)) x)))")))))
    "(lambda (x) (lambda (y) ((lambda (x) (x y)) x)))"
 
+instance Environment a where
+  empty_env  = []
+  apply_env  = \env x -> head [v | (y,v) <- env, x==y]
+  extend_env = \x v env -> (x,v):env
+
+> empty_env_list :: Eq a => [(String,a)]
+> empty_env_list  = []
+>
+> apply_env_list :: Eq a => [(String,a)] -> String -> a
+> apply_env_list  = \env x -> head [v | (y,v) <- env, x==y]
+>
+> extend_env_list :: Eq a => String -> a -> [(String,a)] -> [(String,a)]
+> extend_env_list = \x v env -> (x,v):env

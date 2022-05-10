@@ -31,13 +31,18 @@
 >   let debugFlag = False
 >         
 >   expression <-
->     parsing debugFlag
->        parserSpec ((), 1, 1, text)
+>     parsing debugFlag                        -- parser converting a text-based program
+>        parserSpec ((), 1, 1, text)           -- into a program in abstract syntax tree (Expr)
 >        (aLexer lexerSpec)
 >        (fromToken (endOfToken lexerSpec))
   
 >   putStrLn (show expression)
 >
->   let val = value_of_program expression
+>   let val = value_of_program expression      -- interpreter
 >   putStrLn (show val)
 
+> parser text = do
+>     parsing False                            -- parser converting a text-based program
+>        parserSpec ((), 1, 1, text)           -- into a program in abstract syntax tree (Expr)
+>        (aLexer lexerSpec)
+>        (fromToken (endOfToken lexerSpec))
