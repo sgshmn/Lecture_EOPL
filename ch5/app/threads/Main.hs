@@ -39,6 +39,20 @@ doProcess verbose fileName = do
   
   putStrLn (show expression)
 
-  let val = value_of_program expression
+  let val = value_of_program expression timeslice
   putStrLn (show val)
 
+parser text = do
+    parsing False                            -- parser converting a text-based program
+       parserSpec ((), 1, 1, text)           -- into a program in abstract syntax tree (Expr)
+       (aLexer lexerSpec)
+       (fromToken (endOfToken lexerSpec))
+
+timeslice = 5
+
+run text = do 
+  expression <- parser text
+
+  putStrLn (show expression)
+  let val = value_of_program expression timeslice     -- interpreter
+  putStrLn (show val)

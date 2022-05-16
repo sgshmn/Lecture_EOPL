@@ -41,9 +41,18 @@ parserSpec = ParserSpec
       rule "Expression -> let identifier = Expression in Expression"
         (\rhs -> return $ Let_Exp (getText rhs 2) (get rhs 4) (get rhs 6)),
 
-      rule "Expression -> letrec identifier ( identifier ) = Expression in Expression"
-        (\rhs -> return $ Letrec_Exp (getText rhs 2) (getText rhs 4) (get rhs 7) (get rhs 9)),
+      rule "Expression -> letrec ArbiNumberOfUnaryProcs in Expression"
+        (\rhs -> let Letrec_Exp recbinds _ = get rhs 2 in
+                   return $ Letrec_Exp recbinds (get rhs 4)),
 
+      rule "ArbiNumberOfUnaryProcs -> identifier ( identifier ) = Expression"
+        (\rhs -> return $ Letrec_Exp [ (getText rhs 1, getText rhs 3, get rhs 6) ] undefined),
+
+      rule "ArbiNumberOfUnaryProcs -> identifier ( identifier ) = Expression ArbiNumberOfUnaryProcs"
+        (\rhs -> let recbind = (getText rhs 1, getText rhs 3, get rhs 6)
+                     Letrec_Exp theRest body = get rhs 7
+                 in  return $ Letrec_Exp (recbind:theRest) body),
+      
       rule "Expression -> proc ( identifier ) Expression"
         (\rhs -> return $ Proc_Exp (getText rhs 3) (get rhs 5)),
 
@@ -104,20 +113,14 @@ parserSpec = ParserSpec
         (\rhs -> return $ Unary_Exp Cdr (get rhs 3)),
 
       rule "Expression -> print ( Expression )"
-        (\rhs -> return $ Unary_Exp Print (get rhs 3)),
-
-      rule "Expression -> try Expression catch ( identifier ) Expression"   -- Leave this!
-        (\rhs -> return $ Try_Exp (get rhs 2) (getText rhs 5) (get rhs 7)),
-
-      rule "Expression -> raise Expression"                                 -- Leave this!
-        (\rhs -> return $ Raise_Exp (get rhs 2))
+        (\rhs -> return $ Unary_Exp Print (get rhs 3))
     ],
     
     baseDir        = "./",
-    actionTblFile  = "action_table_letreclang.txt",
-    gotoTblFile    = "goto_table_letreclang.txt",
-    grammarFile    = "prod_rules_letreclang.txt",
-    parserSpecFile = "mygrammar_letreclang.grm",
+    actionTblFile  = "action_table_threadslang.txt",
+    gotoTblFile    = "goto_table_threadslang.txt",
+    grammarFile    = "prod_rules_threadslang.txt",
+    parserSpecFile = "mygrammar_threadslang.grm",
     genparserexe   = "yapb-exe"
   }
 

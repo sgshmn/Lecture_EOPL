@@ -24,44 +24,44 @@ lexerSpec = LexerSpec
         ("\\)"     , mkFn CLOSE_PAREN),
         ("\\,"     , mkFn COMMA),
         
-        ("zero\\?" , mkFn ISZERO),
-
-        ("if"      , mkFn IF),
-        ("then"    , mkFn THEN),
-        ("else"    , mkFn ELSE),
-        
-        ("letrec"  , mkFn LETREC),
-
-        ("let"     , mkFn LET),
         ("\\="     , mkFn EQ),
         
-        ("proc"    , mkFn PROC),
-        
-        ("begin"   , mkFn BEGIN),
-        ("end"     , mkFn END),
         (";"       , mkFn SEMICOLON),
 
-        ("set"     , mkFn SET),
-        
-        ("spawn"   , mkFn SPAWN),
-        ("yield"   , mkFn YIELD),
-        ("mutex"   , mkFn MUTEX),
-        ("wait"    , mkFn WAIT),
-        ("signal"  , mkFn SIGNAL),
-        
         ("\\["     , mkFn OPEN_BRACKET),
         ("\\]"     , mkFn CLOSE_BRACKET),
-        ("null\\?"   , mkFn ISNULL),
-        ("car"     , mkFn CAR),
-        ("cdr"     , mkFn CDR),
-        ("print"   , mkFn PRINT),
 
-        ("try"     , mkFn TRY),
-        ("catch"   , mkFn CATCH),
-        ("raise"   , mkFn RAISE),
+        -- identifiers ending with a symbol
+        ("zero\\?" , mkFn ISZERO),
+        ("null\\?"   , mkFn ISNULL),
         
-        ("in[ \t\n]"      , mkFn IN),
-        
-        ("[a-zA-Z][a-zA-Z0-9]*"    , mkFn IDENTIFIER)
+        ("[a-zA-Z][a-zA-Z0-9]*"    , keywordOrIdentifier)
       ]
   } 
+
+keywordOrIdentifier text =
+  case lookup text keywords of
+    Nothing  -> mkFn IDENTIFIER text
+    Just tok -> mkFn tok text
+
+keywords =
+  [ ("if",     IF)
+  , ("then",   THEN)
+  , ("else",   ELSE)
+  , ("letrec", LETREC)
+  , ("let",    LET)
+  , ("proc",   PROC)
+  , ("begin",  BEGIN)
+  , ("end",    END)
+  , ("set",    SET)
+  , ("spawn",  SPAWN)
+  , ("yield",  YIELD)
+  , ("mutex",  MUTEX)
+  , ("wait",   WAIT)
+  , ("signal", SIGNAL)
+  , ("car",    CAR)
+  , ("cdr",    CDR)
+  , ("print",  PRINT)
+  , ("in",     IN)
+  ]
+  

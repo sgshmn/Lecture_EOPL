@@ -81,7 +81,10 @@ executable threads-exe
       Interp
       Lexer
       Parser
+      Queue
       Ref
+      Scheduler
+      Semaphores
       Token
       Paths_ch5
   hs-source-dirs:

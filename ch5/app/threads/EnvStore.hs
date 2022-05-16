@@ -3,6 +3,7 @@ module EnvStore where
 import Ref (Location)
 import Expr (Identifier,Exp)
 import Data.List(intersperse)
+import Queue
 
 -- Environment
 data Env =
@@ -33,25 +34,46 @@ extend_env_rec idIdExpList env = Extend_env_rec idIdExpList env
 
 -- Expressed values
 data ExpVal =
-    Num_Val {expval_num :: Int}
-  | Bool_Val {expval_bool :: Bool}
-  | Proc_Val {expval_proc :: Proc}
-  | List_Val {expval_list :: [ExpVal]}
+    Num_Val   {expval_num  :: Int}
+  | Bool_Val  {expval_bool :: Bool}
+  | Proc_Val  {expval_proc :: Proc}
+  | List_Val  {expval_list :: [ExpVal]}
+  | Mutex_Val {expval_mutex :: Mutex } -- Mutex {Loc to Bool, Loc to Queue Thread}
+  | Queue_Val {expval_queue :: Queue Thread}  -- (newref queue); newref takes an Expval arg!
 
 instance Show ExpVal where
   show (Num_Val num)   = show num
   show (Bool_Val bool) = show bool
   show (Proc_Val proc) = show "<proc>"
   show (List_Val nums) = show "[" ++ concat (intersperse "," (map show nums)) ++ show "]"
+  show (Mutex_Val mutex) = show mutex
 
--- Denoted values
-otype DenVal = Location
+type FinalAnswer = ExpVal 
+
+-- Denoted values   
+type DenVal = Location
 
 -- Procedure values : data structures
 data Proc = Procedure {var :: Identifier, body :: Exp, saved_env :: Env}
 
 procedure :: Identifier -> Exp -> Env -> Proc
 procedure var body env = Procedure var body env
+
+-- Mutex values : boolean and thread queue
+data Mutex = Mutex Location Location -- binary semaphores: Loc to Bool, Loc to (Queue Thread)
+             deriving Show
+
+-- Threads
+type Thread = Store -> SchedState -> (FinalAnswer, Store)
+
+-- Scheduler states
+data SchedState =
+  SchedState {
+   the_ready_queue :: Queue Thread,
+   the_final_answer :: FinalAnswer,
+   the_max_time_slice :: Integer,
+   the_time_remaining :: Integer
+  }
 
 -- In Interp.hs
 -- apply_procedure :: Proc -> ExpVal -> ExpVal
