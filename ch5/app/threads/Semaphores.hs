@@ -20,13 +20,15 @@ wait_for_mutex mutex thread store sched =
       wait_queue = deref store ref_to_wait_queue
       q = expval_queue wait_queue
       q' = enqueue q thread
+      qval = Queue_Val q'
+      then_store' = setref store ref_to_wait_queue qval
 
       -- Else
-      store' = setref store ref_to_closed (Bool_Val True)
+      else_store' = setref store ref_to_closed (Bool_Val True)
   in
     if b
-    then run_next_thread store sched
-    else thread store' sched
+    then run_next_thread then_store' sched
+    else thread else_store' sched
 
 signal_mutex :: Mutex -> Thread -> Store -> SchedState -> (FinalAnswer, Store)
 signal_mutex mutex thread store sched = 

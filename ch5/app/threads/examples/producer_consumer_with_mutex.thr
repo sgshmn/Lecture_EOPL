@@ -3,7 +3,7 @@ in let   mut = mutex()
 in let
   producer = proc (n) 
               letrec 
-                loop(k) 
+                waitloop(k) 
                  = if zero?(k) 
                    then 
                     begin
@@ -13,9 +13,9 @@ in let
                    else 
                     begin
                         print(-(k,-200));
-                        (loop -(k,1))
+                        (waitloop -(k,1))
                     end
-              in (loop 5)
+              in (waitloop 5)
 in let consumer = proc (d)
                      begin
                       wait(mut);
@@ -28,4 +28,3 @@ in
   print(300);
   (consumer 86)
  end
-
