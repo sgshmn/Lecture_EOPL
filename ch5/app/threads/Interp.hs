@@ -6,7 +6,6 @@ module Interp where
 
 import Expr
 import EnvStore
-import Ref
 import Semaphores
 import Scheduler
 

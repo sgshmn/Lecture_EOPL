@@ -1,6 +1,5 @@
 module EnvStore where
 
-import Ref (Location)
 import Expr (Identifier,Exp)
 import Data.List(intersperse)
 import Queue
@@ -49,6 +48,9 @@ instance Show ExpVal where
   show (Mutex_Val mutex) = show mutex
 
 type FinalAnswer = ExpVal 
+
+-- Location
+type Location = Integer
 
 -- Denoted values   
 type DenVal = Location
