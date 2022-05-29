@@ -63,6 +63,7 @@ apply_cont (Raise1_Cont cont) val =
 
 
 
+apply_handler :: ExpVal -> Cont -> FinalAnswer
 apply_handler val (Try_Cont var handler_exp env saved_cont) =
   value_of_k handler_exp (extend_env var val env) saved_cont
 
@@ -86,6 +87,7 @@ apply_handler val (Rator_Cont exp env cont) = apply_handler val cont
 apply_handler val (Rand_Cont val1 cont) = apply_handler val cont
 
 
+apply_unop :: UnaryOp -> ExpVal -> ExpVal 
 apply_unop IsZero (Num_Val num)
   | num==0    = Bool_Val True
   | otherwise = Bool_Val False

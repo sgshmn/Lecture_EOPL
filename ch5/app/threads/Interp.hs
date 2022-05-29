@@ -121,8 +121,6 @@ apply_unop Print v = trace (show v) $ List_Val []  -- ???
 --
 value_of_k :: Exp -> Env -> Store -> SchedState -> Cont -> (FinalAnswer, Store)
 
--- Todo: decrement the timeslice!
-
 value_of_k (Const_Exp n) env store sched cont =
   apply_cont store sched cont (Num_Val n)
 
