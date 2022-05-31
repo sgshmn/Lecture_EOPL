@@ -575,11 +575,30 @@ Implementing this exception handling mechanism using the continuation-passing in
 2) When the body of the try expression returns an exception (val):
 
 \begin{lstlisting}
+(value-of-k (lambda (exp env cont) 
+   ...
+   (raise-exp (exp1)
+             (value-of/k exp1 env
+               (raise1-cont cont))) ... ))
+...
 (apply-cont (raise1-cont cont) val)
 = (apply-handler val cont)
 \end{lstlisting}
 
 We attempt to find the closest exception handler and applies it.
+
+%%%%%%%%%%%% Slide %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\heading{5.4 Exceptions (Cont.)}
+
+2) When the body of the try expression returns an exception (val): (Cont.)
+
+\begin{lstlisting}
+(apply-cont (raise1-cont cont) val)
+= (apply-handler val cont)
+\end{lstlisting}
+
+We attempt to find the closest exception handler and applies it.
+
 \begin{lstlisting}
 (define apply-handler (lambda (val cont)
   (cases continuation cont
