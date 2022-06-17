@@ -20,13 +20,13 @@ parser text = do
      (fromToken (endOfToken lexerSpec))
 
 run text = do
-  val <- runProg text
+  val <- runProg text True
   putStrLn (show val)
 
-runProg text = do 
+runProg text bool = do 
   expression <- parser text
 
-  putStrLn (show expression)
+  if bool then putStrLn (show expression) else return ()
   
   let val = value_of_program expression      -- interpreter
   return val 
