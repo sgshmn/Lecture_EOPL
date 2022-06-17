@@ -16,6 +16,7 @@ type Identifier = String
 data ExpVal =
     Num_Val {expval_num :: Int}
   | Bool_Val {expval_bool :: Bool}
+  deriving Eq               -- for testing
 
 instance Show ExpVal where
   show (Num_Val num)   = show num

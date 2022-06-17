@@ -12,6 +12,8 @@
 > import Control.Monad (when)
 > import System.IO
 > import System.Environment (getArgs, withArgs)
+>
+> import MainUtil
 > 
 > main :: IO ()
 > main =
@@ -41,16 +43,3 @@
 >   let val = value_of_program expression      -- interpreter
 >   putStrLn (show val)
 
-> parser text = do
->     parsing False                            -- parser converting a text-based program
->        parserSpec ((), 1, 1, text)           -- into a program in abstract syntax tree (Expr)
->        (aLexer lexerSpec)
->        (fromToken (endOfToken lexerSpec))
-
-> run text = do 
->   expression <- parser text
-> 
->   putStrLn (show expression)
->
->   let val = value_of_program expression      -- interpreter
->   putStrLn (show val)
