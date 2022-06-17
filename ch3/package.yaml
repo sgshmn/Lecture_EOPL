@@ -74,3 +74,27 @@ tests:
     - -with-rtsopts=-N
     dependencies:
     - ch3
+
+  proclang-test:
+    main:                Spec.hs
+    source-dirs:         
+    - test/proclang
+    - app/proclang
+    ghc-options:
+    - -threaded
+    - -rtsopts
+    - -with-rtsopts=-N
+    dependencies:
+    - ch3
+
+  letreclang-test:
+    main:                Spec.hs
+    source-dirs:         
+    - test/letreclang
+    - app/letreclang
+    ghc-options:
+    - -threaded
+    - -rtsopts
+    - -with-rtsopts=-N
+    dependencies:
+    - ch3

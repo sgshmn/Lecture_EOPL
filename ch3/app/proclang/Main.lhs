@@ -41,17 +41,17 @@
 >   let val = value_of_program expression
 >   putStrLn (show val)
 
-> parser text = do
->     parsing False                            -- parser converting a text-based program
->        parserSpec ((), 1, 1, text)           -- into a program in abstract syntax tree (Expr)
->        (aLexer lexerSpec)
->        (fromToken (endOfToken lexerSpec))
->
+-- > parser text = do
+-- >     parsing False                            -- parser converting a text-based program
+-- >        parserSpec ((), 1, 1, text)           -- into a program in abstract syntax tree (Expr)
+-- >        (aLexer lexerSpec)
+-- >        (fromToken (endOfToken lexerSpec))
+-- >
 
-> run text = do 
->   expression <- parser text
-> 
->   putStrLn (show expression)
->
->   let val = value_of_program expression      -- interpreter
->   putStrLn (show val)
+-- > run text = do 
+-- >   expression <- parser text
+-- > 
+-- >   putStrLn (show expression)
+-- >
+-- >   let val = value_of_program expression      -- interpreter
+-- >   putStrLn (show val)
