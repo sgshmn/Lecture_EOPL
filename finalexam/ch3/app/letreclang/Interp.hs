@@ -6,51 +6,40 @@ import Env
 --
 value_of :: Exp -> Env -> ExpVal
 
-value_of (Const_Exp n) env = Num_Val n
+value_of (Const_Exp n) env =
+  error "TODO: implement a value_of function"
 
-value_of (Var_Exp var) env = apply_env env var
+value_of (Var_Exp var) env =
+  error "TODO: implement a value_of function"
 
 value_of (Diff_Exp exp1 exp2) env =
-  let val1 = value_of exp1 env
-      val2 = value_of exp2 env
-
-      num1 = expval_num val1
-      num2 = expval_num val2
-  in  Num_Val (num1 - num2)
+  error "TODO: implement a value_of function"
   
 value_of (IsZero_Exp exp) env =
-  let val1 = value_of exp env in
-    let num1 = expval_num val1 in
-      if num1 == 0
-      then Bool_Val True
-      else Bool_Val False
+  error "TODO: implement a value_of function"
 
 value_of (If_Exp exp1 exp2 exp3) env =
-  let val1 = value_of exp1 env in
-    if expval_bool val1
-    then value_of exp2 env
-    else value_of exp3 env
+  error "TODO: implement a value_of function"
+
 
 value_of (Let_Exp var exp1 body) env =
-  let val1 = value_of exp1 env in
-    value_of body (extend_env var val1 env)
+  error "TODO: implement a value_of function"
 
 value_of (Letrec_Exp proc_name bound_var proc_body letrec_body) env =
-  value_of letrec_body (extend_env_rec proc_name bound_var proc_body env)
+  error "TODO: implement a value_of function"
 
 value_of (Proc_Exp var body) env =
-  Proc_Val (procedure var body env)
+  error "TODO: implement a value_of function"
 
 value_of (Call_Exp rator rand) env =
-  apply_procedure proc arg
-  where proc = expval_proc (value_of rator env)
-        arg  = value_of rand env
-  
+  error "TODO: implement a value_of function"
 
 --
 value_of_program :: Exp -> ExpVal
 
-value_of_program exp = value_of exp initEnv
+value_of_program exp =
+  error "TODO: implement a value_of_program function"
+  
 
 
 --
@@ -61,4 +50,6 @@ initEnv = extend_env "i" (Num_Val 1)
 --
 apply_procedure :: Proc -> ExpVal -> ExpVal
 apply_procedure proc arg =
-   value_of (body proc) (extend_env (var proc) arg (saved_env proc))
+  error "TODO: implement an apply_procedure function"
+
+
