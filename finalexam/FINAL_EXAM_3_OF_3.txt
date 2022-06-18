@@ -1,6 +1,10 @@
 
 [FINAL EXAMINATION: PROBLEM (3/3)]
 
+ - Solve this problem, and submit FINAL_EXAM_3_OF_3.txt to E-class!
+   (문제를 풀고 FINAL_EXAM_3_OF_3.txt를 E-class에 제출하면 됩니다.)
+
+
 ================================================================================
 Q1. [10 point] Explain expressed values and denoted values briefly. 
                (Expressed value와 Denoted value에 대해 간단히 설명하시오.)
