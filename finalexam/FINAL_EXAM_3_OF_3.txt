@@ -1,5 +1,15 @@
 
-[FINAL EXAMINATION: PROBLEM (3/3)]
+[HOW TO SUBMIT YOUR SOLUTION]
+
+ - Submit <STUDENTID_NAME.zip>
+
+     - ch3-0.1.1.0.tar.gz
+     - ch5-0.1.1.0.tar.gz
+     - FINAL_EXAM_3_OF_3.txt
+
+   to e-Class!!
+
+[PROBLEM (3/3)]
 
  - Solve this problem, and submit FINAL_EXAM_3_OF_3.txt to E-class!
    (문제를 풀고 FINAL_EXAM_3_OF_3.txt를 E-class에 제출하면 됩니다.)
