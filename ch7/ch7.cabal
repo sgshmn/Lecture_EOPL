@@ -33,6 +33,7 @@ library
   ghc-options: -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints
   build-depends:
       base >=4.7 && <5
+    , containers
     , hspec
     , yapb >=0.2.3
   default-language: Haskell2010
@@ -47,6 +48,7 @@ executable checkedlang-exe
       MainUtil
       Parser
       Token
+      TypeCheck
       Paths_ch7
   hs-source-dirs:
       app/checkedlang
@@ -54,6 +56,7 @@ executable checkedlang-exe
   build-depends:
       base >=4.7 && <5
     , ch7
+    , containers
     , hspec
     , yapb >=0.2.3
   default-language: Haskell2010
@@ -62,6 +65,7 @@ test-suite checkedlang-test
   type: exitcode-stdio-1.0
   main-is: Spec.hs
   other-modules:
+      TypeCheckerTest
       Env
       Expr
       Interp
@@ -70,6 +74,7 @@ test-suite checkedlang-test
       MainUtil
       Parser
       Token
+      TypeCheck
       Paths_ch7
   hs-source-dirs:
       test/checkedlang
@@ -78,6 +83,7 @@ test-suite checkedlang-test
   build-depends:
       base >=4.7 && <5
     , ch7
+    , containers
     , hspec
     , yapb >=0.2.3
   default-language: Haskell2010

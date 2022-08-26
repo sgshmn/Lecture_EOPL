@@ -1,5 +1,8 @@
-module Expr(Program,Exp(..),Type(..),AST(..),Identifier,toASTExp,toASTType) where
+module Expr where
 
+import Data.Maybe
+
+-- for abstract syntax tree
 type Program = Exp
   
 data Exp =
@@ -23,8 +26,7 @@ data Type =
   deriving Show
 
 
-
--- TODO: Parser에서 Exp이거나 Type이 리턴할 수 있도록 fromAST 추가해야함
+-- for parser
 data AST =
     ASTExp { fromASTExp :: Exp }
   | ASTType { fromASTType :: Type }
@@ -33,3 +35,14 @@ data AST =
 toASTExp exp = ASTExp exp
 
 toASTType ty = ASTType ty
+
+
+-- for testing the type checker
+type TestCaseName = String
+type ExprText = String
+
+data TypeDeclTestCase = TDTC TestCaseName ExprText (Maybe Type)
+
+data TypeDecl = TypeDecl [ TypeDeclTestCase ]
+
+

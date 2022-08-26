@@ -8,6 +8,7 @@ import Terminal
 import Parser
 import Expr
 import Interp
+import TypeCheck
 
 import Control.Monad (when)
 import System.IO
@@ -40,8 +41,16 @@ doProcess verbose fileName = do
   
   putStrLn (show expression)
 
-  let val = value_of_program expression
-  putStrLn (show val)
+  eitherTyOrErr <- typeCheck expression
+  case eitherTyOrErr of
+    Right ty ->
+      do putStrLn (show ty)
+
+         let val = value_of_program expression
+         putStrLn (show val)
+
+    Left errMsg ->
+      do putStrLn errMsg
 
 -- 
 -- parser text = do
