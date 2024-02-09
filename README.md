@@ -17,7 +17,7 @@
 
 ### Chapter 3: Expressions
 
- - LET: A expression language with local bindings (Let)
+ - LET: A expression language with local bindings
 
  - PROC: A language with procedures (based on LET)
 
@@ -26,29 +26,31 @@
 
 ### Chapter 4: State
 
- - EXPLICIT-REFS: A language with explicit references
+ - EXPLICIT-REFS: A language with explicit references (based on LETREC)
 
- - IMPLICIT-REFS: A language with implicit references
+ - IMPLICIT-REFS: A language with implicit references (based on LETREC)
 
 ### Chapter 5: Continuation-passing interpreters
 
  - LETREC-CPS: Reimplement LETREC with a continuation-based interpreter (based on LETREC)
 
- - EXCEPTION: A language with exception handling (based on LETREC-CPS)
+ - EXCEPTIONS: A language with exception handling (based on LETREC-CPS)
 
  - THREADS: A multi-threaded concurrent language (based on LETRE-CPS and IMPLICIT-REFS)
 
-### Chapter 7: Types
+### Chapter 7: Types (INFERRED Not Available Yet)
 
  - CHECKED: A type-checked language (based on LETREC)
+ - INFERRED: A language with type inference (based on CHECKED)
 
-### Chapter 8: Modules
+### Chapter 8: Modules (Not Available Yet)
 
- - n/a
+ - SIMPLE-MODULES: A modular language (based on CHECKED)
+ - OPAQUE-TYPES: A modular language with interfaces, i.e., module types (based on SIMPLE-MODULES)
+ - PROC-MODULES: A modular language with parameterized modules (based on OPAQUE-TYPES)
 
-### Chapter 9: Objects and Classes
+### Chapter 9: Objects and Classes (Not Available Yet)
 
- - n/a
-
-
+ - CLASSES: An untyped object-oriented language (based on IMPLICIT-REFS)
+ - TYPED-OO: A typed object-oriented language (based on CLASSES)
 
