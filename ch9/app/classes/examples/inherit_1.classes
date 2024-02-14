@@ -1,0 +1,20 @@
+class c1 extends object 
+  field ivar1
+  method initialize()set ivar1 = 1
+  
+class c2 extends c1 
+  field ivar2
+  method initialize() 
+   begin
+    super initialize(); 
+    set ivar2 = 1
+   end
+  method setiv1(n)set ivar1 = n
+  method getiv1()ivar1
+  
+let o = new c2 ()
+    t1 = 0
+in begin
+       send o setiv1(33);
+       send o getiv1()
+   end 

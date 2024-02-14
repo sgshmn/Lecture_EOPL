@@ -1,0 +1,7 @@
+class aclass extends object 
+  field i
+  method initialize(x) set i = x
+  method m(y) -(i,-(0,y))
+  
+let o1 = new aclass(3)
+in send o1 m(2)

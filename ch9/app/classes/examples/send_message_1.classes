@@ -1,0 +1,7 @@
+class c1 extends object 
+  field s 
+  method initialize()set s = 44
+  method gets()s
+  method sets(v)set s = v
+  
+let o1 = new c1() in send o1 gets()
