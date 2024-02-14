@@ -37,9 +37,9 @@ doProcess verbose fileName = do
       (aLexer lexerSpec)
       (fromToken (endOfToken lexerSpec))
 
-  let expression = expFrom tree
+  let program = programFrom tree
 
-  print expression
+  print program
 
-  let val = value_of_program expression
-  print val
+  -- let val = value_of_program expression
+  -- print val

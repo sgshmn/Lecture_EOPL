@@ -30,10 +30,10 @@ parserSpec = ParserSpec
 
       rule "ZeroMoreClassDecl -> " (\rhs -> return $ fromClassDeclList []),
 
-      rule "ClassDecl -> class identifier extends identifier { ZeroMoreFieldDecl ZeroMoreMethodDecl }"
+      rule "ClassDecl -> class identifier extends identifier ZeroMoreFieldDecl ZeroMoreMethodDecl"
         (\rhs -> return $ fromClassDecl $ 
                   Class_Decl (getText rhs 2) (getText rhs 4) 
-                    (idListFrom (get rhs 6)) (methodDeclListFrom (get rhs 7))),
+                    (idListFrom (get rhs 5)) (methodDeclListFrom (get rhs 6))),
 
       rule "ZeroMoreFieldDecl -> identifier ZeroMoreFieldDecl" 
         (\rhs -> return $ fromIdList $ getText rhs 1 : idListFrom (get rhs 2)),
@@ -61,9 +61,9 @@ parserSpec = ParserSpec
       rule "OneMoreIdentifier -> identifier" (\rhs -> return $ fromIdList [ getText rhs 1 ]),
 
       -- ZeroMoreExpression :: PET_ExpList
-      rule "ZerMoreExpression -> OneMoreExpression" (\rhs -> return $ get rhs 1),
+      rule "ZeroMoreExpression -> OneMoreExpression" (\rhs -> return $ get rhs 1),
 
-      rule "ZerMoreExpression -> " (\rhs -> return $ fromExpList []),
+      rule "ZeroMoreExpression -> " (\rhs -> return $ fromExpList []),
 
       -- OneMoreExpression :: PET_ExpList  where length >= 1
       rule "OneMoreExpression -> Expression , OneMoreExpression" 

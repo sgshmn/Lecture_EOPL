@@ -1,5 +1,6 @@
 module Expr(Program(..),ClassDecl(..),MethodDecl(..),Exp(..),Identifier,
-            PET(..),fromExp,fromExpList,fromIdIdExpList,fromIdList,
+            PET(..),
+            fromExp,fromExpList,fromIdIdExpList,fromIdList,
             fromClassDecl,fromClassDeclList,fromMethodDecl,fromMethodDeclList,
             fromProgram) where
 
