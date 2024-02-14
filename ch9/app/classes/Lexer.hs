@@ -17,11 +17,14 @@ lexerSpec = LexerSpec
   {
     endOfToken    = END_OF_TOKEN,
     lexerSpecList = 
-      [ ("[ \t\n]" , skip),
+      [ 
+        ("%[^\n]*\n", skip), -- Comment: % bla bla bla ...
+        ("[ \t\n]" , skip),
         
         ("[0-9]+"  , mkFn INTEGER_NUMBER),
         
         ("\\-"     , mkFn SUB),
+        ("\\+"     , mkFn PLUS),
         ("\\("     , mkFn OPEN_PAREN),
         ("\\)"     , mkFn CLOSE_PAREN),
         ("\\,"     , mkFn COMMA),
@@ -31,7 +34,7 @@ lexerSpec = LexerSpec
         ("\\="     , mkFn EQ),
         (";"    , mkFn SEMICOLON),
 
-        ("[a-zA-Z][a-zA-Z0-9]*"    , keywordOrIdentifier)
+        ("[_a-zA-Z][_a-zA-Z0-9]*"    , keywordOrIdentifier)
       ]
   }
 

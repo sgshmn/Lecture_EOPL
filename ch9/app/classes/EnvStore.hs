@@ -10,7 +10,7 @@ import Expr (Identifier,Exp)
 data Env =
     Empty_env
   | Extend_env Identifier DenVal Env
-  | Extend_env_rec [(Identifier,Identifier,Exp)] Env
+  | Extend_env_rec [(Identifier,[Identifier],Exp)] Env
 
 empty_env :: Env
 empty_env = Empty_env
@@ -30,8 +30,8 @@ apply_env (Extend_env_rec idIdExpList saved_env) store search_var
 extend_env :: Identifier -> DenVal -> Env -> Env
 extend_env x v env = Extend_env x v env
 
-extend_env_rec :: [(Identifier,Identifier,Exp)] -> Env -> Env
-extend_env_rec idIdExpList env = Extend_env_rec idIdExpList env
+extend_env_rec :: [(Identifier,[Identifier],Exp)] -> Env -> Env
+extend_env_rec idIdListExpList env = Extend_env_rec idIdListExpList env
 
 -- Expressed values
 data ExpVal =
@@ -49,10 +49,10 @@ instance Show ExpVal where
 type DenVal = Location   
 
 -- Procedure values : data structures
-data Proc = Procedure {var :: Identifier, body :: Exp, saved_env :: Env}
+data Proc = Procedure {vars :: [Identifier], body :: Exp, saved_env :: Env}
 
-procedure :: Identifier -> Exp -> Env -> Proc
-procedure var body env = Procedure var body env
+procedure :: [Identifier] -> Exp -> Env -> Proc
+procedure vars body env = Procedure vars body env
 
 -- In Interp.hs
 -- apply_procedure :: Proc -> ExpVal -> ExpVal

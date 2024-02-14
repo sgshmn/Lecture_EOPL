@@ -9,6 +9,7 @@ data Token =
   | INTEGER_NUMBER              -- number
   
   | SUB                         -- - ( expr1, expr2 )
+  | PLUS                        -- + ( expr1, expr2 )
   | OPEN_PAREN  | CLOSE_PAREN
   | COMMA
 
@@ -34,6 +35,7 @@ data Token =
   | SEMICOLON
 
   | SET                         -- set
+  | LIST                         -- list
 
   -- new tokens in classes
 
@@ -54,6 +56,7 @@ tokenStrList =
     (INTEGER_NUMBER, "integer_number"),
     
     (SUB, "-"),
+    (PLUS, "+"),
     (OPEN_PAREN, "("),
     (CLOSE_PAREN, ")"),
     (COMMA, ","),
@@ -79,6 +82,7 @@ keywords =
     (BEGIN, "begin"),
     (END, "end"),
     (SET, "set"),
+    (LIST, "list"),
 
     -- classes language
     (CLASS, "class"),

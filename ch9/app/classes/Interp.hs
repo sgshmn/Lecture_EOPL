@@ -34,28 +34,28 @@ value_of (If_Exp exp1 exp2 exp3) env store =
     then value_of exp2 env store1
     else value_of exp3 env store1
 
-value_of (Let_Exp var exp1 body) env store =
-  let (val1,store1) = value_of exp1 env store 
-      (loc,store2)  = newref store1 val1
-  in
-    value_of body (extend_env var loc env) store2
+value_of (Let_Exp varExpList body) env store = undefined
+  -- let (val1,store1) = value_of exp1 env store 
+  --     (loc,store2)  = newref store1 val1
+  -- in
+  --   value_of body (extend_env var loc env) store2
 
 value_of (Letrec_Exp letbindings letrec_body) env store =
   value_of letrec_body (extend_env_rec (extend letbindings) env) store
   where extend [] = []
-        extend ((proc_name, bound_var, proc_body):letbindings) =
-          (proc_name,bound_var,proc_body) : extend letbindings
+        extend ((proc_name, bound_vars, proc_body):letbindings) =
+          (proc_name,bound_vars,proc_body) : extend letbindings
 
 value_of (Proc_Exp var body) env store =
   (Proc_Val (procedure var body env),store)
 
-value_of (Call_Exp rator rand) env store =
+value_of (Call_Exp rator rands) env store =
   let (val1,store1) = value_of rator env store
-      (val2,store2) = value_of rand env store1
+      (val2,store2) = undefined -- value_of rand env store1
       
       proc = expval_proc val1
       arg  = val2
-  in apply_procedure proc arg store2
+  in undefined -- apply_procedure proc arg store2
 
 value_of (Block_Exp [exp]) env store = value_of exp env store
 
@@ -80,6 +80,6 @@ initEnv = empty_env
 
 --
 apply_procedure :: Proc -> ExpVal -> Store -> (ExpVal,Store)
-apply_procedure proc arg store =
-  let (loc,store1) = newref store arg in
-   value_of (body proc) (extend_env (var proc) loc (saved_env proc)) store1
+apply_procedure proc arg store = undefined
+--  let (loc,store1) = newref store arg in
+--   value_of (body proc) (extend_env (vars proc) loc (saved_env proc)) store1
