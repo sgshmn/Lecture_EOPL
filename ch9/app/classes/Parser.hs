@@ -20,52 +20,72 @@ parserSpec = ParserSpec
     [
       rule "Program' -> Program" (\rhs -> return $ get rhs 1),
 
-      rule "Program -> ZeroMoreClassDecl Expression" (\rhs -> return $ undefined),
+      rule "Program -> ZeroMoreClassDecl Expression" 
+        (\rhs -> return $ fromProgram $ 
+                  Program (classDeclListFrom (get rhs 1)) (expFrom (get rhs 2))),
 
-      rule "ZeroMoreClassDecl -> ClassDecl ZeroMoreClassDecl" (\rhs -> return $ undefined),
+      rule "ZeroMoreClassDecl -> ClassDecl ZeroMoreClassDecl" 
+        (\rhs -> return $ fromClassDeclList $ 
+                  classDeclFrom (get rhs 1) : classDeclListFrom (get rhs 2)),
 
-      rule "ZeroMoreClassDecl -> " (\rhs -> return $ undefined),
+      rule "ZeroMoreClassDecl -> " (\rhs -> return $ fromClassDeclList []),
 
       rule "ClassDecl -> class identifier extends identifier { ZeroMoreFieldDecl ZeroMoreMethodDecl }"
-        (\rhs -> return $ undefined),
+        (\rhs -> return $ fromClassDecl $ 
+                  Class_Decl (getText rhs 2) (getText rhs 4) 
+                    (idListFrom (get rhs 6)) (methodDeclListFrom (get rhs 7))),
 
-      rule "ZeroMoreFieldDecl -> identifier ZeroMoreFieldDecl" (\rhs -> return $ undefined),
+      rule "ZeroMoreFieldDecl -> identifier ZeroMoreFieldDecl" 
+        (\rhs -> return $ fromIdList $ getText rhs 1 : idListFrom (get rhs 2)),
 
-      rule "ZeroMoreFieldDecl -> " (\rhs -> return $ undefined),
+      rule "ZeroMoreFieldDecl -> " (\rhs -> return $ fromIdList []),
 
-      rule "ZeroMoreMethodDecl -> MethodDecl ZeroMoreMethodDecl" (\rhs -> return $ undefined),
+      rule "ZeroMoreMethodDecl -> MethodDecl ZeroMoreMethodDecl" 
+        (\rhs -> return $ fromMethodDeclList $ 
+                  methodDeclFrom (get rhs 1) : methodDeclListFrom (get rhs 2)),
 
-      rule "ZeroMoreMethodDecl -> " (\rhs -> return $ undefined),
+      rule "ZeroMoreMethodDecl -> " (\rhs -> return $ fromMethodDeclList []),
 
       rule "MethodDecl -> method identifier ( ZeroMoreIdentifier ) Expression"
-        (\rhs -> return $ undefined),
+        (\rhs -> return $ fromMethodDecl $ 
+                  Method_Decl (getText rhs 2) (idListFrom (get rhs 4)) (expFrom (get rhs 6))),
 
-      rule "ZeroMoreIdentifier -> OneMoreIdentifier" (\rhs -> return $ undefined),
+      -- ZeroMoreIdentifier :: PET_IdList
+      rule "ZeroMoreIdentifier -> OneMoreIdentifier" (\rhs -> return $ get rhs 1),
 
-      rule "ZeroMoreIdentifier -> " (\rhs -> return $ undefined),
+      rule "ZeroMoreIdentifier -> " (\rhs -> return $ fromIdList []),
 
-      rule "OneMoreIdentifier -> identifier , OneMoreIdentifier" (\rhs -> return $ undefined),
+      rule "OneMoreIdentifier -> identifier , OneMoreIdentifier" 
+        (\rhs -> return $ fromIdList $ getText rhs 1 : idListFrom (get rhs 3)),
 
-      rule "OneMoreIdentifier -> identifier" (\rhs -> return $ undefined),
+      rule "OneMoreIdentifier -> identifier" (\rhs -> return $ fromIdList [ getText rhs 1 ]),
 
-      rule "ZerMoreExpression -> OneMoreExpression" (\rhs -> return $ undefined),
+      -- ZeroMoreExpression :: PET_ExpList
+      rule "ZerMoreExpression -> OneMoreExpression" (\rhs -> return $ get rhs 1),
 
-      rule "ZerMoreExpression -> " (\rhs -> return $ undefined),
+      rule "ZerMoreExpression -> " (\rhs -> return $ fromExpList []),
 
-      rule "OneMoreExpression -> Expression , OneMoreExpression" (\rhs -> return $ undefined),
+      -- OneMoreExpression :: PET_ExpList  where length >= 1
+      rule "OneMoreExpression -> Expression , OneMoreExpression" 
+        (\rhs -> return $ fromExpList $ expFrom (get rhs 1) : expListFrom (get rhs 3)),
 
-      rule "OneMoreExpression -> Expression" (\rhs -> return $ undefined),
+      rule "OneMoreExpression -> Expression" 
+        (\rhs -> return $ fromExpList [ expFrom (get rhs 1) ]),
 
       rule "Expression -> new identifier ( ZeroMoreExpression )"
-        (\rhs -> return $ undefined),
+        (\rhs -> return $ fromExp $ 
+                    New_Object_Exp (getText rhs 2) (expListFrom (get rhs 4))),
 
-      rule "Expression -> self" (\rhs -> return $ undefined),
+      rule "Expression -> self" (\rhs -> return $ fromExp $ Self_Exp),
 
       rule "Expression -> send Expression identifier ( ZeroMoreExpression )"
-        (\rhs -> return $ undefined),
+        (\rhs -> return $ fromExp $ 
+                    Method_Call_Exp (expFrom (get rhs 2)) 
+                      (getText rhs 3) (expListFrom (get rhs 5)) ),
 
       rule "Expression -> super identifier ( ZeroMoreExpression )"
-        (\rhs -> return $ undefined),
+        (\rhs -> return $ fromExp $ 
+                    Super_Call_Exp (getText rhs 2)  (expListFrom (get rhs 4)) ),
 
       rule "Expression -> integer_number"
         (\rhs -> return $ fromExp $ Const_Exp (read (getText rhs 1) :: Int)),

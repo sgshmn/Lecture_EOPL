@@ -1,8 +1,12 @@
-module Expr(Program,Exp(..),Identifier,PET(..),fromExp,fromExpList,fromIdIdExpList) where
+module Expr(Program(..),ClassDecl(..),MethodDecl(..),Exp(..),Identifier,
+            PET(..),fromExp,fromExpList,fromIdIdExpList,fromIdList,
+            fromClassDecl,fromClassDeclList,fromMethodDecl,fromMethodDeclList,
+            fromProgram) where
 
 -- Untyped class-based expression language
 
-type Program = Exp
+data Program = Program [ClassDecl] Exp
+  deriving Show
   
 -- Class_Decl: class-name, super-class-name, field-names, method-decls
 data ClassDecl = Class_Decl Identifier Identifier [ Identifier ] [ MethodDecl ]
@@ -40,8 +44,20 @@ data PET =
     PET_IdIdExpList {idIdExpListFrom :: [(Identifier, Identifier, Exp)] }
   | PET_ExpList {expListFrom :: [Exp] }
   | PET_Exp {expFrom :: Exp}
+  | PET_IdList {idListFrom :: [Identifier] }
+  | PET_MethodDecl {methodDeclFrom :: MethodDecl}
+  | PET_MethodDeclList {methodDeclListFrom :: [MethodDecl]}
+  | PET_ClassDecl {classDeclFrom :: ClassDecl}
+  | PET_ClassDeclList {classDeclListFrom :: [ClassDecl]}
+  | PET_Program {programFrom :: Program}
   deriving Show
 
 fromExp exp                 = PET_Exp exp
 fromExpList expList         = PET_ExpList expList
 fromIdIdExpList idIdExpList = PET_IdIdExpList idIdExpList
+fromIdList idList           = PET_IdList idList
+fromMethodDecl methodDecl   = PET_MethodDecl methodDecl
+fromClassDecl classDecl     = PET_ClassDecl classDecl
+fromMethodDeclList methodDeclList = PET_MethodDeclList methodDeclList
+fromClassDeclList classDeclList   = PET_ClassDeclList classDeclList
+fromProgram program         = PET_Program program
