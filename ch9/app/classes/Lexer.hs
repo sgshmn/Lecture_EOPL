@@ -4,6 +4,8 @@ import Prelude hiding (EQ)
 import CommonParserUtil
 import Token
 
+import qualified Data.Map as Map
+
 mkFn :: Token -> LexAction Token IO ()
 mkFn tok = \text -> return $ Just tok
 
@@ -25,37 +27,21 @@ lexerSpec = LexerSpec
         ("\\,"     , mkFn COMMA),
         
         ("zero\\?" , mkFn ISZERO),
-
-        ("if"      , mkFn IF),
-        ("then"    , mkFn THEN),
-        ("else"    , mkFn ELSE),
         
-        ("letrec"  , mkFn LETREC),
-
-        ("let"     , mkFn LET),
-        ("in"      , mkFn IN),
         ("\\="     , mkFn EQ),
-        
-        ("proc"    , mkFn PROC),
-
-        ("begin"    , mkFn BEGIN),
-        ("end"    , mkFn END),
         (";"    , mkFn SEMICOLON),
 
-        ("set"    , mkFn SET),
-
-        -- New tokens in classes.
-        ("class"   , mkFn CLASS),
-        ("extends" , mkFn EXTENDS),
-        ("method"  , mkFn METHOD),
-        ("field"   , mkFn FIELD),
-        ("new"     , mkFn NEW),
-        ("send"    , mkFn SEND),
-        ("self"    , mkFn SELF),
-        ("super"   , mkFn SUPER),
-        -- New tokens in classes should be before IDENTIFIER
-        -- to avoid matching them as identifiers.
-
-        ("[a-zA-Z][a-zA-Z0-9]*"    , mkFn IDENTIFIER)
+        ("[a-zA-Z][a-zA-Z0-9]*"    , keywordOrIdentifier)
       ]
-  } 
+  }
+
+keywordMap :: Map.Map String Token
+keywordMap = Map.fromList (map swap keywords)
+  where swap (a,b) = (b,a)
+
+keywordOrIdentifier :: Monad m => String -> m (Maybe Token)
+keywordOrIdentifier text = 
+  case Map.lookup text keywordMap of
+    Nothing -> return $ Just IDENTIFIER
+    Just tok -> return $ Just tok
+

@@ -1,4 +1,4 @@
-module Token(Token(..)) where
+module Token(Token(..), keywords) where
 
 import Prelude hiding(EQ)
 import TokenInterface
@@ -57,30 +57,30 @@ tokenStrList =
     (OPEN_PAREN, "("),
     (CLOSE_PAREN, ")"),
     (COMMA, ","),
-
     (ISZERO, "zero?"),
+    (IDENTIFIER, "identifier"), 
+    (EQ, "="),
+    (SEMICOLON, ";")
+  ] ++ keywords
 
+keywords :: [(Token, String)]
+keywords =
+  [
+    (LET, "let"), 
+    (IN, "in"), 
+    (LETREC, "letrec"),
+  
     (IF, "if"), 
     (THEN, "then"), 
     (ELSE, "else"), 
 
-    (IDENTIFIER, "identifier"),
-    
-    (LET, "let"), 
-    (IN, "in"), 
-    (EQ, "="),
-
-    (LETREC, "letrec"),
-    
     (PROC, "proc"),
     
     (BEGIN, "begin"),
     (END, "end"),
-    (SEMICOLON, ";"),
-
     (SET, "set"),
 
-    -- new tokens in classes
+    -- classes language
     (CLASS, "class"),
     (EXTENDS, "extends"),
     (METHOD, "method"),

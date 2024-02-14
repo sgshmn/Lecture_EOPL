@@ -35,8 +35,8 @@ parserSpec = ParserSpec
                   Class_Decl (getText rhs 2) (getText rhs 4) 
                     (idListFrom (get rhs 5)) (methodDeclListFrom (get rhs 6))),
 
-      rule "ZeroMoreFieldDecl -> identifier ZeroMoreFieldDecl" 
-        (\rhs -> return $ fromIdList $ getText rhs 1 : idListFrom (get rhs 2)),
+      rule "ZeroMoreFieldDecl -> field identifier ZeroMoreFieldDecl" 
+        (\rhs -> return $ fromIdList $ getText rhs 2 : idListFrom (get rhs 3)),
 
       rule "ZeroMoreFieldDecl -> " (\rhs -> return $ fromIdList []),
 
