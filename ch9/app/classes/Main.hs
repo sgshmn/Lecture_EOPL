@@ -41,5 +41,5 @@ doProcess verbose fileName = do
 
   print program
 
-  -- let val = value_of_program expression
-  -- print val
+  let val = value_of_program program
+  print val
