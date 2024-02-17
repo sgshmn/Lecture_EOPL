@@ -4,34 +4,48 @@
 module EnvStore where
 
 import Ref(Location)
-import Expr (Identifier,Exp)
+import Expr (Identifier,Exp,ClassDecl(..),MethodDecl(..))
+
+import Data.Maybe
+import Data.List (elemIndex,lookup)
 
 -- Environment
 data Env =
     Empty_env
-  | Extend_env Identifier DenVal Env
+  | Extend_env [Identifier] [DenVal] Env
   | Extend_env_rec [(Identifier,[Identifier],Exp)] Env
-
-empty_env :: Env
-empty_env = Empty_env
+  | Extend_env_with_self_and_super Object Identifier Env
 
 apply_env :: Env -> Store -> Identifier -> (DenVal, Store)
 apply_env Empty_env store search_var = error (search_var ++ " is not found.")
-apply_env (Extend_env saved_var saved_val saved_env) store search_var
-  | search_var==saved_var = (saved_val,store)
-  | otherwise             = apply_env saved_env store search_var
+apply_env (Extend_env saved_vars saved_vals saved_env) store search_var = 
+  if search_var `elem` saved_vars
+    then (saved_vals !! (fromJust $ Data.List.elemIndex search_var saved_vars),store)
+    else apply_env saved_env store search_var
 apply_env (Extend_env_rec idIdExpList saved_env) store search_var
   | isIn      = newref store procVal
   | otherwise = apply_env saved_env store search_var
   where isIn      = or [ p_name==search_var | (p_name,b_var,p_body) <- idIdExpList ]
         procVal = head [ Proc_Val (procedure b_var p_body (Extend_env_rec idIdExpList saved_env)) 
                        | (p_name,b_var,p_body) <- idIdExpList, p_name==search_var ]
+apply_env (Extend_env_with_self_and_super obj super_name saved_env) store search_var
+  | search_var == "%self" = newref store (Object_Val obj)
+  | search_var == "%super" = undefined  --- Todo: obj??
+  | otherwise = apply_env saved_env store search_var
 
-extend_env :: Identifier -> DenVal -> Env -> Env
-extend_env x v env = Extend_env x v env
+-- Abstract data type interfaces for Env
+empty_env :: Env
+empty_env = Empty_env
+
+extend_env :: [Identifier] -> [DenVal] -> Env -> Env
+extend_env xs vs env = Extend_env xs vs env
 
 extend_env_rec :: [(Identifier,[Identifier],Exp)] -> Env -> Env
 extend_env_rec idIdListExpList env = Extend_env_rec idIdListExpList env
+
+extend_env_with_self_and_super :: Object -> Identifier -> Env -> Env
+extend_env_with_self_and_super obj super_name env = 
+  Extend_env_with_self_and_super obj super_name env
 
 -- Expressed values
 data ExpVal =
@@ -39,20 +53,35 @@ data ExpVal =
   | Bool_Val {expval_bool :: Bool}
   | Proc_Val {expval_proc :: Proc}
   -- | Ref_Val {expval_loc :: Location}
+  | List_Val {expval_list :: [ExpVal]} -- Listof_Val?
+  | Object_Val  {expval_obj :: Object}
+  | Uninitialized_Val  -- for uninitialized fields (Not in the textbook)
 
 instance Show ExpVal where
   show (Num_Val num)   = show num
   show (Bool_Val bool) = show bool
-  show (Proc_Val proc) = show "<proc>"
+  show (Proc_Val proc) = show proc  -- "<proc>"
+  show (List_Val list) = show list
+  show (Object_Val obj) = show obj
 
 -- Denoted values
-type DenVal = Location   
+type DenVal = Location  -- Ref(ExpVal) 
 
 -- Procedure values : data structures
-data Proc = Procedure {vars :: [Identifier], body :: Exp, saved_env :: Env}
+data Proc = Procedure {proc_vars :: [Identifier], proc_body :: Exp, saved_env :: Env}
+
+instance Show Proc where
+  show (Procedure vars body saved_env) = show "<proc>"
 
 procedure :: [Identifier] -> Exp -> Env -> Proc
 procedure vars body env = Procedure vars body env
+
+-- Object values : data structures
+data Object = AnObject {object_class_name :: Identifier, object_fields :: [Location]}
+
+instance Show Object where
+  show (AnObject class_name fields) = 
+    "<" ++ show class_name ++ ":object>"
 
 -- In Interp.hs
 -- apply_procedure :: Proc -> ExpVal -> ExpVal
@@ -78,3 +107,95 @@ setref (next,s) loc v = (next,update s)
 
 initStore :: Store
 initStore = (1,[])
+
+-- Classes
+data Class = AClass 
+  { class_super_name :: Maybe Identifier, 
+    class_field_names :: [Identifier], 
+    class_method_env :: MethodEnv
+  }
+
+new_object :: Identifier -> ClassEnv -> Store -> (Object, Store)
+new_object class_name classEnv store = 
+  let field_names = class_field_names (lookup_class class_name classEnv)
+      (objFields, store') = 
+        foldl mkUninitializedFields ([], store) field_names
+        where
+          mkUninitializedFields (fields,store) field_name = 
+            let (loc,store') = newref store Uninitialized_Val in
+              (fields++[loc],store')             
+  in (AnObject class_name objFields, store')
+
+-- Methods
+data Method = AMethod 
+  { method_vars :: [Identifier], 
+    method_body :: Exp,
+    method_super_name :: Identifier,
+    method_field_names :: [Identifier]
+  }
+
+-- apply_method in Interp.hs
+
+-- Class Environments
+type ClassEnv = [ (Identifier,Class) ]
+
+initClassEnv :: ClassEnv
+initClassEnv = [ ("object", AClass Nothing [] []) ]
+
+add_to_class_env :: Identifier -> Class -> ClassEnv -> ClassEnv
+add_to_class_env class_name aClass class_env = 
+  (class_name,aClass) : class_env
+
+lookup_class :: Identifier -> ClassEnv -> Class
+lookup_class class_name class_env = 
+  case Data.List.lookup class_name class_env of
+    Just aClass -> aClass
+    Nothing    -> error ("Class " ++ class_name ++ " not found.")
+
+initialize_class_env :: [ClassDecl] -> ClassEnv
+initialize_class_env classDecls = 
+  foldl (flip initialize_class_decl) initClassEnv classDecls    
+
+initialize_class_decl :: ClassDecl -> ClassEnv -> ClassEnv
+initialize_class_decl (Class_Decl class_name super_name field_names method_decls) class_env = 
+  let accumulated_field_names = 
+        append_field_names
+          (class_field_names (lookup_class super_name class_env))
+          field_names
+      aClass = AClass (Just super_name) accumulated_field_names
+                  (merge_method_envs 
+                    (class_method_env (lookup_class super_name class_env)) 
+                      (method_decls_method_envs 
+                        method_decls super_name accumulated_field_names))
+  in add_to_class_env class_name aClass class_env
+
+append_field_names :: [Identifier] -> [Identifier] -> [Identifier]
+append_field_names super_fields new_fields =
+  rename_super_fields 1 super_fields
+  where
+    rename_super_fields n [] = new_fields
+    rename_super_fields n (f:fs)
+      | f `elem` new_fields = (f ++ "_" ++ show n) : rename_super_fields (n+1) fs
+      | otherwise           = f : rename_super_fields n fs
+
+-- Method Environments
+type MethodEnv = [ (Identifier, Method)]
+
+find_method :: Identifier -> Identifier -> ClassEnv -> Method
+find_method class_name method_name class_env = 
+  let aClass = lookup_class class_name class_env 
+      methodEnv = class_method_env aClass
+  in case Data.List.lookup method_name methodEnv of
+      Just method -> method
+      Nothing     -> error ("Method " ++ method_name ++ " not found.")
+
+method_decls_method_envs :: [MethodDecl] -> Identifier -> [Identifier] -> MethodEnv
+method_decls_method_envs method_decls super_name field_names = 
+  map method_decl_method_env method_decls
+  where
+    method_decl_method_env (Method_Decl method_name vars body) = 
+      (method_name, AMethod vars body super_name field_names)
+
+merge_method_envs :: MethodEnv -> MethodEnv -> MethodEnv
+merge_method_envs superMethodEnvs newMethodEnvs = newMethodEnvs ++ superMethodEnvs
+
