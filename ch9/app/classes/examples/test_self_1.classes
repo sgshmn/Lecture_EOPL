@@ -13,4 +13,4 @@ let o = new c (11)
        send o testit();
        set t2 = send o gets();
        list(t1,t2)
-      end" (11 13)
+      end
