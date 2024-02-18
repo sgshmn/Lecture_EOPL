@@ -29,8 +29,7 @@ apply_env (Extend_env_rec idIdExpList saved_env) store search_var
         procVal = head [ Proc_Val (procedure b_var p_body (Extend_env_rec idIdExpList saved_env)) 
                        | (p_name,b_var,p_body) <- idIdExpList, p_name==search_var ]
 apply_env (Extend_env_with_self_and_super obj super_name saved_env) store search_var
-  | search_var == "%self" = 
-      let (l,store') = newref store (Object_Val obj) in (Loc_Val l,store')
+  | search_var == "%self"  = (SelfObject_Val obj,store)
   | search_var == "%super" = (SuperClassName_Val super_name, store)
   | otherwise = apply_env saved_env store search_var
 
