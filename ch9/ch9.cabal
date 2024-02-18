@@ -65,6 +65,13 @@ executable classes-exe
 executable typedoo-exe
   main-is: Main.hs
   other-modules:
+      EnvStore
+      Expr
+      Interp
+      Lexer
+      Parser
+      Ref
+      Token
       Paths_ch9
   autogen-modules:
       Paths_ch9
