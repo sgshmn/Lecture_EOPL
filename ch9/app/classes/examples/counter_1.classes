@@ -1,8 +1,8 @@
 class counter extends object 
  field count
- method initialize()set count = 0
- method countup()set count = -(count, -1)
- method getcount()count
+ method initialize() set count = 0
+ method countup() set count = -(count, -1)
+ method getcount() count
  
 let o1 = new counter ()
     t1 = 0

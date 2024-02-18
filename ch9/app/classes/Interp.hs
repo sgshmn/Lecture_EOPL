@@ -121,7 +121,9 @@ value_of class_env (Super_Call_Exp method_name args) env store =
 value_of class_env (New_Object_Exp class_name args) env store =
   let (args_val,store1) = foldl (value_of_arg class_env env) ([],store) args
       (obj,store2) = new_object class_name class_env store1
-  in (Object_Val obj,store2)
+      (_, store3) = apply_method (find_method class_name "initialize" class_env)
+                      obj args_val class_env store2
+  in  (Object_Val obj, store3)
 
 -- Helper function for evaluating args
 value_of_arg class_env env (vals,store) arg =
@@ -130,7 +132,7 @@ value_of_arg class_env env (vals,store) arg =
 --
 value_of_program :: Program -> ExpVal
 value_of_program (Program classDecls body) =
-  fst $ value_of initClassEnv body init_env initStore
+  fst $ value_of init_class_Env body init_env initStore
   where
     init_class_Env = initialize_class_env classDecls
 

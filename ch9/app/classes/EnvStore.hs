@@ -62,8 +62,9 @@ instance Show ExpVal where
   show (Num_Val num)   = show num
   show (Bool_Val bool) = show bool
   show (Proc_Val proc) = show proc  -- "<proc>"
-  show (List_Val list) = show list
+  show (List_Val list) = show list -- Todo: print a list as [1,2,3] instead of (1,2,3)??
   show (Object_Val obj) = show obj
+  show (Uninitialized_Val) = "<uninitialized>"
 
 -- Denoted values
 data DenVal = 
