@@ -61,9 +61,14 @@ instance Show ExpVal where
   show (Num_Val num)   = show num
   show (Bool_Val bool) = show bool
   show (Proc_Val proc) = show proc  -- "<proc>"
-  show (List_Val list) = show list -- Todo: print a list as [1,2,3] instead of (1,2,3)??
+  show (List_Val list) = "(" ++ showWithSp list ++ ")" -- Todo: print a list as [1,2,3] instead of (1,2,3)??
   show (Object_Val obj) = show obj
   show (Uninitialized_Val) = "<uninitialized>"
+
+showWithSp :: [ExpVal] -> String
+showWithSp [] = ""
+showWithSp [x] = show x
+showWithSp (x:xs) = show x ++ " " ++ showWithSp xs  
 
 -- Denoted values
 data DenVal = 
