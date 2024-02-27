@@ -37,16 +37,28 @@ data Token =
   | SET                         -- set
   | LIST                         -- list
 
-  -- new tokens in classes
+  -- class tokens
 
   | CLASS  -- class
   | EXTENDS  -- extends
+  | INTERFACE -- interface (new)
+  | IMPLEMENTS -- implements (new)
   | METHOD -- method
   | FIELD  -- field
   | NEW    -- new
   | SEND   -- send
   | SELF   -- self
   | SUPER  -- super
+
+  | CAST   -- cast expr C (new)
+  | INSTANCEOF  -- instanceof expr C (new)
+
+  -- new tokens in types
+
+  | INT_TYPE   -- int (new)
+  | BOOL_TYPE  -- bool (new)
+  | VOID_TYPE  -- void (new)
+  | LISTOF     -- listof (new)
   deriving (Eq, Show)
 
 tokenStrList :: [(Token,String)]
@@ -87,12 +99,22 @@ keywords =
     -- classes language
     (CLASS, "class"),
     (EXTENDS, "extends"),
+    (INTERFACE, "interface"),
+    (IMPLEMENTS, "implements"),
     (METHOD, "method"),
     (FIELD, "field"),
     (NEW, "new"),
     (SEND, "send"),
     (SELF, "self"),
-    (SUPER, "super")
+    (SUPER, "super"),
+    (CAST, "cast"),
+    (INSTANCEOF, "instanceof"),
+
+    -- types
+    (INT_TYPE, "int"),
+    (BOOL_TYPE, "bool"),
+    (VOID_TYPE, "void"),
+    (LISTOF, "listof")
   ]
 
 findTok tok [] = Nothing

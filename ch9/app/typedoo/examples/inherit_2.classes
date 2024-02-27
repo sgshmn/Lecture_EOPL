@@ -1,0 +1,40 @@
+class c1 extends object 
+  field ivar1
+  method initialize()set ivar1 = 1
+
+  method setiv1(n)set ivar1 = n
+  method getiv1()ivar1
+
+  method foo()1
+  method call_foo_from_superclass()send self foo()  % changed from call-foo-from-superclass()
+
+  
+class c2 extends c1 
+  field ivar2
+  method initialize() 
+   begin super initialize(); set ivar2 = 1 end
+   
+
+  method foo()2
+
+  method setiv2(n)set ivar2 = n
+  method getiv2()ivar2
+
+  method self_and_super_foo()    % changed from self-and-super-foo()
+    list( send self foo(),  super foo())
+
+  method test_self_from_super()   % changed from test-self-from-super()
+     super call_foo_from_superclass()    % changed from call-foo-from-superclass()
+
+   
+let o = new c2 ()
+    t1 = 0 t2 = 0 t3 = 0 t4 = 0
+in begin
+       send o setiv1(33);
+       list(
+         send o getiv1(),
+         send o self_and_super_foo(),      % changed from self-and-super-foo()
+         send o call_foo_from_superclass(),     % changed from call-foo-from-superclass()
+         send o test_self_from_super()     % changed from test-self-from-super()
+         )
+      end  

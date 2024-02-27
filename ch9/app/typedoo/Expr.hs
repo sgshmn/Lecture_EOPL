@@ -47,6 +47,16 @@ type LetBindings = [ (Identifier, Exp) ]
 -- f1(x11,...,xn1) = expr1  ...  fk(xk1,...,xkn) = exprk
 type LetRecBindings = [(Identifier, [Identifier], Exp)] 
 
+data Type =
+    TyInt
+  | TyBool
+  | TyVoid
+  | TyFun [Type] Type
+  | TyClass Identifier  -- class name or interface name
+  | TyListOf Type -- listof(type)
+  deriving Show
+
+
 --- Parsed Expression Tree
 
 data PET =
@@ -73,3 +83,12 @@ fromClassDecl classDecl     = PET_ClassDecl classDecl
 fromMethodDeclList methodDeclList = PET_MethodDeclList methodDeclList
 fromClassDeclList classDeclList   = PET_ClassDeclList classDeclList
 fromProgram program         = PET_Program program
+
+
+-- for testing the type checker
+type TestCaseName = String
+type ExprText = String
+
+data TypeDeclTestCase = TDTC TestCaseName ExprText (Maybe Type)
+
+data TypeDeclTestSuite = TypeDeclTestSuite [ TypeDeclTestCase ]

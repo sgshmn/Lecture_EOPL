@@ -1,0 +1,3 @@
+class c1 extends object 
+  field y 
+  method gety() y 33

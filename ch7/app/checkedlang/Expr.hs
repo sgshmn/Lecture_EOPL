@@ -43,6 +43,6 @@ type ExprText = String
 
 data TypeDeclTestCase = TDTC TestCaseName ExprText (Maybe Type)
 
-data TypeDecl = TypeDecl [ TypeDeclTestCase ]
+data TypeDeclTestSuite = TypeDeclTestSuite [ TypeDeclTestCase ]
 
 

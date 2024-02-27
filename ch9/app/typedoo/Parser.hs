@@ -32,12 +32,23 @@ parserSpec = ParserSpec
 
       rule "ZeroMoreClassDecl -> " (\rhs -> return $ fromClassDeclList []),
 
-      rule "ClassDecl -> class identifier extends identifier ZeroMoreFieldDecl ZeroMoreMethodDecl"
-        (\rhs -> return $ fromClassDecl $ 
-                  Class_Decl (getText rhs 2) (getText rhs 4) 
-                    (idListFrom (get rhs 5)) (methodDeclListFrom (get rhs 6))),
+      rule "ClassDecl -> class identifier extends identifier ZeroMoreImplementsDecl ZeroMoreFieldDecl ZeroMoreMethodDecl"
+        (\rhs -> undefined
+               --  return $ fromClassDecl $ 
+               --   Class_Decl (getText rhs 2) (getText rhs 4) 
+               --     (idListFrom (get rhs 5)) (methodDeclListFrom (get rhs 6))
+               ),
 
-      rule "ZeroMoreFieldDecl -> field identifier ZeroMoreFieldDecl" 
+      rule "ClassDecl -> interface identifier ZeroMoreAbstractMethodDecl" 
+        (\rhs -> undefined),
+
+      rule "ZeroMoreImplementsDecl -> " 
+               (\rhs -> undefined),
+               
+      rule "ZeroMoreImplementsDecl -> implements identifier ZeroMoreImplementsDecl" 
+        (\rhs -> undefined),
+
+      rule "ZeroMoreFieldDecl -> field Type identifier ZeroMoreFieldDecl" 
         (\rhs -> return $ fromIdList $ getText rhs 2 : idListFrom (get rhs 3)),
 
       rule "ZeroMoreFieldDecl -> " (\rhs -> return $ fromIdList []),
@@ -48,19 +59,27 @@ parserSpec = ParserSpec
 
       rule "ZeroMoreMethodDecl -> " (\rhs -> return $ fromMethodDeclList []),
 
-      rule "MethodDecl -> method identifier ( ZeroMoreIdentifier ) Expression"
+      rule "MethodDecl -> method identifier ( ZeroMoreTypedIdentifier ) Expression"
         (\rhs -> return $ fromMethodDecl $ 
                   Method_Decl (getText rhs 2) (idListFrom (get rhs 4)) (expFrom (get rhs 6))),
 
-      -- ZeroMoreIdentifier :: PET_IdList
-      rule "ZeroMoreIdentifier -> OneMoreIdentifier" (\rhs -> return $ get rhs 1),
+      rule "ZeroMoreAbstractMethodDecl -> AbstractMethodDecl ZeroMoreAbstractMethodDecl"
+        (\rhs -> undefined),
+        
+      rule "ZeroMoreAbstractMethodDecl -> " (\rhs -> undefined),
 
-      rule "ZeroMoreIdentifier -> " (\rhs -> return $ fromIdList []),
+      rule "AbstractMethodDecl -> method Type identifier ( ZeroMoreTypedIdentifier )"
+        (\rhs -> undefined),
 
-      rule "OneMoreIdentifier -> identifier , OneMoreIdentifier" 
+      -- ZeroMoreTypedIdentifier :: PET_IdList
+      rule "ZeroMoreTypedIdentifier -> OneMoreTypedIdentifier" (\rhs -> return $ get rhs 1),
+
+      rule "ZeroMoreTypedIdentifier -> " (\rhs -> return $ fromIdList []),
+
+      rule "OneMoreTypedIdentifier -> Type identifier , OneMoreTypedIdentifier" 
         (\rhs -> return $ fromIdList $ getText rhs 1 : idListFrom (get rhs 3)),
 
-      rule "OneMoreIdentifier -> identifier" (\rhs -> return $ fromIdList [ getText rhs 1 ]),
+      rule "OneMoreTypedIdentifier -> Type identifier" (\rhs -> return $ fromIdList [ getText rhs 1 ]),
   
 
       {- Multiple expressions -}
@@ -116,6 +135,12 @@ parserSpec = ParserSpec
       rule "Expression -> super identifier ( ZeroMoreExpression )"
         (\rhs -> return $ fromExp $ 
                     Super_Call_Exp (getText rhs 2)  (expListFrom (get rhs 4)) ),
+
+      rule "Expression -> cast Expression identifier"
+        (\rhs -> undefined),
+
+      rule "Expression -> instanceof Expression identifier"
+        (\rhs -> undefined),        
 
       rule "Expression -> integer_number"
         (\rhs -> return $ fromExp $ Const_Exp (read (getText rhs 1) :: Int)),
@@ -187,7 +212,28 @@ parserSpec = ParserSpec
       rule "LetRecBindings -> identifier ( ZeroMoreIdentifier ) = Expression LetRecBindings"
         (\rhs -> return $ fromIdIdListExpList 
                   ((getText rhs 1, idListFrom (get rhs 3), expFrom (get rhs 6)) 
-                      : idIdListExpListFrom (get rhs 7)))
+                      : idIdListExpListFrom (get rhs 7))),
+
+      {- Types -}
+      rule "ZeroMoreArgTypes -> " (\rhs -> undefined),
+
+      rule "ZeroMoreArgTypes -> OneMoreArgTypes" (\rhs -> undefined),
+
+      rule "OneMoreArgTypes -> Type" (\rhs -> undefined),
+
+      rule "OneMoreArgTypes -> Type * OneMoreArgTypes" (\rhs -> undefined),
+
+      rule "Type -> int" (\rhs -> undefined),
+
+      rule "Type -> bool" (\rhs -> undefined),
+
+      rule "Type -> void" (\rhs -> undefined),
+
+      rule "Type -> ( ZeroMoreArgTypes ) -> Type" (\rhs -> undefined),
+
+      rule "Type -> identifier" (\rhs -> undefined),
+
+      rule "Type -> listof Type" (\rhs -> undefined)
     ],
     
     baseDir        = "./",
