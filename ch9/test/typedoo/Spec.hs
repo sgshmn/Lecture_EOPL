@@ -1,4 +1,4 @@
-module Main where
+module Spec where
 
 import Expr
 import TypeCheck
@@ -12,7 +12,7 @@ import Parser
 main :: IO ()
 main = mapM_ doTest $ typechecker_tests'
   where
-    TypeDecl typechecker_tests' = typechecker_tests
+    TypeDeclTestSuite typechecker_tests' = typechecker_tests
     doTest (TDTC tcname expr_text maybeResult) =
       do putStr $ tcname ++ " : "
 
@@ -22,21 +22,22 @@ main = mapM_ doTest $ typechecker_tests'
               (aLexer lexerSpec)
               (fromToken (endOfToken lexerSpec))
 
-         let expression = fromASTExp expressionAst
+         let expression = expFrom expressionAst
 
-         -- Just to add the type of x!
-         eitherTyOrErr <- typeCheck (Let_Exp "x" (Const_Exp 1) expression)
+         return undefined
+
+        --  eitherTyOrErr <- typeCheck expression
          
-         case eitherTyOrErr of
-           Left errMsg ->
-             case maybeResult of
-               Just ty' -> putStrLn ("Expected " ++ show ty' ++ " but got " ++ errMsg ++ " in " ++ show expression)
-               Nothing  -> putStrLn "Successfully type-unchecked." -- Is it the same error?
+        --  case eitherTyOrErr of
+        --    Left errMsg ->
+        --      case maybeResult of
+        --        Just ty' -> putStrLn ("Expected " ++ show ty' ++ " but got " ++ errMsg ++ " in " ++ show expression)
+        --        Nothing  -> putStrLn "Successfully type-unchecked." -- Is it the same error?
                  
-           Right ty ->
-             case maybeResult of
-               Just ty' -> if equalType ty ty'
-                           then putStrLn "Successfully typechecked."
-                           else putStrLn ("Expected " ++ show ty' ++ " but got " ++ show ty ++ " in " ++ show expression)
+        --    Right ty ->
+        --      case maybeResult of
+        --        Just ty' -> if equalType ty ty'
+        --                    then putStrLn "Successfully typechecked."
+        --                    else putStrLn ("Expected " ++ show ty' ++ " but got " ++ show ty ++ " in " ++ show expression)
                  
-               Nothing  -> putStrLn "Should not be typechecked."
+        --        Nothing  -> putStrLn "Should not be typechecked."

@@ -2,7 +2,9 @@ module Expr(Program(..),ClassDecl(..),MethodDecl(..),Exp(..),Identifier,
             PET(..),
             fromExp,fromExpList,fromIdExpList,fromIdIdListExpList,fromIdList,
             fromClassDecl,fromClassDeclList,fromMethodDecl,fromMethodDeclList,
-            fromProgram) where
+            fromProgram,
+            Type(..),
+            TypeDeclTestCase(..), TypeDeclTestSuite(..)) where
 
 -- Untyped class-based expression language
 

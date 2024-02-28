@@ -72,6 +72,7 @@ executable typedoo-exe
       Parser
       Ref
       Token
+      TypeCheck
       Paths_ch9
   autogen-modules:
       Paths_ch9
@@ -98,6 +99,7 @@ test-suite typedoo-test
       Parser
       Ref
       Token
+      TypeCheck
       Paths_ch9
   autogen-modules:
       Paths_ch9
