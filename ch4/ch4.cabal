@@ -1,6 +1,6 @@
 cabal-version: 1.12
 
--- This file has been generated from package.yaml by hpack version 0.34.4.
+-- This file has been generated from package.yaml by hpack version 0.36.0.
 --
 -- see: https://github.com/sol/hpack
 
@@ -32,6 +32,7 @@ library
       src
   build-depends:
       base >=4.7 && <5
+    , hspec
     , yapb >=0.2.3
   default-language: Haskell2010
 
@@ -53,6 +54,7 @@ executable expref-exe
   build-depends:
       base >=4.7 && <5
     , ch4
+    , hspec
     , yapb >=0.2.3
   default-language: Haskell2010
 
@@ -73,6 +75,7 @@ executable impref-exe
   build-depends:
       base >=4.7 && <5
     , ch4
+    , hspec
     , yapb >=0.2.3
   default-language: Haskell2010
 
@@ -87,5 +90,6 @@ test-suite ch4-test
   build-depends:
       base >=4.7 && <5
     , ch4
+    , hspec
     , yapb >=0.2.3
   default-language: Haskell2010
