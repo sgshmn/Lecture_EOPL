@@ -19,7 +19,7 @@ spec = hspec $ do
                  case maybeResStr of
                    Just resultStr -> do result <- runProg text False
                                         show result `shouldBe` resultStr
-                   Nothing -> do evaluate (runProg text False) `shouldThrow` anyErrorCall))
+                   Nothing -> (do result <- runProg text False; putStrLn (show result)) `shouldThrow` anyException))
       [ (atdir name, maybeResStr) | (name,maybeResStr) <- testcases ]
          
 main = spec
