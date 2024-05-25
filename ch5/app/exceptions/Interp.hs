@@ -9,7 +9,6 @@ type FinalAnswer = ExpVal
 
 data Cont =
     End_Cont
-  | Zero1_Cont Cont
   | Let_Exp_Cont Identifier Exp Env Cont
   | If_Test_Cont Exp Exp Env Cont
   | Diff1_Cont Exp Env Cont
@@ -22,12 +21,6 @@ data Cont =
 
 apply_cont :: Cont -> ExpVal -> FinalAnswer
 apply_cont End_Cont v = v
-
-apply_cont (Zero1_Cont cont) num1 =
-  apply_cont cont
-    (if expval_num num1 == 0
-     then Bool_Val True
-     else Bool_Val False)
     
 apply_cont (Let_Exp_Cont var body env cont) val1 =
   value_of_k body (extend_env var val1 env) cont
@@ -70,7 +63,7 @@ apply_handler val (Try_Cont var handler_exp env saved_cont) =
 apply_handler val (End_Cont) =
   error ("Uncaught exception: " ++ show val)
 
-apply_handler val (Zero1_Cont cont) = apply_handler val cont
+apply_handler val (Raise1_Cont cont) = apply_handler val cont
 
 apply_handler val (Let_Exp_Cont x body env cont) = apply_handler val cont
 
