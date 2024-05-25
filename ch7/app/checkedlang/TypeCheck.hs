@@ -19,26 +19,23 @@ type TyEnv = Map.Map Identifier Type
 
 type_of :: TyEnv -> Exp -> Either String Type
 
-type_of tyenv exp@(Const_Exp n) = return TyInt
+type_of tyenv exp@(Const_Exp n) = Right TyInt
 
-type_of tyenv exp@(Var_Exp var) =
-  case Map.lookup var tyenv of
-    Just ty -> return ty
-    Nothing -> type_error $ "Variable not found: " ++ var
+type_of tyenv exp@(Var_Exp var) = apply_tyenv tyenv var
 
 type_of tyenv exp@(Diff_Exp exp1 exp2) =
   do ty1 <- type_of tyenv exp1
      ty2 <- type_of tyenv exp2
      case ty1 of
        TyInt -> case ty2 of
-                 TyInt -> return TyInt
+                 TyInt -> Right TyInt
                  _     -> expectedButErr TyInt ty2 exp2
        _ -> expectedButErr TyInt ty1 exp1
 
 type_of tyenv exp@(IsZero_Exp exp1) =
   do ty1 <- type_of tyenv exp1
      case ty1 of
-       TyInt -> return TyBool
+       TyInt -> Right TyBool
        _     -> expectedButErr TyInt ty1 exp1
 
 type_of tyenv exp@(If_Exp exp1 exp2 exp3) =
@@ -47,8 +44,8 @@ type_of tyenv exp@(If_Exp exp1 exp2 exp3) =
      elseTy <- type_of tyenv exp3
      case condTy of
        TyBool -> if equalType thenTy elseTy
-                 then return thenTy
-                 else inequalTypeErr thenTy elseTy exp2 exp
+                 then Right thenTy
+                 else inequalIfBranchTyErr thenTy elseTy exp2 exp
                       
        _      -> expectedButErr TyBool condTy exp1
 
@@ -77,29 +74,32 @@ type_of tyenv exp@(Call_Exp rator rand) =
      argTy <- type_of tyenv rand
      case funTy of
        TyFun ty1 ty2 -> if equalType ty1 argTy
-                        then return ty2
+                        then Right ty2
                         else inequalArgtyErr ty1 argTy rator rand
        _             -> expectedFuntyButErr funTy rator
 
          
 
 -- Utilities
-type_error :: String -> Either String Type
-type_error msg = Left msg
+apply_tyenv :: TyEnv -> Identifier -> Either String Type 
+apply_tyenv tyenv var =
+  case Map.lookup var tyenv of
+    Just ty -> Right ty
+    Nothing -> Left $ "Variable not found: " ++ var
 
 expectedButErr expectedTy gotTy exp =
-  type_error $ "Expected " ++ show expectedTy ++ " but got " ++ show gotTy ++ " in " ++ show exp
+  Left $ "Expected " ++ show expectedTy ++ " but got " ++ show gotTy ++ " in " ++ show exp
 
 expectedFuntyButErr gotTy exp =
-  type_error $ "Expected function type but got " ++ show gotTy ++ " in " ++ show exp
+  Left $ "Expected function type but got " ++ show gotTy ++ " in " ++ show exp
 
-inequalTypeErr thenTy elseTy exp2 exp3 =
-  type_error $ "Type mismatch: \n"
+inequalIfBranchTyErr thenTy elseTy exp2 exp3 =
+  Left $ "Type mismatch: \n"
           ++ "\t" ++ show thenTy ++ " in " ++ show exp2
           ++ "\t" ++ show elseTy ++ " in " ++ show exp3
 
 inequalArgtyErr argTy1 argTy2 funexp argexp =
-  type_error $ "Type mismatch: \n"
+  Left $ "Type mismatch: \n"
           ++ "\t" ++ show argTy1 ++ " for the arugment of " ++ show funexp
           ++ "\t" ++ show argTy2 ++ " in " ++ show argexp
 
