@@ -8,7 +8,7 @@ import System.IO (readFile)
 import Control.Exception (evaluate)
 
 spec = hspec $ do
-  describe "letlang" $ do
+  describe "implicitrefslang" $ do
     let atdir f = "./app/implicitrefslang/examples/" ++ f
 
     mapM_
