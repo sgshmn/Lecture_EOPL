@@ -49,9 +49,23 @@ executables:
     - ch4    
 
 tests:
-  ch4-test:
+  explicitrefslang-test:
     main:                Spec.hs
-    source-dirs:         test
+    source-dirs:         
+    - test/explicitrefslang
+    - app/explicitrefslang
+    ghc-options:
+    - -threaded
+    - -rtsopts
+    - -with-rtsopts=-N
+    dependencies:
+    - ch4
+
+  implicitrefslang-test:
+    main:                Spec.hs
+    source-dirs:         
+    - test/implicitrefslang
+    - app/implicitrefslang
     ghc-options:
     - -threaded
     - -rtsopts
