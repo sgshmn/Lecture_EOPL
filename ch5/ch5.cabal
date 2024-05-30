@@ -1,6 +1,6 @@
 cabal-version: 1.12
 
--- This file has been generated from package.yaml by hpack version 0.34.4.
+-- This file has been generated from package.yaml by hpack version 0.36.0.
 --
 -- see: https://github.com/sol/hpack
 
@@ -94,6 +94,30 @@ executable threads-exe
       Paths_ch5
   hs-source-dirs:
       app/threads
+  ghc-options: -threaded -rtsopts -with-rtsopts=-N
+  build-depends:
+      base >=4.7 && <5
+    , ch5
+    , hspec
+    , yapb >=0.2.3
+  default-language: Haskell2010
+
+test-suite exceptions-test
+  type: exitcode-stdio-1.0
+  main-is: Spec.hs
+  other-modules:
+      Env
+      Expr
+      Interp
+      Lexer
+      Main
+      MainUtil
+      Parser
+      Token
+      Paths_ch5
+  hs-source-dirs:
+      test/exceptions
+      app/exceptions
   ghc-options: -threaded -rtsopts -with-rtsopts=-N
   build-depends:
       base >=4.7 && <5

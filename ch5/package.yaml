@@ -70,3 +70,16 @@ tests:
     - -with-rtsopts=-N
     dependencies:
     - ch5
+
+
+  exceptions-test:
+    main:                Spec.hs
+    source-dirs:         
+    - test/exceptions
+    - app/exceptions
+    ghc-options:
+    - -threaded
+    - -rtsopts
+    - -with-rtsopts=-N
+    dependencies:
+    - ch5    
