@@ -91,7 +91,7 @@ testcases =
       ("begin_test_1.letrec_ext", Just "3"),
 
       -- extremely primitive testing for mutable variables
-      ("assingment_test_1.impref", Just "27"),
+      ("assignment_test_1.impref", Just "27"),
 
       --
       ("gensym_test_1.impref", Just "-1"),

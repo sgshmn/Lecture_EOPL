@@ -24,8 +24,8 @@ run text = do
   putStrLn (show val)
 
 runProg text bool = do 
-  expression <- parser text
-
+  _expression <- parser text
+  let expression = expFrom _expression
   if bool then putStrLn (show expression) else return ()
   
   let val = value_of_program expression      -- interpreter
