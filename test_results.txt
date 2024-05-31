@@ -1,0 +1,440 @@
+D:\work\lecture\Lecture_EOPL>cd ch3
+
+D:\work\lecture\Lecture_EOPL\ch3>stack test
+ch3> test (suite: letlang-test)
+
+
+letlang
+  ./app/letlang/examples/positive_const.let
+  ./app/letlang/examples/negative_const.let
+  ./app/letlang/examples/simple_arith_1.let
+  ./app/letlang/examples/simple_arith_var_1.let
+  ./app/letlang/examples/nested_arith_left.let
+  ./app/letlang/examples/nested_arith_right.let
+  ./app/letlang/examples/test_var_1.let
+  ./app/letlang/examples/test_var_2.let
+  ./app/letlang/examples/test_var_3.let
+  ./app/letlang/examples/test_unbound_var_1.let
+  ./app/letlang/examples/test_unbound_var_2.let
+  ./app/letlang/examples/if_true.let
+  ./app/letlang/examples/if_false.let
+  ./app/letlang/examples/no_bool_to_diff_1.let
+  ./app/letlang/examples/no_bool_to_diff_2.let
+  ./app/letlang/examples/no_int_to_if.let
+  ./app/letlang/examples/if_eval_test_true.let
+  ./app/letlang/examples/if_eval_test_false.let
+  ./app/letlang/examples/if_eval_test_true_2.let
+  ./app/letlang/examples/if_eval_test_false_2.let
+  ./app/letlang/examples/simple_let_1.let
+  ./app/letlang/examples/eval_let_body.let
+  ./app/letlang/examples/eval_let_rhs.let
+  ./app/letlang/examples/simple_nested_let.let
+  ./app/letlang/examples/check_shadowing_in_body.let
+  ./app/letlang/examples/check_shadowing_in_rhs.let
+
+Finished in 0.4893 seconds
+26 examples, 0 failures
+
+
+
+ch3> Test suite letlang-test passed
+ch3> test (suite: letreclang-test)
+
+
+letreclang
+  ./app/letreclang/examples/positive_const.let
+  ./app/letreclang/examples/negative_const.let
+  ./app/letreclang/examples/simple_arith_1.let
+  ./app/letreclang/examples/simple_arith_var_1.let
+  ./app/letreclang/examples/nested_arith_left.let
+  ./app/letreclang/examples/nested_arith_right.let
+  ./app/letreclang/examples/test_var_1.let
+  ./app/letreclang/examples/test_var_2.let
+  ./app/letreclang/examples/test_var_3.let
+  ./app/letreclang/examples/test_unbound_var_1.let
+  ./app/letreclang/examples/test_unbound_var_2.let
+  ./app/letreclang/examples/if_true.let
+  ./app/letreclang/examples/if_false.let
+  ./app/letreclang/examples/no_bool_to_diff_1.let
+  ./app/letreclang/examples/no_bool_to_diff_2.let
+  ./app/letreclang/examples/no_int_to_if.let
+  ./app/letreclang/examples/if_eval_test_true.let
+  ./app/letreclang/examples/if_eval_test_false.let
+  ./app/letreclang/examples/if_eval_test_true_2.let
+  ./app/letreclang/examples/if_eval_test_false_2.let
+  ./app/letreclang/examples/simple_let_1.let
+  ./app/letreclang/examples/eval_let_body.let
+  ./app/letreclang/examples/eval_let_rhs.let
+  ./app/letreclang/examples/simple_nested_let.let
+  ./app/letreclang/examples/check_shadowing_in_body.let
+  ./app/letreclang/examples/check_shadowing_in_rhs.let
+  ./app/letreclang/examples/apply_proc_in_rator_pos.proc
+  ./app/letreclang/examples/apply_simple_proc.proc
+  ./app/letreclang/examples/let_to_proc_1.proc
+  ./app/letreclang/examples/nested_procs_1.proc
+  ./app/letreclang/examples/nested_procs_2.proc
+  ./app/letreclang/examples/y_combinator_1.proc
+  ./app/letreclang/examples/simple_letrec_1.letrec
+  ./app/letreclang/examples/simple_letrec_2.letrec
+  ./app/letreclang/examples/simple_letrec_3.letrec
+  ./app/letreclang/examples/ho_nested_letrecs.letrec
+
+Finished in 0.4918 seconds
+36 examples, 0 failures
+
+
+
+ch3> Test suite letreclang-test passed
+ch3> test (suite: proclang-test)
+
+
+proclang
+  ./app/proclang/examples/positive_const.let
+  ./app/proclang/examples/negative_const.let
+  ./app/proclang/examples/simple_arith_1.let
+  ./app/proclang/examples/simple_arith_var_1.let
+  ./app/proclang/examples/nested_arith_left.let
+  ./app/proclang/examples/nested_arith_right.let
+  ./app/proclang/examples/test_var_1.let
+  ./app/proclang/examples/test_var_2.let
+  ./app/proclang/examples/test_var_3.let
+  ./app/proclang/examples/test_unbound_var_1.let
+  ./app/proclang/examples/test_unbound_var_2.let
+  ./app/proclang/examples/if_true.let
+  ./app/proclang/examples/if_false.let
+  ./app/proclang/examples/no_bool_to_diff_1.let
+  ./app/proclang/examples/no_bool_to_diff_2.let
+  ./app/proclang/examples/no_int_to_if.let
+  ./app/proclang/examples/if_eval_test_true.let
+  ./app/proclang/examples/if_eval_test_false.let
+  ./app/proclang/examples/if_eval_test_true_2.let
+  ./app/proclang/examples/if_eval_test_false_2.let
+  ./app/proclang/examples/simple_let_1.let
+  ./app/proclang/examples/eval_let_body.let
+  ./app/proclang/examples/eval_let_rhs.let
+  ./app/proclang/examples/simple_nested_let.let
+  ./app/proclang/examples/check_shadowing_in_body.let
+  ./app/proclang/examples/check_shadowing_in_rhs.let
+  ./app/proclang/examples/apply_proc_in_rator_pos.proc
+  ./app/proclang/examples/apply_simple_proc.proc
+  ./app/proclang/examples/let_to_proc_1.proc
+  ./app/proclang/examples/nested_procs_1.proc
+  ./app/proclang/examples/nested_procs_2.proc
+  ./app/proclang/examples/y_combinator_1.proc
+
+Finished in 0.3624 seconds
+32 examples, 0 failures
+
+
+
+ch3> Test suite proclang-test passed
+
+D:\work\lecture\Lecture_EOPL\ch3>cd ..\ch4
+
+D:\work\lecture\Lecture_EOPL\ch4>stack test
+ch4-0.1.0.0: unregistering (components added: exe:expref-exe, exe:impref-exe, test:implicitrefslang-test)
+ch4> build (lib + exe + test)
+Preprocessing library for ch4-0.1.0.0..
+Building library for ch4-0.1.0.0..
+Preprocessing executable 'impref-exe' for ch4-0.1.0.0..
+Building executable 'impref-exe' for ch4-0.1.0.0..
+Warning: Enabling workaround for Main module 'Main' listed in 'other-modules'
+Preprocessing test suite 'explicitrefslang-test' for ch4-0.1.0.0..
+illegally!
+Building test suite 'explicitrefslang-test' for ch4-0.1.0.0..
+Preprocessing test suite 'implicitrefslang-test' for ch4-0.1.0.0..
+Warning: Enabling workaround for Main module 'Main' listed in 'other-modules'
+Building test suite 'implicitrefslang-test' for ch4-0.1.0.0..
+illegally!
+Preprocessing executable 'expref-exe' for ch4-0.1.0.0..
+Building executable 'expref-exe' for ch4-0.1.0.0..
+ch4> copy/register
+Installing library in D:\work\lecture\Lecture_EOPL\ch4\.stack-work\install\04dfedea\lib\x86_64-windows-ghc-9.0.2\ch4-0.1.0.0-uUPb0zbl67J9kd2nG4iOJ
+Installing executable impref-exe in D:\work\lecture\Lecture_EOPL\ch4\.stack-work\install\04dfedea\bin
+Installing executable expref-exe in D:\work\lecture\Lecture_EOPL\ch4\.stack-work\install\04dfedea\bin
+Registering library for ch4-0.1.0.0..
+ch4> test (suite: explicitrefslang-test)
+
+
+explicitrefslang
+  ./app/explicitrefslang/examples/positive_const.let
+  ./app/explicitrefslang/examples/negative_const.let
+  ./app/explicitrefslang/examples/simple_arith_1.let
+  ./app/explicitrefslang/examples/nested_arith_left.let
+  ./app/explicitrefslang/examples/nested_arith_right.let
+  ./app/explicitrefslang/examples/test_var_1.let
+  ./app/explicitrefslang/examples/test_var_2.let
+  ./app/explicitrefslang/examples/test_var_3.let
+  ./app/explicitrefslang/examples/test_unbound_var_1.let
+  ./app/explicitrefslang/examples/test_unbound_var_2.let
+  ./app/explicitrefslang/examples/if_true.let
+  ./app/explicitrefslang/examples/if_false.let
+  ./app/explicitrefslang/examples/no_bool_to_diff_1.let
+  ./app/explicitrefslang/examples/no_bool_to_diff_2.let
+  ./app/explicitrefslang/examples/no_int_to_if.let
+  ./app/explicitrefslang/examples/if_eval_test_true.let
+  ./app/explicitrefslang/examples/if_eval_test_false.let
+  ./app/explicitrefslang/examples/if_eval_test_true_2.let
+  ./app/explicitrefslang/examples/if_eval_test_false_2.let
+  ./app/explicitrefslang/examples/simple_let_1.let
+  ./app/explicitrefslang/examples/eval_let_body.let
+  ./app/explicitrefslang/examples/eval_let_rhs.let
+  ./app/explicitrefslang/examples/simple_nested_let.let
+  ./app/explicitrefslang/examples/check_shadowing_in_body.let
+  ./app/explicitrefslang/examples/check_shadowing_in_rhs.let
+  ./app/explicitrefslang/examples/simple_app_1.proc
+  ./app/explicitrefslang/examples/simple_app_2.proc
+  ./app/explicitrefslang/examples/simple_app_3.proc
+  ./app/explicitrefslang/examples/nested_procs_1.proc
+  ./app/explicitrefslang/examples/nested_procs_2.proc
+  ./app/explicitrefslang/examples/y_combinator_1.proc
+  ./app/explicitrefslang/examples/simple_letrec_1.letrec
+  ./app/explicitrefslang/examples/simple_letrec_2.letrec
+  ./app/explicitrefslang/examples/simple_letrec_3.letrec
+  ./app/explicitrefslang/examples/ho_nested_letrecs.letrec
+  ./app/explicitrefslang/examples/begin_test_1.expref
+  ./app/explicitrefslang/examples/gensym_test_1.expref
+  ./app/explicitrefslang/examples/gensym_test_2.expref
+  ./app/explicitrefslang/examples/simple_store_test_1.expref
+  ./app/explicitrefslang/examples/assignment_test_1.expref
+  ./app/explicitrefslang/examples/even_odd_via_set_1.expref
+  ./app/explicitrefslang/examples/show_allocation_1.expref
+  ./app/explicitrefslang/examples/chains_1.expref
+
+Finished in 0.6759 seconds
+43 examples, 0 failures
+
+
+
+ch4> Test suite explicitrefslang-test passed
+ch4> test (suite: implicitrefslang-test)
+
+
+implicitrefslang
+  ./app/implicitrefslang/examples/positive_const.let
+  ./app/implicitrefslang/examples/negative_const.let
+  ./app/implicitrefslang/examples/simple_arith_1.let
+  ./app/implicitrefslang/examples/nested_arith_left.let
+  ./app/implicitrefslang/examples/nested_arith_right.let
+  ./app/implicitrefslang/examples/test_unbound_var_1.let
+  ./app/implicitrefslang/examples/test_unbound_var_2.let
+  ./app/implicitrefslang/examples/if_true.let
+  ./app/implicitrefslang/examples/if_false.let
+  ./app/implicitrefslang/examples/no_bool_to_diff_1.let
+  ./app/implicitrefslang/examples/no_bool_to_diff_2.let
+  ./app/implicitrefslang/examples/no_int_to_if.let
+  ./app/implicitrefslang/examples/if_eval_test_true.let
+  ./app/implicitrefslang/examples/if_eval_test_false.let
+  ./app/implicitrefslang/examples/if_eval_test_true_2.let
+  ./app/implicitrefslang/examples/if_eval_test_false_2.let
+  ./app/implicitrefslang/examples/simple_let_1.let
+  ./app/implicitrefslang/examples/eval_let_body.let
+  ./app/implicitrefslang/examples/eval_let_rhs.let
+  ./app/implicitrefslang/examples/simple_nested_let.let
+  ./app/implicitrefslang/examples/check_shadowing_in_body.let
+  ./app/implicitrefslang/examples/check_shadowing_in_rhs.let
+  ./app/implicitrefslang/examples/apply_proc_in_rator_pos.proc
+  ./app/implicitrefslang/examples/apply_simple_proc.proc
+  ./app/implicitrefslang/examples/let_to_proc_1.proc
+  ./app/implicitrefslang/examples/nested_procs_1.proc
+  ./app/implicitrefslang/examples/nested_procs_2.proc
+  ./app/implicitrefslang/examples/y_combinator_1.proc
+  ./app/implicitrefslang/examples/simple_letrec_1.letrec
+  ./app/implicitrefslang/examples/simple_letrec_2.letrec
+  ./app/implicitrefslang/examples/simple_letrec_3.letrec
+  ./app/implicitrefslang/examples/ho_nested_letrecs.letrec
+  ./app/implicitrefslang/examples/begin_test_1.letrec_ext
+  ./app/implicitrefslang/examples/assignment_test_1.impref
+  ./app/implicitrefslang/examples/gensym_test_1.impref
+  ./app/implicitrefslang/examples/even_odd_via_set_1.impref
+  ./app/implicitrefslang/examples/example_for_book_1.impref
+
+Finished in 0.8341 seconds
+37 examples, 0 failures
+
+
+
+ch4> Test suite implicitrefslang-test passed
+Completed 2 action(s).
+
+D:\work\lecture\Lecture_EOPL\ch4>cd ..\ch5
+
+D:\work\lecture\Lecture_EOPL\ch5>stack test
+ch5> test (suite: exceptions-test)
+
+
+exceptions
+  ./app/exceptions/examples/positive_const.let
+  ./app/exceptions/examples/negative_const.let
+  ./app/exceptions/examples/simple_arith_1.let
+  ./app/exceptions/examples/nested_arith_left.let
+  ./app/exceptions/examples/nested_arith_right.let
+  ./app/exceptions/examples/test_var_1.let
+  ./app/exceptions/examples/test_var_2.let
+  ./app/exceptions/examples/test_var_3.let
+  ./app/exceptions/examples/test_unbound_var_1.let
+  ./app/exceptions/examples/test_unbound_var_2.let
+  ./app/exceptions/examples/if_true.let
+  ./app/exceptions/examples/if_false.let
+  ./app/exceptions/examples/no_bool_to_diff_1.let
+  ./app/exceptions/examples/no_bool_to_diff_2.let
+  ./app/exceptions/examples/no_int_to_if.let
+  ./app/exceptions/examples/if_eval_test_true.let
+  ./app/exceptions/examples/if_eval_test_false.let
+  ./app/exceptions/examples/if_eval_test_true_2.let
+  ./app/exceptions/examples/if_eval_test_false_2.let
+  ./app/exceptions/examples/simple_let_1.let
+  ./app/exceptions/examples/eval_let_body.let
+  ./app/exceptions/examples/eval_let_rhs.let
+  ./app/exceptions/examples/simple_nested_let.let
+  ./app/exceptions/examples/check_shadowing_in_body.let
+  ./app/exceptions/examples/check_shadowing_in_rhs.let
+  ./app/exceptions/examples/apply_proc_in_rator_pos.proc
+  ./app/exceptions/examples/apply_simple_proc.proc
+  ./app/exceptions/examples/let_to_proc_1.proc
+  ./app/exceptions/examples/nested_procs_1.proc
+  ./app/exceptions/examples/nested_procs_2.proc
+  ./app/exceptions/examples/if_eval_test_true.let
+  ./app/exceptions/examples/if_eval_test_false.let
+  ./app/exceptions/examples/if_eval_test_true_2.let
+  ./app/exceptions/examples/if_eval_test_false_2.let
+  ./app/exceptions/examples/twice.proc
+  ./app/exceptions/examples/simple_letrec_1.letrec
+  ./app/exceptions/examples/simple_letrec_2.letrec
+  ./app/exceptions/examples/simple_letrec_3.letrec
+  ./app/exceptions/examples/ho_nested_letrecs.letrec
+  ./app/exceptions/examples/lists_1.exn
+  ./app/exceptions/examples/car_1.exn
+  ./app/exceptions/examples/cdr_1.exn
+  ./app/exceptions/examples/simple_succeed.exn
+  ./app/exceptions/examples/dont_run_handler_til_failure.exn
+  ./app/exceptions/examples/simple_failure.exn
+  ./app/exceptions/examples/uncaught_exception.exn
+  ./app/exceptions/examples/exceptions_have_dynamic_scope_1.exn
+  ./app/exceptions/examples/handler_in_non_tail_recursive_position.exn
+  ./app/exceptions/examples/propagate_error_1.exn
+  ./app/exceptions/examples/propagate_error_2.exn
+  ./app/exceptions/examples/text_example_0_1.exn
+  ./app/exceptions/examples/text_example_0_2.exn
+  ./app/exceptions/examples/text_example_1_1.exn
+  ./app/exceptions/examples/text_example_1_2.exn
+
+Finished in 0.9062 seconds
+54 examples, 0 failures
+
+
+
+ch5> Test suite exceptions-test passed
+ch5> test (suite: letreccps-test)
+
+
+letreccps
+  ./app/letreccps/examples/positive_const.let
+  ./app/letreccps/examples/negative_const.let
+  ./app/letreccps/examples/simple_arith_1.let
+  ./app/letreccps/examples/simple_arith_var_1.let
+  ./app/letreccps/examples/nested_arith_left.let
+  ./app/letreccps/examples/nested_arith_right.let
+  ./app/letreccps/examples/test_var_1.let
+  ./app/letreccps/examples/test_var_2.let
+  ./app/letreccps/examples/test_var_3.let
+  ./app/letreccps/examples/test_unbound_var_1.let
+  ./app/letreccps/examples/test_unbound_var_2.let
+  ./app/letreccps/examples/if_true.let
+  ./app/letreccps/examples/if_false.let
+  ./app/letreccps/examples/no_bool_to_diff_1.let
+  ./app/letreccps/examples/no_bool_to_diff_2.let
+  ./app/letreccps/examples/no_int_to_if.let
+  ./app/letreccps/examples/if_eval_test_true.let
+  ./app/letreccps/examples/if_eval_test_false.let
+  ./app/letreccps/examples/if_eval_test_true_2.let
+  ./app/letreccps/examples/if_eval_test_false_2.let
+  ./app/letreccps/examples/simple_let_1.let
+  ./app/letreccps/examples/eval_let_body.let
+  ./app/letreccps/examples/eval_let_rhs.let
+  ./app/letreccps/examples/simple_nested_let.let
+  ./app/letreccps/examples/check_shadowing_in_body.let
+  ./app/letreccps/examples/check_shadowing_in_rhs.let
+  ./app/letreccps/examples/apply_proc_in_rator_pos.proc
+  ./app/letreccps/examples/apply_simple_proc.proc
+  ./app/letreccps/examples/let_to_proc_1.proc
+  ./app/letreccps/examples/nested_procs_1.proc
+  ./app/letreccps/examples/nested_procs_2.proc
+  ./app/letreccps/examples/y_combinator_1.proc
+  ./app/letreccps/examples/simple_letrec_1.letrec
+  ./app/letreccps/examples/simple_letrec_2.letrec
+  ./app/letreccps/examples/simple_letrec_3.letrec
+  ./app/letreccps/examples/ho_nested_letrecs.letrec
+
+Finished in 0.7112 seconds
+36 examples, 0 failures
+
+
+
+ch5> Test suite letreccps-test passed
+
+D:\work\lecture\Lecture_EOPL\ch5>cd ..\ch7
+
+D:\work\lecture\Lecture_EOPL\ch7>stack test
+ch7> test (suite: checkedlang-test)
+
+
+exceptions
+  checkedlang:positive-const
+  checkedlang:negative-const
+  checkedlang:simple-arith-1
+  checkedlang:nested-arith-left
+  checkedlang:nested-arith-right
+  checkedlang:test-var-1
+  checkedlang:test-var-2
+  checkedlang:test-var-3
+  checkedlang:zero-test-1
+  checkedlang:zero-test-2
+  checkedlang:test-unbound-var-1
+  checkedlang:test-unbound-var-2
+  checkedlang:if-true
+  checkedlang:if-false
+  checkedlang:if-eval-test-true
+  checkedlang:if-eval-test-false
+  checkedlang:if-eval-then
+  checkedlang:if-eval-else
+  checkedlang:if-compare-arms
+  checkedlang:if-check-test-is-boolean
+  checkedlang:simple-let-1
+  checkedlang:eval-let-body
+  checkedlang:eval-let-rhs
+  checkedlang:simple-nested-let
+  checkedlang:check-shadowing-in-body
+  checkedlang:check-shadowing-in-rhs
+  checkedlang:apply-proc-in-rator-pos
+  checkedlang:checker-doesnt-ignore-type-info-in-proc
+  checkedlang:apply-simple-proc
+  checkedlang:let-to-proc-1
+  checkedlang:nested-procs
+  checkedlang:nested-procs2
+  checkedlang:simple-letrec-1
+  checkedlang:simple-letrec-2
+  checkedlang:simple-letrec-3
+  checkedlang:double-it
+  checkedlang:build-a-proc-typed
+  checkedlang:build-a-proc-typed-2
+  checkedlang:bind-a-proc-typed
+  checkedlang:bind-a-proc-return-proc
+  checkedlang:type-a-ho-proc-1
+  checkedlang:type-a-ho-proc-2
+  checkedlang:apply-a-ho-proc
+  checkedlang:apply-a-ho-proc-2
+  checkedlang:apply-a-ho-proc-3
+  checkedlang:apply-curried-proc
+  checkedlang:apply-a-proc-2-typed
+  checkedlang:apply-a-letrec
+  checkedlang:letrec-non-shadowing
+  checkedlang:letrec-return-fact
+  checkedlang:letrec-apply-fact
+
+Finished in 0.5344 seconds
+51 examples, 0 failures
+
+
+
+ch7> Test suite checkedlang-test passed
