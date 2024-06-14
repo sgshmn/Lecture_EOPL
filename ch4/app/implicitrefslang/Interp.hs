@@ -65,7 +65,7 @@ value_of (Block_Exp (exp:expList)) env store =
 
 value_of (Set_Exp x exp) env store =
   let (val1,store1) = value_of exp env store
-      (loc,store2) = apply_env env store x
+      (loc,store2) = apply_env env store1 x
   in  (Num_Val 23,setref store2 loc val1)       -- The dummy value, 23, comes from the EOPL book. :)
 
 --
