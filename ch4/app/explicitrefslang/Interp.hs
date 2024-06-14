@@ -70,7 +70,7 @@ value_of (Newref_Exp exp) env store =
 value_of (Deref_Exp exp) env store =
   let (val1,store1) = value_of exp env store
       loc = expval_loc val1
-  in (deref store loc,store1)
+  in (deref store1 loc,store1)
 
 value_of (Setref_Exp exp1 exp2) env store =
   let (val1,store1) = value_of exp1 env store
