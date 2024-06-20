@@ -8,6 +8,7 @@ import Terminal
 import Parser
 import Expr
 import Interp
+import TypeCheck
 
 import Control.Monad (when)
 import System.IO
@@ -31,3 +32,27 @@ runProg text bool = do
   
   let val = value_of_program expression      -- interpreter
   return val 
+
+typecheck text = do
+  let debugFlag = False
+        
+  expressionAst <-
+    parsing debugFlag
+       parserSpec ((), 1, 1, text)
+       (aLexer lexerSpec)
+       (fromToken (endOfToken lexerSpec))
+
+  let expression = fromASTExp expressionAst
+  
+  putStrLn (show expression)
+
+  eitherTyOrErr <- typeCheck expression
+  case eitherTyOrErr of
+    Right ty ->
+      do putStrLn (show ty)
+
+         let val = value_of_program expression
+         putStrLn (show val)
+
+    Left errMsg ->
+      do putStrLn errMsg
