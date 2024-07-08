@@ -4,7 +4,7 @@ import EnvStore
 import Queue
 
 --
-timeslice = 5
+timeslice = 20
 
 --
 initialize_scheduler :: Integer -> SchedState
