@@ -34,7 +34,7 @@ apply_cont cont val store sched =
   if time_expired sched
   then
     let sched' = place_on_ready_queue
-                   (\store0 sched0 -> apply_cont cont val store0 sched0)
+                   (apply_cont cont val)
                    sched
     in  run_next_thread store sched'
     
@@ -88,18 +88,17 @@ apply_cont cont val store sched =
     apply_cont' (Spawn_Cont saved_cont) val store sched =
       let proc1 = expval_proc val
           sched' = place_on_ready_queue
-                       (\store sched ->
-                          apply_procedure_k proc1 (Num_Val 28) End_Subthread_Cont store sched)
+                       (apply_procedure_k proc1 (Num_Val 28) End_Subthread_Cont)
                        sched
       in  apply_cont saved_cont (Num_Val 73) store sched' 
 
     apply_cont' (Wait_Cont saved_cont) val store sched =
       wait_for_mutex (expval_mutex val)
-        (\store1 sched1 -> apply_cont saved_cont (Num_Val 52) store1 sched1) store sched
+        (apply_cont saved_cont (Num_Val 52)) store sched
 
     apply_cont' (Signal_Cont saved_cont) val store sched =
       signal_mutex (expval_mutex val)
-        (\store1 sched1 -> apply_cont saved_cont (Num_Val 53) store1 sched1) store sched
+        (apply_cont saved_cont (Num_Val 53)) store sched
 
     apply_cont' (End_Subthread_Cont) val store sched =
       run_next_thread store sched
@@ -170,7 +169,7 @@ value_of_k (Spawn_Exp exp) env cont store sched =
 value_of_k (Yield_Exp) env cont store sched =
   let yieldsched =
         place_on_ready_queue
-          (\store' sched' -> apply_cont cont (Num_Val 99) store' sched')
+          (apply_cont cont (Num_Val 99))
           sched
   in  run_next_thread store yieldsched 
 
