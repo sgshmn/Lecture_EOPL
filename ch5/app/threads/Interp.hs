@@ -79,7 +79,7 @@ apply_cont cont val store sched =
 
     apply_cont' (Rand_Cont ratorVal cont) randVal store sched =
       let proc = expval_proc ratorVal in
-        apply_procedure_k proc randVal store sched cont
+        apply_procedure_k proc randVal cont store sched
 
     apply_cont' (Set_Rhs_Cont loc cont) val store sched =
       let store' = setref store loc val in
@@ -89,7 +89,7 @@ apply_cont cont val store sched =
       let proc1 = expval_proc val
           sched' = place_on_ready_queue
                        (\store sched ->
-                          apply_procedure_k proc1 (Num_Val 28) store sched End_Subthread_Cont)
+                          apply_procedure_k proc1 (Num_Val 28) End_Subthread_Cont store sched)
                        sched
       in  apply_cont saved_cont (Num_Val 73) store sched' 
 
@@ -199,7 +199,7 @@ value_of_program exp timeslice =
 initEnv = empty_env
 
 --
-apply_procedure_k :: Proc -> ExpVal -> Store -> SchedState -> Cont -> (FinalAnswer, Store)
-apply_procedure_k proc arg store sched cont =
+apply_procedure_k :: Proc -> ExpVal -> Cont -> Store -> SchedState -> (FinalAnswer, Store)
+apply_procedure_k proc arg cont store sched =
   let (loc,store') = newref store arg in
    value_of_k (body proc) (extend_env (var proc) loc (saved_env proc)) cont store' sched
