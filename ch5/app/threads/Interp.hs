@@ -29,79 +29,79 @@ data Cont =
   | Signal_Cont Cont
   | End_Subthread_Cont
 
-apply_cont :: Store -> SchedState -> Cont -> ExpVal -> (FinalAnswer, Store)
-apply_cont store sched cont val =
+apply_cont :: Cont -> ExpVal -> Store -> SchedState -> (FinalAnswer, Store)
+apply_cont cont val store sched =
   if time_expired sched
   then
     let sched' = place_on_ready_queue
-                   (\store0 sched0 -> apply_cont store0 sched0 cont val)
+                   (\store0 sched0 -> apply_cont cont val store0 sched0)
                    sched
     in  run_next_thread store sched'
     
   else
     let sched' = decrement_timer sched
-    in  apply_cont' store sched' cont val
+    in  apply_cont' cont val store sched'
     
   where
-    apply_cont' store sched End_Main_Thread_Cont v =
+    apply_cont' End_Main_Thread_Cont v store sched =
       let sched' = set_final_answer sched v in 
         run_next_thread store sched'
 
-    apply_cont' store sched (Zero1_Cont cont) num1 =
-      apply_cont store sched cont
+    apply_cont' (Zero1_Cont cont) num1 store sched =
+      apply_cont cont
         (if expval_num num1 == 0
          then Bool_Val True
-         else Bool_Val False)
+         else Bool_Val False) store sched 
 
-    apply_cont' store sched (Let_Exp_Cont var body env cont) val1 =
+    apply_cont' (Let_Exp_Cont var body env cont) val1 store sched =
       let (loc,store') = newref store val1
       in  value_of_k body (extend_env var loc env) cont store' sched
 
-    apply_cont' store sched (If_Test_Cont exp2 exp3 env cont) v =
+    apply_cont' (If_Test_Cont exp2 exp3 env cont) v store sched =
       if expval_bool v
       then value_of_k exp2 env cont store sched
       else value_of_k exp3 env cont store sched
 
-    apply_cont' store sched (Diff1_Cont exp2 env cont) val1 =
+    apply_cont' (Diff1_Cont exp2 env cont) val1 store sched =
       value_of_k exp2 env (Diff2_Cont val1 cont) store sched
 
-    apply_cont' store sched (Diff2_Cont val1 cont) val2 =
+    apply_cont' (Diff2_Cont val1 cont) val2 store sched =
       let num1 = expval_num val1
           num2 = expval_num val2
-      in  apply_cont store sched cont (Num_Val (num1 - num2))
+      in  apply_cont cont (Num_Val (num1 - num2)) store sched 
 
-    apply_cont' store sched (Unop_Arg_Cont op cont) val =
+    apply_cont' (Unop_Arg_Cont op cont) val store sched =
       let res = apply_unop op val in
-        res `seq` apply_cont store sched cont res
+        res `seq` apply_cont cont res store sched
 
-    apply_cont' store sched (Rator_Cont rand env cont) ratorVal =
+    apply_cont' (Rator_Cont rand env cont) ratorVal store sched =
       value_of_k rand env (Rand_Cont ratorVal cont) store sched 
 
-    apply_cont' store sched (Rand_Cont ratorVal cont) randVal =
+    apply_cont' (Rand_Cont ratorVal cont) randVal store sched =
       let proc = expval_proc ratorVal in
         apply_procedure_k proc randVal store sched cont
 
-    apply_cont' store sched (Set_Rhs_Cont loc cont) val =
+    apply_cont' (Set_Rhs_Cont loc cont) val store sched =
       let store' = setref store loc val in
-        apply_cont store' sched cont (Num_Val 23)
+        apply_cont cont (Num_Val 23) store' sched 
 
-    apply_cont' store sched (Spawn_Cont saved_cont) val =
+    apply_cont' (Spawn_Cont saved_cont) val store sched =
       let proc1 = expval_proc val
           sched' = place_on_ready_queue
                        (\store sched ->
                           apply_procedure_k proc1 (Num_Val 28) store sched End_Subthread_Cont)
                        sched
-      in  apply_cont store sched' saved_cont (Num_Val 73) 
+      in  apply_cont saved_cont (Num_Val 73) store sched' 
 
-    apply_cont' store sched (Wait_Cont saved_cont) val =
+    apply_cont' (Wait_Cont saved_cont) val store sched =
       wait_for_mutex (expval_mutex val)
-        (\store1 sched1 -> apply_cont store1 sched1 saved_cont (Num_Val 52)) store sched
+        (\store1 sched1 -> apply_cont saved_cont (Num_Val 52) store1 sched1) store sched
 
-    apply_cont' store sched (Signal_Cont saved_cont) val =
+    apply_cont' (Signal_Cont saved_cont) val store sched =
       signal_mutex (expval_mutex val)
-        (\store1 sched1 -> apply_cont store1 sched1 saved_cont (Num_Val 53)) store sched
+        (\store1 sched1 -> apply_cont saved_cont (Num_Val 53) store1 sched1) store sched
 
-    apply_cont' store sched (End_Subthread_Cont) val =
+    apply_cont' (End_Subthread_Cont) val store sched =
       run_next_thread store sched
 
 -- Todo: Introduce exceptions and define apply_handler to see how complex it is!
@@ -122,16 +122,16 @@ apply_unop Print v = trace (show v) $ List_Val []  -- ???
 value_of_k :: Exp -> Env -> Cont -> Store -> SchedState -> (FinalAnswer, Store)
 
 value_of_k (Const_Exp n) env cont store sched =
-  apply_cont store sched cont (Num_Val n)
+  apply_cont cont (Num_Val n) store sched 
 
 value_of_k (Const_List_Exp nums) env cont store sched =
-  apply_cont store sched cont (List_Val (map Num_Val nums))
+  apply_cont cont (List_Val (map Num_Val nums)) store sched 
 
 value_of_k (Var_Exp var) env cont store sched =
   let (loc,store') = apply_env env store var
       val = deref store' loc
   in
-    apply_cont store' sched cont val
+    apply_cont cont val store' sched
 
 value_of_k (Diff_Exp exp1 exp2) env cont store sched =
   value_of_k exp1 env (Diff1_Cont exp2 env cont) store sched 
@@ -149,7 +149,7 @@ value_of_k (Letrec_Exp nameArgBodyList letrec_body) env cont store sched =
   value_of_k letrec_body (extend_env_rec nameArgBodyList env) cont store sched
 
 value_of_k (Proc_Exp var body) env cont store sched =
-  apply_cont store sched cont (Proc_Val (procedure var body env))
+  apply_cont cont (Proc_Val (procedure var body env)) store sched 
 
 value_of_k (Call_Exp rator rand) env cont store sched =
   value_of_k rator env (Rator_Cont rand env cont) store sched
@@ -170,13 +170,13 @@ value_of_k (Spawn_Exp exp) env cont store sched =
 value_of_k (Yield_Exp) env cont store sched =
   let yieldsched =
         place_on_ready_queue
-          (\store' sched' -> apply_cont store' sched' cont (Num_Val 99))
+          (\store' sched' -> apply_cont cont (Num_Val 99) store' sched')
           sched
   in  run_next_thread store yieldsched 
 
 value_of_k (Mutex_Exp) env cont store sched =
   let (mutex, store') = new_mutex store in
-    apply_cont store' sched cont (Mutex_Val mutex)
+    apply_cont cont (Mutex_Val mutex) store' sched 
 
 value_of_k (Wait_Exp exp) env cont store sched =
   value_of_k exp env (Wait_Cont cont) store sched
