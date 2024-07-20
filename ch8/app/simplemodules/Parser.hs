@@ -20,29 +20,49 @@ parserSpec = ParserSpec
     [
       rule "Program' -> Program" (\rhs -> return $ get rhs 1),
 
-      rule "Program -> ZeroOrMoreModuleDefinition Expression" undefined,
+      rule "Program -> ZeroOrMoreModuleDefinition Expression" (\rhs -> 
+        return $ 
+          toASTProgram $ 
+            Program (fromASTModuleDefList (get rhs 1)) (fromASTExp (get rhs 2))),
 
-      rule "Program -> Expression" undefined,
+      rule "ZeroOrMoreModuleDefinition -> " (\rhs -> return $ toASTModuleDefList []),
 
-      rule "ZeroOrMoreModuleDefinition -> " undefined,
+      rule "ZeroOrMoreModuleDefinition -> ModuleDefinition ZeroOrMoreModuleDefinition"
+        (\rhs -> return $ toASTModuleDefList $ 
+            ( fromASTModuleDef (get rhs 1) : fromASTModuleDefList (get rhs 2)) ),
 
-      rule "ZeroOrMoreModuleDefinition -> ModuleDefinition ZeroOrMoreModuleDefinition" undefined,
+      rule "ModuleDefinition -> module identifier interface Interface body ModuleBody"
+        (\rhs -> return $ toASTModuleDef $ 
+            (ModuleDef (getText rhs 2)
+                        (fromASTInterface (get rhs 4))
+                          (fromASTModuleBody (get rhs 6)))),
 
-      rule "ModuleDefinition -> module identifier interface Interface body ModuleBody" undefined,
+      rule "Interface -> [ ZeroOrMoreDeclaration ]" (\rhs ->
+        return $ toASTInterface $ SimpleIface (fromASTDeclarationList (get rhs 2))),
 
-      rule "Interface -> [ ZeroOrMoreDeclaration ]" undefined,
+      rule "ZeroOrMoreDeclaration -> " (\rhs -> return $ toASTDeclarationList []),
 
-      rule "ZeroOrMoreDeclaration -> " undefined,
+      rule "ZeroOrMoreDeclaration -> Declaration ZeroOrMoreDeclaration" (\rhs ->
+        return $ toASTDeclarationList $ 
+                  fromASTDeclaration (get rhs 1) : fromASTDeclarationList (get rhs 2)),
 
-      rule "ZeroOrMoreDeclaration -> Declaration ZeroOrMoreDeclaration" undefined,
+      rule "Declaration -> identifier : Type" (\rhs ->
+        return $ toASTDeclaration (ValDecl (getText rhs 1) (fromASTType (get rhs 3)))),
 
-      rule "Declaration -> identifier : Type" undefined,
+      rule "ModuleBody -> [ ZeroOrMoreDefinition ]" (\rhs -> 
+        return $ toASTModuleBody $ ModuleBody (fromASTDefinitionList (get rhs 2))),
 
-      rule "ModuleBody -> [ ZeroOrMoreDefinition ]" undefined,
+      rule "ZeroOrMoreDefinition -> " (\rhs -> return $ toASTDefinitionList []),
 
-      rule "Definition -> identifier = Expression" undefined,
+      rule "ZeroOrMoreDefinition -> Definition ZeroOrMoreDefinition" (\rhs -> 
+        return $ toASTDefinitionList $
+          fromASTDefinition (get rhs 1) : fromASTDefinitionList (get rhs 2) ),
 
-      rule "Expression -> from identifier take identifier" undefined,
+      rule "Definition -> identifier = Expression" (\rhs -> 
+        return $ toASTDefinition $ ValDefn (getText rhs 1) (fromASTExp (get rhs 3))),
+
+      rule "Expression -> from identifier take identifier" (\rhs -> 
+        return $ toASTExp $ QualifiedVar_Exp (getText rhs 2) (getText rhs 4)),
 
       rule "Expression -> integer_number"
         (\rhs -> return $ toASTExp $ Const_Exp (read (getText rhs 1) :: Int)),
@@ -82,9 +102,10 @@ parserSpec = ParserSpec
       rule "Type -> ( Type -> Type )"
         (\rhs -> return $ toASTType $ TyFun (fromASTType (get rhs 2)) (fromASTType (get rhs 4))),
 
-      rule "Type -> identifier" undefined, 
+      rule "Type -> identifier" (\rhs -> return $ toASTType (TyName (getText rhs 1))), 
 
-      rule "Type -> from identifier take identifeir" undefined
+      rule "Type -> from identifier take identifeir" (\rhs -> 
+        return $ toASTType (TyQualified (getText rhs 2) (getText rhs 4)))
     ],
     
     baseDir        = "./",

@@ -51,15 +51,36 @@ data AST =
   | ASTType { fromASTType :: Type }
   | ASTProgram { fromASTProgram :: Program }
   | ASTModuleDef { fromASTModuleDef :: ModuleDef }
+  | ASTModuleDefList { fromASTModuleDefList :: [ModuleDef] }
   | ASTModuleBody { fromASTModuleBody :: ModuleBody }
   | ASTInterface { fromASTInterface :: Interface }
   | ASTDeclaration { fromASTDeclaration :: Declaration }
+  | ASTDeclarationList { fromASTDeclarationList :: [Declaration] }
   | ASTDefinition { fromASTDefinition :: Definition }
+  | ASTDefinitionList { fromASTDefinitionList :: [Definition] }
   deriving Show
 
 toASTExp exp = ASTExp exp
 
 toASTType ty = ASTType ty
+
+toASTProgram prg = ASTProgram prg
+
+toASTModuleDef md = ASTModuleDef md
+
+toASTModuleDefList md = ASTModuleDefList md
+
+toASTModuleBody mb = ASTModuleBody mb
+
+toASTInterface itf = ASTInterface itf
+
+toASTDeclaration decl = ASTDeclaration decl
+
+toASTDeclarationList decl = ASTDeclarationList decl
+
+toASTDefinition defn = ASTDefinition defn
+
+toASTDefinitionList defn = ASTDefinitionList defn
 
 
 -- for testing the type checker
