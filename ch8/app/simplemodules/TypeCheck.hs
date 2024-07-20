@@ -1,6 +1,7 @@
 module TypeCheck where
 
 import Expr
+import TyEnv
 
 --
 typeCheck :: Program -> IO (Either String Type)
@@ -11,8 +12,6 @@ type_of_program :: Program -> Either String Type
 type_of_program exp = undefined -- type_of exp empty_tyenv
     
 --
-type TyEnv = Map.Map Identifier Type
-
 type_of :: Exp -> TyEnv -> Either String Type
 
 type_of (Const_Exp n) tyenv = Right TyInt
@@ -78,18 +77,6 @@ type_of (Call_Exp rator rand) tyenv =
          
 
 -- Utilities
-apply_tyenv :: TyEnv -> Identifier -> Either String Type 
-apply_tyenv tyenv var =
-  case Map.lookup var tyenv of
-    Just ty -> Right ty
-    Nothing -> Left $ "Variable not found: " ++ var
-
-empty_tyenv :: TyEnv 
-empty_tyenv = Map.empty 
-
-extend_tyenv :: Identifier -> Type -> TyEnv -> TyEnv
-extend_tyenv var ty tyenv = Map.insert var ty tyenv
-
 expectedButErr expectedTy gotTy exp =
   Left $ "Expected " ++ show expectedTy ++ " but got " ++ show gotTy ++ " in " ++ show exp
 

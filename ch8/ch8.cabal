@@ -47,6 +47,7 @@ executable simplemodules-exe
       MainUtil
       Parser
       Token
+      TyEnv
       TypeCheck
       Paths_ch8
   hs-source-dirs:
@@ -73,6 +74,7 @@ test-suite simplemodules-test
       MainUtil
       Parser
       Token
+      TyEnv
       TypeCheck
       Paths_ch8
   hs-source-dirs:
