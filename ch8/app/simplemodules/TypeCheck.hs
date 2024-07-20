@@ -8,8 +8,48 @@ typeCheck :: Program -> IO (Either String Type)
 typeCheck program = return (type_of_program program )
 
 --
+add_module_defns_to_tyenv :: [ ModuleDef ] -> TyEnv -> TyEnv
+add_module_defns_to_tyenv [] tyenv = tyenv
+add_module_defns_to_tyenv (ModuleDef m iface mbody : moddefs) tyenv = 
+  let actual_iface = interface_of mbody tyenv in 
+    if sub_iface actual_iface iface tyenv 
+    then let newtyenv = extend_tyenv_with_module m iface tyenv in 
+            add_module_defns_to_tyenv moddefs newtyenv 
+    else error $ "In the module " ++ m
+                    ++ "\n  expected type: " ++ show iface
+                    ++ "\n  actual type: " ++ show actual_iface
+
+interface_of :: ModuleBody -> TyEnv -> Interface 
+interface_of (ModuleBody defs) tyenv = 
+  SimpleIface (defns_to_decls defs tyenv)
+
+defns_to_decls :: [ Definition ] -> TyEnv -> [ Declaration ]
+defns_to_decls [] tyenv = []
+defns_to_decls (ValDefn var exp : defs) tyenv = 
+  case type_of exp tyenv of
+    Left errmsg -> error $ errmsg ++ " in the declaration of " ++ var
+    Right ty -> 
+      ValDecl var ty : defns_to_decls defs (extend_tyenv var ty tyenv)
+
+sub_iface :: Interface -> Interface -> TyEnv -> Bool
+sub_iface (SimpleIface decls1) (SimpleIface decls2) tyenv =
+  sub_decls decls1 decls2 tyenv 
+
+sub_decls :: [Declaration] -> [Declaration] -> TyEnv -> Bool
+sub_decls decls1 [] tyenv = True 
+sub_decls [] decls2 tyenv = False
+sub_decls (ValDecl x ty1:decls1) (ValDecl y ty2:decls2) tyenv =
+  if x == y && equalType ty1 ty2 
+  then sub_decls decls1 decls2 tyenv 
+  else sub_decls decls1 (ValDecl y ty2:decls2) tyenv
+
+
+--
 type_of_program :: Program -> Either String Type
-type_of_program exp = undefined -- type_of exp empty_tyenv
+type_of_program program = 
+  case program of 
+    Program moddefs modbody ->
+      type_of modbody (add_module_defns_to_tyenv moddefs empty_tyenv)
     
 --
 type_of :: Exp -> TyEnv -> Either String Type
@@ -17,6 +57,9 @@ type_of :: Exp -> TyEnv -> Either String Type
 type_of (Const_Exp n) tyenv = Right TyInt
 
 type_of (Var_Exp var) tyenv = apply_tyenv tyenv var
+
+type_of (QualifiedVar_Exp m v) tyenv = 
+  Right ( lookup_qualified_var_in_tyenv m v tyenv )
 
 type_of (Diff_Exp exp1 exp2) tyenv =
   do ty1 <- type_of exp1 tyenv 
