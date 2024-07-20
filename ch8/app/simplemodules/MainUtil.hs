@@ -25,33 +25,33 @@ run text = do
   putStrLn (show val)
 
 runProg text bool = do 
-  expressionAst <- parser text
-  let expression = fromASTExp expressionAst
+  programAst <- parser text
+  let program = fromASTProgram programAst
 
-  if bool then putStrLn (show expression) else return ()
+  if bool then putStrLn (show program) else return ()
   
-  let val = value_of_program expression      -- interpreter
+  let val = value_of_program program      -- interpreter
   return val 
 
 typecheck text = do
   let debugFlag = False
         
-  expressionAst <-
+  programAst <-
     parsing debugFlag
        parserSpec ((), 1, 1, text)
        (aLexer lexerSpec)
        (fromToken (endOfToken lexerSpec))
 
-  let expression = fromASTExp expressionAst
+  let program = fromASTProgram programAst
   
-  putStrLn (show expression)
+  putStrLn (show program)
 
-  eitherTyOrErr <- typeCheck expression
+  eitherTyOrErr <- typeCheck program
   case eitherTyOrErr of
     Right ty ->
       do putStrLn (show ty)
 
-         let val = value_of_program expression
+         let val = value_of_program program
          putStrLn (show val)
 
     Left errMsg ->

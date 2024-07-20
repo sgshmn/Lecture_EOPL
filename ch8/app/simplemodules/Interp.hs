@@ -46,17 +46,27 @@ value_of (Call_Exp rator rand) env =
   where proc = expval_proc (value_of rator env)
         arg  = value_of rand env
   
+--
+add_module_defns_to_env :: [ModuleDef] -> Env -> Env
+add_module_defns_to_env [] env = env
+add_module_defns_to_env (ModuleDef mod_name _ mod_body : mod_defns) env =
+  add_module_defns_to_env mod_defns (extend_env_with_module mod_name typed_mod env)
+  where typed_mod = value_of_module_body mod_body env
+  
+value_of_module_body :: ModuleBody -> Env -> TypedModule
+value_of_module_body (ModuleBody defs) env = 
+  SimpleModule (defns_to_env defs env)
+
+defns_to_env :: [Definition] -> Env -> Env
+defns_to_env [] env = env
+defns_to_env (ValDefn var exp : defns) env =
+  defns_to_env defns (extend_env var (value_of exp env) env)
 
 --
-value_of_program :: Exp -> ExpVal
+value_of_program :: Program -> ExpVal
 
-value_of_program exp = value_of exp initEnv
-
-
---
-initEnv = extend_env "i" (Num_Val 1)
-            (extend_env "v" (Num_Val 5)
-              (extend_env "x" (Num_Val 10) empty_env))
+value_of_program (Program moddefs body) = 
+  value_of body (add_module_defns_to_env moddefs empty_env)
 
 --
 apply_procedure :: Proc -> ExpVal -> ExpVal

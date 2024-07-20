@@ -4,12 +4,12 @@ import qualified Data.Map as Map
 import Expr
 
 --
-typeCheck :: Exp -> IO (Either String Type)
-typeCheck exp = return (type_of_program exp )
+typeCheck :: Program -> IO (Either String Type)
+typeCheck program = return (type_of_program program )
 
 --
-type_of_program :: Exp -> Either String Type
-type_of_program exp = type_of exp empty_tyenv
+type_of_program :: Program -> Either String Type
+type_of_program exp = undefined -- type_of exp empty_tyenv
     
 --
 type TyEnv = Map.Map Identifier Type

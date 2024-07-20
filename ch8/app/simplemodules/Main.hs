@@ -31,22 +31,22 @@ doProcess verbose fileName = do
   text <- readFile fileName
   let debugFlag = False
         
-  expressionAst <-
+  programAst <-
     parsing debugFlag
        parserSpec ((), 1, 1, text)
        (aLexer lexerSpec)
        (fromToken (endOfToken lexerSpec))
 
-  let expression = fromASTExp expressionAst
+  let program = fromASTProgram programAst
   
-  putStrLn (show expression)
+  putStrLn (show program)
 
-  eitherTyOrErr <- typeCheck expression
+  eitherTyOrErr <- typeCheck program
   case eitherTyOrErr of
     Right ty ->
       do putStrLn (show ty)
 
-         let val = value_of_program expression
+         let val = value_of_program program
          putStrLn (show val)
 
     Left errMsg ->
