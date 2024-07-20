@@ -1,6 +1,5 @@
 module TypeCheck where
 
-import qualified Data.Map as Map
 import Expr
 
 --

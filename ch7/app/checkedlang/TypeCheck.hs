@@ -77,12 +77,6 @@ type_of (Call_Exp rator rand) tyenv =
          
 
 -- Utilities
-apply_tyenv :: TyEnv -> Identifier -> Either String Type 
-apply_tyenv Empty_tyenv var = Left $ "Variable not found: " ++ var
-apply_tyenv (Extend_tyenv v ty tyenv) var
-  | var == v = Right ty
-  | otherwise = apply_tyenv tyenv var
-
 expectedButErr expectedTy gotTy exp =
   Left $ "Expected " ++ show expectedTy ++ " but got " ++ show gotTy ++ " in " ++ show exp
 
