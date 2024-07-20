@@ -10,6 +10,8 @@ value_of (Const_Exp n) env = Num_Val n
 
 value_of (Var_Exp var) env = apply_env env var
 
+value_of (QualifiedVar_Exp mod var) env = lookup_qualified_var_in_env mod var env
+
 value_of (Diff_Exp exp1 exp2) env =
   let val1 = value_of exp1 env
       val2 = value_of exp2 env
