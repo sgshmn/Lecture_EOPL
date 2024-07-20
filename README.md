@@ -43,13 +43,13 @@
  - CHECKED: A type-checked language (based on LETREC)
  - INFERRED: A language with type inference (based on CHECKED)
 
-### Chapter 8: Modules (Not Available Yet)
+### Chapter 8: Modules (OPAQUE-TYPES and PROC-MODULES Not Available Yet)
 
  - SIMPLE-MODULES: A modular language (based on CHECKED)
  - OPAQUE-TYPES: A modular language with interfaces, i.e., module types (based on SIMPLE-MODULES)
  - PROC-MODULES: A modular language with parameterized modules (based on OPAQUE-TYPES)
 
-### Chapter 9: Objects and Classes (Not Available Yet)
+### Chapter 9: Objects and Classes (TYPED-OO Not Available Yet)
 
  - CLASSES: An untyped object-oriented language (based on IMPLICIT-REFS)
  - TYPED-OO: A typed object-oriented language (based on CLASSES)
