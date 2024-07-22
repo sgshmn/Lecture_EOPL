@@ -1,0 +1,7 @@
+module m 
+    interface 
+    [v : int 
+        u : bool]
+    body 
+    [v = zero?(0) u = 33]
+    -(from m take u, from m take v)
