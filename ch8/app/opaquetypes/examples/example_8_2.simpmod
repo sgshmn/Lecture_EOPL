@@ -1,0 +1,7 @@
+module m1 
+    interface 
+    [u : bool]
+    body 
+    [u = 33]
+
+    44

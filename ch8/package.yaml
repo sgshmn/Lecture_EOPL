@@ -50,6 +50,16 @@ executables:
     - -with-rtsopts=-N
     dependencies:
     - ch8
+  opaquetypes-exe:
+    main:                Main.hs
+    source-dirs:         
+    - app/opaquetypes
+    ghc-options:
+    - -threaded
+    - -rtsopts
+    - -with-rtsopts=-N
+    dependencies:
+    - ch8
 
 tests:
   simplemodules-test:
@@ -63,3 +73,14 @@ tests:
     - -with-rtsopts=-N
     dependencies:
     - ch8
+  opaquetypes-test:
+    main:                Spec.hs
+    source-dirs:         
+    - test/opaquetypes
+    - app/opaquetypes
+    ghc-options:
+    - -threaded
+    - -rtsopts
+    - -with-rtsopts=-N
+    dependencies:
+    - ch8    

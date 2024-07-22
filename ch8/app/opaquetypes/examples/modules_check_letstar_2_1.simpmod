@@ -1,0 +1,9 @@
+module m1 
+interface [u : int] 
+body [u = 44]
+
+module m2   
+interface [v : int] 
+body [v = -(from m1 take u,11)]
+
+-(from m1 take u, from m2 take v)
