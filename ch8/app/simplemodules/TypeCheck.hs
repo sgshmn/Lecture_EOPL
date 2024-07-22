@@ -8,16 +8,16 @@ typeCheck :: Program -> IO (Either String Type)
 typeCheck program = return (type_of_program program )
 
 --
-add_module_defns_to_tyenv :: [ ModuleDef ] -> TyEnv -> TyEnv
-add_module_defns_to_tyenv [] tyenv = tyenv
+add_module_defns_to_tyenv :: [ ModuleDef ] -> TyEnv -> Either String TyEnv
+add_module_defns_to_tyenv [] tyenv = Right tyenv
 add_module_defns_to_tyenv (ModuleDef m iface mbody : moddefs) tyenv = 
   let actual_iface = interface_of mbody tyenv in 
     if sub_iface actual_iface iface tyenv 
     then let newtyenv = extend_tyenv_with_module m iface tyenv in 
             add_module_defns_to_tyenv moddefs newtyenv 
-    else error $ "In the module " ++ m
-                    ++ "\n  expected type: " ++ show iface
-                    ++ "\n  actual type: " ++ show actual_iface
+    else Left $ "In the module " ++ m
+                  ++ "\n  expected interface: " ++ show iface
+                  ++ "\n  actual interface: " ++ show actual_iface
 
 interface_of :: ModuleBody -> TyEnv -> Interface 
 interface_of (ModuleBody defs) tyenv = 
@@ -39,17 +39,20 @@ sub_decls :: [Declaration] -> [Declaration] -> TyEnv -> Bool
 sub_decls decls1 [] tyenv = True 
 sub_decls [] decls2 tyenv = False
 sub_decls (ValDecl x ty1:decls1) (ValDecl y ty2:decls2) tyenv =
-  if x == y && equalType ty1 ty2 
-  then sub_decls decls1 decls2 tyenv 
+  if x == y 
+  then if equalType ty1 ty2 
+        then sub_decls decls1 decls2 tyenv 
+        else False
   else sub_decls decls1 (ValDecl y ty2:decls2) tyenv
-
 
 --
 type_of_program :: Program -> Either String Type
 type_of_program program = 
   case program of 
     Program moddefs modbody ->
-      type_of modbody (add_module_defns_to_tyenv moddefs empty_tyenv)
+      case add_module_defns_to_tyenv moddefs empty_tyenv of
+        Left errMsg -> Left errMsg
+        Right tyenv -> type_of modbody tyenv
     
 --
 type_of :: Exp -> TyEnv -> Either String Type
