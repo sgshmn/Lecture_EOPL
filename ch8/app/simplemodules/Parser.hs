@@ -100,12 +100,7 @@ parserSpec = ParserSpec
         (\rhs -> return $ toASTType $ TyBool),
       
       rule "Type -> ( Type -> Type )"
-        (\rhs -> return $ toASTType $ TyFun (fromASTType (get rhs 2)) (fromASTType (get rhs 4))),
-
-      rule "Type -> identifier" (\rhs -> return $ toASTType (TyName (getText rhs 1))), 
-
-      rule "Type -> from identifier take identifeir" (\rhs -> 
-        return $ toASTType (TyQualified (getText rhs 2) (getText rhs 4)))
+        (\rhs -> return $ toASTType $ TyFun (fromASTType (get rhs 2)) (fromASTType (get rhs 4)))
     ],
     
     baseDir        = "./",

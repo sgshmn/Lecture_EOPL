@@ -40,8 +40,6 @@ data Type =
     TyInt
   | TyBool
   | TyFun Type Type
-  | TyName Identifier
-  | TyQualified Identifier Identifier
   deriving (Show, Eq)
 
 
