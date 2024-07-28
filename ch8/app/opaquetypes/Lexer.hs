@@ -58,4 +58,7 @@ keywords =
   , ("body",   BODY)
   , ("from",   FROM)
   , ("take",   TAKE)
+  , ("opaque", OPAQUE)
+  , ("transparent", TRANSPARENT)
+  , ("type",   TYPE)
   ]

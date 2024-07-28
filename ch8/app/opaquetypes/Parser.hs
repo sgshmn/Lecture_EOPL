@@ -3,6 +3,7 @@ module Parser where
 import CommonParserUtil
 import Token
 import Expr
+import Expr (AST(fromASTType))
 
 -- | Utility
 rule prodRule action              = (prodRule, action, Nothing  )
@@ -49,6 +50,12 @@ parserSpec = ParserSpec
       rule "Declaration -> identifier : Type" (\rhs ->
         return $ toASTDeclaration (ValDecl (getText rhs 1) (fromASTType (get rhs 3)))),
 
+      rule "Declaration -> opaque identifier" (\rhs ->
+        return $ toASTDeclaration (OpaqueTypeDecl (getText rhs 2))),
+
+      rule "Declaration -> transparent identifier = Type" (\rhs ->
+        return $ toASTDeclaration (TransparentTypeDecl (getText rhs 2) (fromASTType (get rhs 4)))),
+
       rule "ModuleBody -> [ ZeroOrMoreDefinition ]" (\rhs -> 
         return $ toASTModuleBody $ ModuleBody (fromASTDefinitionList (get rhs 2))),
 
@@ -60,6 +67,9 @@ parserSpec = ParserSpec
 
       rule "Definition -> identifier = Expression" (\rhs -> 
         return $ toASTDefinition $ ValDefn (getText rhs 1) (fromASTExp (get rhs 3))),
+
+      rule "Definition -> type identifier = Type" (\rhs -> 
+        return $ toASTDefinition $ TypeDefn (getText rhs 2) (fromASTType (get rhs 4))),
 
       rule "Expression -> from identifier take identifier" (\rhs -> 
         return $ toASTExp $ QualifiedVar_Exp (getText rhs 2) (getText rhs 4)),

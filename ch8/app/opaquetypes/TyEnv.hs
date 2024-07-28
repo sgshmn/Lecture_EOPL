@@ -2,10 +2,12 @@ module TyEnv where
 
 import Expr(Identifier, Type, Interface(..), Declaration(..))
 
+-- Invariant: Types in type environments are always fully expanded. 
 data TyEnv = 
     Empty_tyenv
   | Extend_tyenv Identifier Type TyEnv
   | Extend_tyenv_with_module Identifier Interface TyEnv
+  | Extend_tyenv_with_type Identifier Type TyEnv
 
 empty_tyenv :: TyEnv
 empty_tyenv = Empty_tyenv
@@ -13,8 +15,13 @@ empty_tyenv = Empty_tyenv
 extend_tyenv :: Identifier -> Type -> TyEnv -> TyEnv
 extend_tyenv var ty tyenv = Extend_tyenv var ty tyenv 
 
+extend_tyenv_with_module :: Identifier -> Interface -> TyEnv -> TyEnv
 extend_tyenv_with_module mod_var iface tyenv = 
   Extend_tyenv_with_module mod_var iface tyenv
+
+extend_tyenv_with_type :: Identifier -> Type -> TyEnv -> TyEnv
+extend_tyenv_with_type tname ty tyenv = 
+  Extend_tyenv_with_type tname ty tyenv
 
 apply_tyenv :: TyEnv -> Identifier -> Either String Type 
 apply_tyenv Empty_tyenv var = Left $ "Variable not found: " ++ var
@@ -28,6 +35,17 @@ lookup_qualified_var_in_tyenv mod_var var tyenv =
     case iface of
       SimpleIface decls -> 
         lookup_variable_name_in_decls var decls
+
+lookup_type_name_in_tyenv :: Identifier -> TyEnv -> Type
+lookup_type_name_in_tyenv tname Empty_tyenv = 
+  error $ "lookup_type_name_in_tyenv: " ++ tname ++ " not found"
+lookup_type_name_in_tyenv tname (Extend_tyenv_with_type tname1 ty tyenv)
+  | tname == tname1 = ty
+  | otherwise = lookup_type_name_in_tyenv tname tyenv
+lookup_type_name_in_tyenv tname (Extend_tyenv _ _ tyenv) = 
+  lookup_type_name_in_tyenv tname tyenv
+lookup_type_name_in_tyenv tname (Extend_tyenv_with_module _ _ tyenv) =
+  lookup_type_name_in_tyenv tname tyenv
 
 lookup_module_name_in_tyenv :: TyEnv -> Identifier -> Interface
 lookup_module_name_in_tyenv Empty_tyenv mod_var = 

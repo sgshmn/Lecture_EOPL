@@ -15,11 +15,25 @@ data ModuleBody = ModuleBody [ Definition ]
 data Interface = SimpleIface [ Declaration ]
   deriving Show
 
-data Declaration = ValDecl Identifier Type 
+data Declaration = 
+    ValDecl Identifier Type 
+  | OpaqueTypeDecl Identifier
+  | TransparentTypeDecl Identifier Type
   deriving Show
 
-data Definition = ValDefn Identifier Exp 
+name_of_decl :: Declaration -> Identifier
+name_of_decl (ValDecl name _) = name
+name_of_decl (OpaqueTypeDecl name) = name
+name_of_decl (TransparentTypeDecl name _) = name
+
+data Definition = 
+    ValDefn Identifier Exp 
+  | TypeDefn Identifier Type
   deriving Show
+
+name_of_defn :: Definition -> Identifier
+name_of_defn (ValDefn name _) = name
+name_of_defn (TypeDefn name _) = name
   
 data Exp =
     Const_Exp  Int
@@ -41,9 +55,8 @@ data Type =
   | TyBool
   | TyFun Type Type
   | TyName Identifier
-  | TyQualified Identifier Identifier
+  | TyQualified Identifier Identifier  -- module id, type id
   deriving (Show, Eq)
-
 
 -- for parser
 data AST =

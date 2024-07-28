@@ -1,3 +1,5 @@
+{-# OPTIONS_GHC -Wno-unrecognised-pragmas #-}
+{-# HLINT ignore "Use camelCase" #-}
 module TypeCheck where
 
 import Expr
@@ -13,7 +15,9 @@ add_module_defns_to_tyenv [] tyenv = Right tyenv
 add_module_defns_to_tyenv (ModuleDef m iface mbody : moddefs) tyenv = 
   let actual_iface = interface_of mbody tyenv in 
     if sub_iface actual_iface iface tyenv 
-    then let newtyenv = extend_tyenv_with_module m iface tyenv in 
+    then let newtyenv = extend_tyenv_with_module m 
+                          (expand_iface m iface tyenv)
+                             tyenv in 
             add_module_defns_to_tyenv moddefs newtyenv 
     else Left $ "In the module " ++ m
                   ++ "\n  expected interface: " ++ show iface
@@ -30,6 +34,11 @@ defns_to_decls (ValDefn var exp : defs) tyenv =
     Left errmsg -> error $ errmsg ++ " in the declaration of " ++ var
     Right ty -> 
       ValDecl var ty : defns_to_decls defs (extend_tyenv var ty tyenv)
+defns_to_decls (TypeDefn var ty : defs) tyenv =
+  TransparentTypeDecl var ty : 
+    defns_to_decls defs (extend_tyenv_with_type var 
+                          (expand_type ty tyenv) -- expand this type
+                            tyenv)
 
 sub_iface :: Interface -> Interface -> TyEnv -> Bool
 sub_iface (SimpleIface decls1) (SimpleIface decls2) tyenv =
@@ -38,12 +47,42 @@ sub_iface (SimpleIface decls1) (SimpleIface decls2) tyenv =
 sub_decls :: [Declaration] -> [Declaration] -> TyEnv -> Bool
 sub_decls decls1 [] tyenv = True 
 sub_decls [] decls2 tyenv = False
-sub_decls (ValDecl x ty1:decls1) (ValDecl y ty2:decls2) tyenv =
-  if x == y 
-  then if equalType ty1 ty2 
-        then sub_decls decls1 decls2 tyenv 
-        else False
-  else sub_decls decls1 (ValDecl y ty2:decls2) tyenv
+sub_decls (decl1:decls1) (decl2:decls2) tyenv =
+  let name1 = name_of_decl decl1
+      name2 = name_of_decl decl2
+  in if name1 == name2
+      then sub_decl decl1 decl2 tyenv && 
+            sub_decls decls1 decls2 (extend_tyenv_with_decl decl1 tyenv)
+      else sub_decls decls1 (decl2:decls2) (extend_tyenv_with_decl decl1 tyenv)
+-- sub_decls (ValDecl x ty1:decls1) (ValDecl y ty2:decls2) tyenv =
+--   if x == y 
+--   then if equalType ty1 ty2 
+--         then sub_decls decls1 decls2 tyenv 
+--         else False
+--   else sub_decls decls1 (ValDecl y ty2:decls2) tyenv
+  where
+    -- sub_decl is called only when x==y!
+    sub_decl :: Declaration -> Declaration -> TyEnv -> Bool
+    sub_decl (ValDecl x ty1) (ValDecl y ty2) tyenv = equalExpandedType ty1 ty2 tyenv
+    sub_decl (TransparentTypeDecl x ty1) (TransparentTypeDecl y ty2) tyenv = 
+      equalExpandedType ty1 ty2 tyenv
+    sub_decl (TransparentTypeDecl x ty1) (OpaqueTypeDecl y) tyenv = True
+    sub_decl (OpaqueTypeDecl x) (OpaqueTypeDecl y) tyenv = True
+    sub_decl _ _ _ = False
+
+
+extend_tyenv_with_decl :: Declaration -> TyEnv -> TyEnv
+extend_tyenv_with_decl (ValDecl var ty) tyenv = tyenv 
+extend_tyenv_with_decl (OpaqueTypeDecl var) tyenv =
+  extend_tyenv_with_type var (TyQualified ("$m" ++ show 0) var) tyenv -- Fix this!
+extend_tyenv_with_decl (TransparentTypeDecl var ty) tyenv =
+  extend_tyenv_with_type var (expand_type ty tyenv) tyenv
+
+equalExpandedType :: Type -> Type -> TyEnv -> Bool
+equalExpandedType ty1 ty2 tyenv = 
+  let expanded_ty1 = expand_type ty1 tyenv
+      expanded_ty2 = expand_type ty2 tyenv
+  in equalType expanded_ty1 expanded_ty2
 
 --
 type_of_program :: Program -> Either String Type
@@ -119,8 +158,38 @@ type_of (Call_Exp rator rand) tyenv =
                         then Right ty2
                         else inequalArgtyErr ty1 argTy rator rand
        _             -> expectedFuntyButErr funTy rator
+      
+-- Type expansion
+expand_type :: Type -> TyEnv -> Type
+expand_type TyInt tyenv = TyInt
+expand_type TyBool tyenv = TyBool
+expand_type (TyFun ty1 ty2) tyenv = TyFun (expand_type ty1 tyenv) (expand_type ty2 tyenv)
+expand_type (TyName n) tyenv = lookup_type_name_in_tyenv n tyenv
+expand_type (TyQualified m t) tyenv = lookup_qualified_var_in_tyenv m t tyenv
 
-         
+-- Interface expansion
+expand_iface :: Identifier -> Interface -> TyEnv -> Interface
+expand_iface m iface tyenv = 
+  case iface of
+    SimpleIface decls -> SimpleIface (expand_decls m decls tyenv)
+
+-- Declaration expansion
+expand_decls :: Identifier -> [Declaration] -> TyEnv -> [Declaration]
+expand_decls m [] internal_tyenv = []
+
+expand_decls m (ValDecl x ty : decls) internal_tyenv = 
+  ValDecl x (expand_type ty internal_tyenv) : expand_decls m decls internal_tyenv
+
+expand_decls m (OpaqueTypeDecl x : decls) internal_tyenv =
+  let expanded_type = TyQualified m x
+      new_internal_env = extend_tyenv_with_type x expanded_type internal_tyenv
+  in TransparentTypeDecl x expanded_type : expand_decls m decls new_internal_env
+
+expand_decls m (TransparentTypeDecl x ty : decls) internal_tyenv =
+  let expanded_type = expand_type ty internal_tyenv
+      new_internal_env = extend_tyenv_with_type x expanded_type internal_tyenv
+  in TransparentTypeDecl x expanded_type : expand_decls m decls new_internal_env
+
 
 -- Utilities
 expectedButErr expectedTy gotTy exp =
@@ -139,6 +208,7 @@ inequalArgtyErr argTy1 argTy2 funexp argexp =
           ++ "\t" ++ show argTy1 ++ " for the arugment of " ++ show funexp
           ++ "\t" ++ show argTy2 ++ " in " ++ show argexp
 
+-- Type equality
 equalType :: Type -> Type -> Bool
 equalType TyInt  TyInt  = True
 equalType TyBool TyBool = True

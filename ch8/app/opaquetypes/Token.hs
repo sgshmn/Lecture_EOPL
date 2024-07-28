@@ -2,6 +2,8 @@ module Token(Token(..)) where
 
 import Prelude hiding(EQ)
 import TokenInterface
+import GHC.Base (Opaque)
+import Expr (Declaration(TransparentTypeDecl))
 
 data Token =
     END_OF_TOKEN
@@ -47,6 +49,12 @@ data Token =
   | FROM
 
   | TAKE
+
+  | OPAQUE
+
+  | TRANSPARENT 
+
+  | TYPE
   deriving (Eq, Show)
 
 tokenStrList :: [(Token,String)]
@@ -94,7 +102,13 @@ tokenStrList =
 
     (FROM, "from"),
 
-    (TAKE, "take")
+    (TAKE, "take"),
+
+    (OPAQUE, "opaque"),
+
+    (TRANSPARENT, "transparent"),
+
+    (TYPE, "type")
   ]
 
 findTok tok [] = Nothing

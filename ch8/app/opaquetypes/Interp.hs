@@ -1,3 +1,5 @@
+{-# OPTIONS_GHC -Wno-unrecognised-pragmas #-}
+{-# HLINT ignore "Use camelCase" #-}
 module Interp where
 
 import Expr
@@ -63,6 +65,8 @@ defns_to_env :: [Definition] -> Env -> Env
 defns_to_env [] env = env
 defns_to_env (ValDefn var exp : defns) env =
   defns_to_env defns (extend_env var (value_of exp env) env)
+defns_to_env (TypeDefn var ty : defns) env = -- Just ignore the type definitions!
+  defns_to_env defns env 
 
 --
 value_of_program :: Program -> ExpVal
