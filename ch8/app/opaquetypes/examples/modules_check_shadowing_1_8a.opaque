@@ -1,0 +1,8 @@
+module ints-1 
+       interface [opaque t  zero : t] 
+       body [type t = int zero = 0]
+      module ints-2 
+       interface [ foo : from ints-1 take t]
+       body 
+        [foo = from ints-1 take zero]
+      from ints-2 take foo

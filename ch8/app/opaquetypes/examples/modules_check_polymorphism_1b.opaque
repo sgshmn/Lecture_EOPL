@@ -1,0 +1,5 @@
+module m interface [opaque t
+                 f : (t -> t)]
+              body [type t = int
+                 f = proc (x : t) -(x,1)]
+     from m take f

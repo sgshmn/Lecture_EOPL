@@ -1,0 +1,17 @@
+module m1 
+    interface 
+    [opaque t
+        z : t
+        s : (t -> t)
+        is-z? : (t -> bool)]
+    body 
+    [type t = int
+        z = 0
+        s = proc (x : t) -(x,-1)
+        is-z? = proc (x : t) zero?(x)]
+
+let foo = proc (z : from m1 take t) 
+            (from m1 take s
+            z)
+in (foo 
+from m1 take z)

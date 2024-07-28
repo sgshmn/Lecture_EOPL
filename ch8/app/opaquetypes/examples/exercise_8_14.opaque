@@ -1,0 +1,24 @@
+module mybool 
+    interface [opaque t
+            true : t
+            false : t
+            and : (t -> (t -> t))
+            not : (t -> t)
+            to-bool : (t -> bool)]
+    body [type t = int
+                    true = 1
+                    false = 0
+                    and = proc (x : t) 
+                        proc (y : t)
+                            if zero?(x) 
+                            then false 
+                            else y
+                    not = proc (x : t) 
+                        if zero?(x) 
+                            then true 
+                            else false
+                    to-bool = proc (x : t) 
+                            if zero?(x) 
+                                then zero?(1) 
+                                else zero?(0)]
+4

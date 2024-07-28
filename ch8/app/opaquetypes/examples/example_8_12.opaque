@@ -1,0 +1,21 @@
+module ints-2
+    interface [opaque t
+            zero : t
+            succ : (t -> t)
+            pred : (t -> t)
+            is-zero : (t -> bool)]  
+    body [type t = int
+                    zero = 0
+                    succ = proc(x : t) -(x,3)
+                    pred = proc(x : t) -(x,-3)
+                    is-zero = proc (x : t) zero?(x)
+                    ]
+
+let z = from ints-2 take zero
+in let s = from ints-2 take succ
+in let p = from ints-2 take pred
+in let z? = from ints-2 take is-zero
+in letrec int to-int (x : from ints-2 take t) =
+            if (z? x) then 0
+                else -((to-int (p x)), -1)
+in (to-int (s (s z)))

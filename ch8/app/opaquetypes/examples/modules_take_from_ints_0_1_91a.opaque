@@ -1,0 +1,8 @@
+module m1
+            interface [opaque t
+               zero : t]
+            body [type t = int
+               zero = 0
+               foo = 3]
+         let check = proc (x : from m1 take t  ) zero?(0)
+         in check
