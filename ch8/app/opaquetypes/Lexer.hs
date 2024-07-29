@@ -34,7 +34,7 @@ lexerSpec = LexerSpec
         
         ("\\="     , mkFn EQ),
         
-        ("[a-zA-Z][a-zA-Z0-9]*"    , keywordOrIdentifier)
+        ("[a-zA-Z][a-zA-Z0-9\\?]*"    , keywordOrIdentifier)
       ]
   } 
 

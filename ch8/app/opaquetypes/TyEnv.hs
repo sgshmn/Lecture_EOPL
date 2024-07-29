@@ -1,3 +1,5 @@
+{-# OPTIONS_GHC -Wno-unrecognised-pragmas #-}
+{-# HLINT ignore "Use camelCase" #-}
 module TyEnv where
 
 import Expr(Identifier, Type, Interface(..), Declaration(..))
@@ -28,6 +30,8 @@ apply_tyenv Empty_tyenv var = Left $ "Variable not found: " ++ var
 apply_tyenv (Extend_tyenv v ty tyenv) var
   | var == v = Right ty
   | otherwise = apply_tyenv tyenv var
+apply_tyenv (Extend_tyenv_with_module _ _ tyenv) var = apply_tyenv tyenv var
+apply_tyenv (Extend_tyenv_with_type _ _ tyenv) var = apply_tyenv tyenv var
 
 lookup_qualified_var_in_tyenv :: Identifier -> Identifier -> TyEnv -> Type
 lookup_qualified_var_in_tyenv mod_var var tyenv =
@@ -35,6 +39,13 @@ lookup_qualified_var_in_tyenv mod_var var tyenv =
     case iface of
       SimpleIface decls -> 
         lookup_variable_name_in_decls var decls
+
+lookup_qualified_type_in_tyenv :: Identifier -> Identifier -> TyEnv -> Type
+lookup_qualified_type_in_tyenv mod_var tvar tyenv =
+  let iface = lookup_module_name_in_tyenv tyenv mod_var in 
+    case iface of
+      SimpleIface decls -> 
+        lookup_variable_name_in_decls tvar decls  -- Exercise: Fix the case that tvar is a variable name.
 
 lookup_type_name_in_tyenv :: Identifier -> TyEnv -> Type
 lookup_type_name_in_tyenv tname Empty_tyenv = 
@@ -55,11 +66,19 @@ lookup_module_name_in_tyenv (Extend_tyenv _ _ tyenv) mod_var =
 lookup_module_name_in_tyenv (Extend_tyenv_with_module m iface tyenv) mod_var
   | m == mod_var = iface 
   | otherwise = lookup_module_name_in_tyenv tyenv mod_var
+lookup_module_name_in_tyenv (Extend_tyenv_with_type _ _ tyenv) mod_var =
+  lookup_module_name_in_tyenv tyenv mod_var
 
 lookup_variable_name_in_decls :: Identifier -> [Declaration] -> Type
 lookup_variable_name_in_decls var [] = 
   error $ "lookup_variable_name_in_decls: " ++ var ++ " not found"
 lookup_variable_name_in_decls var (ValDecl x ty : decls) 
+  | var == x = ty
+  | otherwise = lookup_variable_name_in_decls var decls
+lookup_variable_name_in_decls var (OpaqueTypeDecl x : decls)
+  | var == x = error $ "lookup_variable_name_in_decls: " ++ var ++ " is an opaque type"
+  | otherwise = lookup_variable_name_in_decls var decls
+lookup_variable_name_in_decls var (TransparentTypeDecl x ty : decls)
   | var == x = ty
   | otherwise = lookup_variable_name_in_decls var decls
 

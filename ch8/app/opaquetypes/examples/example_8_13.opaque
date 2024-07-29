@@ -4,7 +4,7 @@ module mybool
                 false : t
                 and : (t -> (t -> t))
                 not : (t -> t)
-                to-bool : (t -> bool)]
+                tobool : (t -> bool)]
     body [type t = int
                     true = 0
                     false = 13
@@ -17,7 +17,7 @@ module mybool
                             if zero?(x) 
                             then false 
                             else true
-                    to-bool = proc (x : t) zero?(x)] 
+                    tobool = proc (x : t) zero?(x)] 
 
 let true = from mybool take true
 in let false = from mybool take false

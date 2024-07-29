@@ -8,7 +8,7 @@ module m1
 
 module m2 
     interface 
-    [transparent t = from m1 take t   % now known to be int.
+    [transparent t = from m1 take t   
     one : t]
     body 
     [type t = int

@@ -3,12 +3,12 @@ module m1
     [transparent t = int 
         z : t
         s : (t -> t)
-        is-z? : (t -> bool)]
+        isz? : (t -> bool)]
     body 
     [type t = int
         z = 0
         s = proc (x : t) -(x,-1)
-        is-z? = proc (x : t) zero?(x)]
+        isz? = proc (x : t) zero?(x)]
 
 let foo = proc (z : from m1 take t) 
             -(0, (from m1 take s 

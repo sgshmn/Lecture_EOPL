@@ -1,4 +1,4 @@
-module ints-1
+module ints1
           interface [opaque t
              zero : t
              succ : (t -> t)
@@ -9,8 +9,8 @@ module ints-1
              succ = proc(x : t) -(x,-1)
              pred = proc(x : t) -(x,1)
              check = proc(x : t) zero?(0)]
-         let z = from ints-1 take zero
-         in let s = from ints-1 take succ
-         in let p = from ints-1 take pred
-         in let check = from ints-1 take check
+         let z = from ints1 take zero
+         in let s = from ints1 take succ
+         in let p = from ints1 take pred
+         in let check = from ints1 take check
          in (check (s (s (p (s z)))))

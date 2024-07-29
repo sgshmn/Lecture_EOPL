@@ -1,0 +1,14 @@
+module m1
+    interface
+        [transparent t = int
+         z : t
+         s : (t -> t)
+         isz? : (t -> bool)]
+    body
+        [type t = int
+         z = 33
+         s = proc (x : t) -(x, -1)
+         isz? = proc(x : t) zero? (-(x,z))]
+
+proc (x : from m1 take t)
+    (from m1 take isz? -(x,0))

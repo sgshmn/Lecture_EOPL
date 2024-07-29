@@ -1,16 +1,16 @@
-module ints-1
+module ints1
           interface [opaque t
              zero : t
              succ : (t -> t)
              pred : (t -> t)
-             is-zero : (t -> bool)] 
+             iszero : (t -> bool)] 
           body [type t = int
              zero = 0
              succ = proc(x : t) -(x,-1)
              pred = proc(x : t) -(x,1)
-             is-zero = proc (x : t) zero?(x)]
-         let z = from ints-1 take zero
-         in let s = from ints-1 take succ
-         in let p = from ints-1 take pred
-         in let z? = from ints-1 take is-zero
+             iszero = proc (x : t) zero?(x)]
+         let z = from ints1 take zero
+         in let s = from ints1 take succ
+         in let p = from ints1 take pred
+         in let z? = from ints1 take iszero
          in if (z? (s z)) then 22 else 33

@@ -114,7 +114,7 @@ parserSpec = ParserSpec
 
       rule "Type -> identifier" (\rhs -> return $ toASTType (TyName (getText rhs 1))), 
 
-      rule "Type -> from identifier take identifeir" (\rhs -> 
+      rule "Type -> from identifier take identifier" (\rhs -> 
         return $ toASTType (TyQualified (getText rhs 2) (getText rhs 4)))
     ],
     

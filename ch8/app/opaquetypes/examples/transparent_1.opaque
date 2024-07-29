@@ -2,8 +2,8 @@ module m1
        interface [opaque t zero : t]
        body [type t = int zero = 0]
       module m2 
-       interface [transparent t = from m1 take t   % don't know
-                                           % what's in m1!
+       interface [transparent t = from m1 take t   
+                                           
           one : t]
        body [type t = int
           one = 1]

@@ -13,10 +13,10 @@ typeCheck program = return (type_of_program program )
 add_module_defns_to_tyenv :: [ ModuleDef ] -> TyEnv -> Either String TyEnv
 add_module_defns_to_tyenv [] tyenv = Right tyenv
 add_module_defns_to_tyenv (ModuleDef m iface mbody : moddefs) tyenv = 
-  let actual_iface = interface_of mbody tyenv in 
-    if sub_iface actual_iface iface tyenv 
+  let actual_iface = interface_of mbody tyenv in             -- important!
+    if sub_iface actual_iface iface tyenv                    -- important!
     then let newtyenv = extend_tyenv_with_module m 
-                          (expand_iface m iface tyenv)
+                          (expand_iface m iface tyenv)       -- important!
                              tyenv in 
             add_module_defns_to_tyenv moddefs newtyenv 
     else Left $ "In the module " ++ m
@@ -54,12 +54,6 @@ sub_decls (decl1:decls1) (decl2:decls2) tyenv =
       then sub_decl decl1 decl2 tyenv && 
             sub_decls decls1 decls2 (extend_tyenv_with_decl decl1 tyenv)
       else sub_decls decls1 (decl2:decls2) (extend_tyenv_with_decl decl1 tyenv)
--- sub_decls (ValDecl x ty1:decls1) (ValDecl y ty2:decls2) tyenv =
---   if x == y 
---   then if equalType ty1 ty2 
---         then sub_decls decls1 decls2 tyenv 
---         else False
---   else sub_decls decls1 (ValDecl y ty2:decls2) tyenv
   where
     -- sub_decl is called only when x==y!
     sub_decl :: Declaration -> Declaration -> TyEnv -> Bool
@@ -135,20 +129,24 @@ type_of (Let_Exp var exp1 body) tyenv =
      Right bodyTy
 
 type_of (Letrec_Exp ty proc_name bound_var bvar_ty proc_body letrec_body) tyenv =
-  do let tyenv1 = extend_tyenv bound_var bvar_ty
-                    (extend_tyenv proc_name (TyFun bvar_ty ty) tyenv)
+  do let expanded_funty = expand_type (TyFun bvar_ty ty) tyenv
+     let expanded_bvar_ty = expand_type bvar_ty tyenv
+     let expanded_ty = expand_type ty tyenv
+     let tyenv1 = extend_tyenv bound_var expanded_bvar_ty
+                    (extend_tyenv proc_name expanded_funty tyenv)
      procbodyTy <- type_of proc_body tyenv1
      
-     let tyenv2 = extend_tyenv proc_name (TyFun bvar_ty ty) tyenv
+     let tyenv2 = extend_tyenv proc_name expanded_funty tyenv
      letrecbodyTy <- type_of letrec_body tyenv2
      
-     if equalType ty procbodyTy
+     if equalType expanded_ty procbodyTy
        then Right letrecbodyTy
-       else expectedButErr ty procbodyTy proc_body
+       else expectedButErr expanded_ty procbodyTy proc_body
 
 type_of (Proc_Exp var argTy body) tyenv =
-  do bodyTy <- type_of body (extend_tyenv var argTy tyenv)
-     Right (TyFun argTy bodyTy)
+  do let expanded_argTy = expand_type argTy tyenv
+     bodyTy <- type_of body (extend_tyenv var expanded_argTy tyenv)
+     Right (TyFun expanded_argTy bodyTy)
 
 type_of (Call_Exp rator rand) tyenv =
   do funTy <- type_of rator tyenv
@@ -165,7 +163,7 @@ expand_type TyInt tyenv = TyInt
 expand_type TyBool tyenv = TyBool
 expand_type (TyFun ty1 ty2) tyenv = TyFun (expand_type ty1 tyenv) (expand_type ty2 tyenv)
 expand_type (TyName n) tyenv = lookup_type_name_in_tyenv n tyenv
-expand_type (TyQualified m t) tyenv = lookup_qualified_var_in_tyenv m t tyenv
+expand_type (TyQualified m t) tyenv = lookup_qualified_type_in_tyenv m t tyenv
 
 -- Interface expansion
 expand_iface :: Identifier -> Interface -> TyEnv -> Interface
@@ -181,12 +179,12 @@ expand_decls m (ValDecl x ty : decls) internal_tyenv =
   ValDecl x (expand_type ty internal_tyenv) : expand_decls m decls internal_tyenv
 
 expand_decls m (OpaqueTypeDecl x : decls) internal_tyenv =
-  let expanded_type = TyQualified m x
+  let expanded_type = TyQualified m x                -- important!
       new_internal_env = extend_tyenv_with_type x expanded_type internal_tyenv
   in TransparentTypeDecl x expanded_type : expand_decls m decls new_internal_env
 
 expand_decls m (TransparentTypeDecl x ty : decls) internal_tyenv =
-  let expanded_type = expand_type ty internal_tyenv
+  let expanded_type = expand_type ty internal_tyenv  -- important!
       new_internal_env = extend_tyenv_with_type x expanded_type internal_tyenv
   in TransparentTypeDecl x expanded_type : expand_decls m decls new_internal_env
 
@@ -214,5 +212,7 @@ equalType TyInt  TyInt  = True
 equalType TyBool TyBool = True
 equalType (TyFun ty1 ty1') (TyFun ty2 ty2') =
   equalType ty1 ty2 && equalType ty1' ty2'
+equalType (TyQualified m1 t1) (TyQualified m2 t2) =
+  m1 == m2 && t1 == t2
 equalType _ _ = False
 
