@@ -33,52 +33,52 @@ apply_tyenv (Extend_tyenv v ty tyenv) var
 apply_tyenv (Extend_tyenv_with_module _ _ tyenv) var = apply_tyenv tyenv var
 apply_tyenv (Extend_tyenv_with_type _ _ tyenv) var = apply_tyenv tyenv var
 
-lookup_qualified_var_in_tyenv :: Identifier -> Identifier -> TyEnv -> Type
+lookup_qualified_var_in_tyenv :: Identifier -> Identifier -> TyEnv -> Either String Type
 lookup_qualified_var_in_tyenv mod_var var tyenv =
-  let iface = lookup_module_name_in_tyenv tyenv mod_var in 
-    case iface of
-      SimpleIface decls -> 
-        lookup_variable_name_in_decls var decls
+  do iface <- lookup_module_name_in_tyenv tyenv mod_var
+     case iface of
+       SimpleIface decls -> 
+         lookup_variable_name_in_decls var decls
 
-lookup_qualified_type_in_tyenv :: Identifier -> Identifier -> TyEnv -> Type
+lookup_qualified_type_in_tyenv :: Identifier -> Identifier -> TyEnv -> Either String Type
 lookup_qualified_type_in_tyenv mod_var tvar tyenv =
-  let iface = lookup_module_name_in_tyenv tyenv mod_var in 
-    case iface of
-      SimpleIface decls -> 
-        lookup_variable_name_in_decls tvar decls  -- Exercise: Fix the case that tvar is a variable name.
+  do iface <- lookup_module_name_in_tyenv tyenv mod_var
+     case iface of
+       SimpleIface decls -> 
+         lookup_variable_name_in_decls tvar decls  -- Exercise: Fix the case that tvar is a variable name.
 
-lookup_type_name_in_tyenv :: Identifier -> TyEnv -> Type
+lookup_type_name_in_tyenv :: Identifier -> TyEnv -> Either String Type
 lookup_type_name_in_tyenv tname Empty_tyenv = 
-  error $ "lookup_type_name_in_tyenv: " ++ tname ++ " not found"
+  Left $ "lookup_type_name_in_tyenv: " ++ tname ++ " not found"
 lookup_type_name_in_tyenv tname (Extend_tyenv_with_type tname1 ty tyenv)
-  | tname == tname1 = ty
+  | tname == tname1 = Right ty
   | otherwise = lookup_type_name_in_tyenv tname tyenv
 lookup_type_name_in_tyenv tname (Extend_tyenv _ _ tyenv) = 
   lookup_type_name_in_tyenv tname tyenv
 lookup_type_name_in_tyenv tname (Extend_tyenv_with_module _ _ tyenv) =
   lookup_type_name_in_tyenv tname tyenv
 
-lookup_module_name_in_tyenv :: TyEnv -> Identifier -> Interface
+lookup_module_name_in_tyenv :: TyEnv -> Identifier -> Either String Interface
 lookup_module_name_in_tyenv Empty_tyenv mod_var = 
-  error $ "lookup_module_name_in_tyenv: " ++ mod_var ++ " not found"
+  Left $ "lookup_module_name_in_tyenv: " ++ mod_var ++ " not found"
 lookup_module_name_in_tyenv (Extend_tyenv _ _ tyenv) mod_var = 
   lookup_module_name_in_tyenv tyenv mod_var
 lookup_module_name_in_tyenv (Extend_tyenv_with_module m iface tyenv) mod_var
-  | m == mod_var = iface 
+  | m == mod_var = Right iface 
   | otherwise = lookup_module_name_in_tyenv tyenv mod_var
 lookup_module_name_in_tyenv (Extend_tyenv_with_type _ _ tyenv) mod_var =
   lookup_module_name_in_tyenv tyenv mod_var
 
-lookup_variable_name_in_decls :: Identifier -> [Declaration] -> Type
+lookup_variable_name_in_decls :: Identifier -> [Declaration] -> Either String Type
 lookup_variable_name_in_decls var [] = 
-  error $ "lookup_variable_name_in_decls: " ++ var ++ " not found"
+  Left $ "lookup_variable_name_in_decls: " ++ var ++ " not found"
 lookup_variable_name_in_decls var (ValDecl x ty : decls) 
-  | var == x = ty
+  | var == x = Right ty
   | otherwise = lookup_variable_name_in_decls var decls
 lookup_variable_name_in_decls var (OpaqueTypeDecl x : decls)
-  | var == x = error $ "lookup_variable_name_in_decls: " ++ var ++ " is an opaque type"
+  | var == x = Left $ "lookup_variable_name_in_decls: " ++ var ++ " is an opaque type"
   | otherwise = lookup_variable_name_in_decls var decls
 lookup_variable_name_in_decls var (TransparentTypeDecl x ty : decls)
-  | var == x = ty
+  | var == x = Right ty
   | otherwise = lookup_variable_name_in_decls var decls
 
