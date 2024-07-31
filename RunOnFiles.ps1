@@ -19,4 +19,6 @@ foreach ($file in $files) {
     echo $file.FullName
     # Execute the command
     Invoke-Expression $fullCommand
+
+    echo ""
 }
