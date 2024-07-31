@@ -14,5 +14,6 @@ let foo = proc (z : from m1 take t)
             (from m1 take s 
             (from m1 take s
             z))
+in
 -(0, (foo 
     from m1 take z))
