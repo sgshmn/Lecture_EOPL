@@ -34,12 +34,14 @@ library
       base >=4.7 && <5
     , containers
     , hspec
+    , transformers
     , yapb >=0.2.3
   default-language: Haskell2010
 
 executable opaquetypes-exe
   main-is: Main.hs
   other-modules:
+      EitherState
       Env
       Expr
       Interp
@@ -58,6 +60,7 @@ executable opaquetypes-exe
     , ch8
     , containers
     , hspec
+    , transformers
     , yapb >=0.2.3
   default-language: Haskell2010
 
@@ -82,6 +85,7 @@ executable simplemodules-exe
     , ch8
     , containers
     , hspec
+    , transformers
     , yapb >=0.2.3
   default-language: Haskell2010
 
@@ -90,6 +94,7 @@ test-suite opaquetypes-test
   main-is: Spec.hs
   other-modules:
       TypeCheckerTest
+      EitherState
       Env
       Expr
       Interp
@@ -110,6 +115,7 @@ test-suite opaquetypes-test
     , ch8
     , containers
     , hspec
+    , transformers
     , yapb >=0.2.3
   default-language: Haskell2010
 
@@ -138,5 +144,6 @@ test-suite simplemodules-test
     , ch8
     , containers
     , hspec
+    , transformers
     , yapb >=0.2.3
   default-language: Haskell2010

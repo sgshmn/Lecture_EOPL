@@ -24,6 +24,7 @@ dependencies:
 - yapb >= 0.2.3
 - hspec
 - containers
+- transformers
 
 # ghc-options:
 # - -Wall
