@@ -55,5 +55,5 @@ in let is_zero = from ints_2 take is_zero
 in letrec int to_int (n : from ints_2 take t)
                     = if (is_zero n)
                         then 0
-                        else -( (to-int (pred n)), -1)
+                        else -( (to_int (pred n)), -1)
 in (to_int (succ (succ zero)))

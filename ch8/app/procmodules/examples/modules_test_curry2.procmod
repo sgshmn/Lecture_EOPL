@@ -24,7 +24,7 @@ body
 
 module m1
 interface
-    ((m2 : % [opaque t]
+    ((m2 : 
     [transparent t = from m0 take t])
     => [transparent t = from m2 take t
         d : (t -> t)])

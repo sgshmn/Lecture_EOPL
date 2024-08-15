@@ -48,7 +48,7 @@ data Token =
 
   | BODY
 
-  | MODULEBODY                  -- module_body
+  | MODULEPROC                  -- module_proc
 
   | FROM
 
@@ -106,7 +106,7 @@ tokenStrList =
 
     (BODY, "body"),
 
-    (MODULEBODY, "module_body"),
+    (MODULEPROC, "module_proc"),
 
     (FROM, "from"),
 
