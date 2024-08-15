@@ -40,11 +40,15 @@ data Token =
   
   | ARROW                       -- ->
 
+  | DOUBLEARROW                 -- =>
+
   | MODULE
 
   | INTERFACE
 
   | BODY
+
+  | MODULEBODY                  -- module_body
 
   | FROM
 
@@ -94,11 +98,15 @@ tokenStrList =
     
     (ARROW, "->"),
 
+    (DOUBLEARROW, "=>"),
+
     (MODULE, "module"),
 
     (INTERFACE, "interface"),
 
     (BODY, "body"),
+
+    (MODULEBODY, "module_body"),
 
     (FROM, "from"),
 

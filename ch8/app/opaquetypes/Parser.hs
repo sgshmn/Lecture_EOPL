@@ -57,7 +57,7 @@ parserSpec = ParserSpec
         return $ toASTDeclaration (TransparentTypeDecl (getText rhs 2) (fromASTType (get rhs 4)))),
 
       rule "ModuleBody -> [ ZeroOrMoreDefinition ]" (\rhs -> 
-        return $ toASTModuleBody $ ModuleBody (fromASTDefinitionList (get rhs 2))),
+        return $ toASTModuleBody $ DefnsModuleBody (fromASTDefinitionList (get rhs 2))),
 
       rule "ZeroOrMoreDefinition -> " (\rhs -> return $ toASTDefinitionList []),
 

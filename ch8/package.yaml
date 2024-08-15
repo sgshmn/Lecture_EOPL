@@ -61,6 +61,16 @@ executables:
     - -with-rtsopts=-N
     dependencies:
     - ch8
+  procmodules-exe:
+    main:                Main.hs
+    source-dirs:         
+    - app/procmodules
+    ghc-options:
+    - -threaded
+    - -rtsopts
+    - -with-rtsopts=-N
+    dependencies:
+    - ch8    
 
 tests:
   simplemodules-test:
@@ -84,4 +94,15 @@ tests:
     - -rtsopts
     - -with-rtsopts=-N
     dependencies:
-    - ch8    
+    - ch8
+  procmodules-test:
+    main:                Spec.hs
+    source-dirs:         
+    - test/procmodules
+    - app/procmodules
+    ghc-options:
+    - -threaded
+    - -rtsopts
+    - -with-rtsopts=-N
+    dependencies:
+    - ch8   

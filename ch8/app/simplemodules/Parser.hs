@@ -50,7 +50,7 @@ parserSpec = ParserSpec
         return $ toASTDeclaration (ValDecl (getText rhs 1) (fromASTType (get rhs 3)))),
 
       rule "ModuleBody -> [ ZeroOrMoreDefinition ]" (\rhs -> 
-        return $ toASTModuleBody $ ModuleBody (fromASTDefinitionList (get rhs 2))),
+        return $ toASTModuleBody $ DefnsModuleBody (fromASTDefinitionList (get rhs 2))),
 
       rule "ZeroOrMoreDefinition -> " (\rhs -> return $ toASTDefinitionList []),
 

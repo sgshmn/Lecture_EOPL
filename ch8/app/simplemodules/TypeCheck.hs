@@ -20,7 +20,7 @@ add_module_defns_to_tyenv (ModuleDef m iface mbody : moddefs) tyenv =
                   ++ "\n  actual interface: " ++ show actual_iface
 
 interface_of :: ModuleBody -> TyEnv -> Interface 
-interface_of (ModuleBody defs) tyenv = 
+interface_of (DefnsModuleBody defs) tyenv = 
   SimpleIface (defns_to_decls defs tyenv)
 
 defns_to_decls :: [ Definition ] -> TyEnv -> [ Declaration ]

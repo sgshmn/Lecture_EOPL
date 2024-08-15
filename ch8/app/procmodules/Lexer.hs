@@ -20,6 +20,7 @@ lexerSpec = LexerSpec
         ("[0-9]+"  , mkFn INTEGER_NUMBER),
         
         ("->"      , mkFn ARROW),
+        ("=>"      , mkFn DOUBLEARROW),
         
         ("\\-"     , mkFn SUB),
         ("\\("     , mkFn OPEN_PAREN),
@@ -56,6 +57,7 @@ keywords =
   , ("module", MODULE)
   , ("interface", INTERFACE)
   , ("body",   BODY)
+  , ("module_body",   MODULEBODY)
   , ("from",   FROM)
   , ("take",   TAKE)
   , ("opaque", OPAQUE)

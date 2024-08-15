@@ -11,10 +11,16 @@ data Program = Program [ ModuleDef ] Exp
 data ModuleDef = ModuleDef Identifier Interface ModuleBody
   deriving Show
 
-data ModuleBody = ModuleBody [ Definition ] 
+data ModuleBody = 
+    DefnsModuleBody [ Definition ] 
+  | ProcModuleBody Identifier Interface ModuleBody 
+  | VarModuleBody Identifier
+  | AppModuleBody Identifier Identifier
   deriving Show
 
-data Interface = SimpleIface [ Declaration ]
+data Interface = 
+    SimpleIface [ Declaration ]
+  | ProcIface Identifier Interface Interface
   deriving Show
 
 data Declaration = 

@@ -27,7 +27,7 @@ add_module_defns_to_tyenv (ModuleDef m iface mbody : moddefs) tyenv =
                    ++ "\n  actual interface: " ++ show actual_iface
 
 interface_of :: ModuleBody -> TyEnv -> Either_ String Interface 
-interface_of (ModuleBody defs) tyenv = 
+interface_of (DefnsModuleBody defs) tyenv = 
   do decls <- defns_to_decls defs tyenv
      _Right $ SimpleIface decls
 
@@ -178,11 +178,9 @@ expand_type (TyQualified m t) tyenv = lookup_qualified_type_in_tyenv m t tyenv
 
 -- Interface expansion
 expand_iface :: Identifier -> Interface -> TyEnv -> Either_ String Interface
-expand_iface m iface tyenv = 
-  case iface of
-    SimpleIface decls -> 
-      do decls' <- expand_decls m decls tyenv
-         _Right $ SimpleIface decls'
+expand_iface m (SimpleIface decls) tyenv = 
+  do decls' <- expand_decls m decls tyenv
+     _Right $ SimpleIface decls'         
 
 -- Declaration expansion
 expand_decls :: Identifier -> [Declaration] -> TyEnv -> Either_ String [Declaration]

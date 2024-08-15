@@ -41,6 +41,12 @@ parserSpec = ParserSpec
       rule "Interface -> [ ZeroOrMoreDeclaration ]" (\rhs ->
         return $ toASTInterface $ SimpleIface (fromASTDeclarationList (get rhs 2))),
 
+      rule "Interface -> ( ( identifier : Interface ) => Interface )" (\rhs ->
+        return $ toASTInterface $ 
+                  ProcIface (getText rhs 3) 
+                    (fromASTInterface (get rhs 5))
+                    (fromASTInterface (get rhs 8))),
+
       rule "ZeroOrMoreDeclaration -> " (\rhs -> return $ toASTDeclarationList []),
 
       rule "ZeroOrMoreDeclaration -> Declaration ZeroOrMoreDeclaration" (\rhs ->
@@ -57,7 +63,20 @@ parserSpec = ParserSpec
         return $ toASTDeclaration (TransparentTypeDecl (getText rhs 2) (fromASTType (get rhs 4)))),
 
       rule "ModuleBody -> [ ZeroOrMoreDefinition ]" (\rhs -> 
-        return $ toASTModuleBody $ ModuleBody (fromASTDefinitionList (get rhs 2))),
+        return $ toASTModuleBody $ DefnsModuleBody (fromASTDefinitionList (get rhs 2))),
+
+      rule "ModuleBody -> module_proc ( identifier : Interface ) ModuleBody" (\rhs ->
+        return $ toASTModuleBody $ 
+                    ProcModuleBody
+                      (getText rhs 3) 
+                        (fromASTInterface (get rhs 5))
+                          (fromASTModuleBody (get rhs 7)) ),
+
+      rule "ModuleBody -> identifier" (\rhs -> 
+        return $ toASTModuleBody $ VarModuleBody (getText rhs 1)),
+
+      rule "ModuleBody -> ( identifier identifier )" (\rhs -> 
+        return $ toASTModuleBody $ AppModuleBody (getText rhs 2) (getText rhs 3)),
 
       rule "ZeroOrMoreDefinition -> " (\rhs -> return $ toASTDefinitionList []),
 

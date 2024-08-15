@@ -11,7 +11,7 @@ data Program = Program [ ModuleDef ] Exp
 data ModuleDef = ModuleDef Identifier Interface ModuleBody
   deriving Show
 
-data ModuleBody = ModuleBody [ Definition ] 
+data ModuleBody = DefnsModuleBody [ Definition ] 
   deriving Show
 
 data Interface = SimpleIface [ Declaration ]

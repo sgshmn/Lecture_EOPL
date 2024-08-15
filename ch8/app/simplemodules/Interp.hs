@@ -56,7 +56,7 @@ add_module_defns_to_env (ModuleDef mod_name _ mod_body : mod_defns) env =
   where typed_mod = value_of_module_body mod_body env
   
 value_of_module_body :: ModuleBody -> Env -> TypedModule
-value_of_module_body (ModuleBody defs) env = 
+value_of_module_body (DefnsModuleBody defs) env = 
   SimpleModule (defns_to_env defs env)
 
 defns_to_env :: [Definition] -> Env -> Env

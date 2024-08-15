@@ -64,6 +64,32 @@ executable opaquetypes-exe
     , yapb >=0.2.3
   default-language: Haskell2010
 
+executable procmodules-exe
+  main-is: Main.hs
+  other-modules:
+      EitherState
+      Env
+      Expr
+      Interp
+      Lexer
+      MainUtil
+      Parser
+      Token
+      TyEnv
+      TypeCheck
+      Paths_ch8
+  hs-source-dirs:
+      app/procmodules
+  ghc-options: -threaded -rtsopts -with-rtsopts=-N
+  build-depends:
+      base >=4.7 && <5
+    , ch8
+    , containers
+    , hspec
+    , transformers
+    , yapb >=0.2.3
+  default-language: Haskell2010
+
 executable simplemodules-exe
   main-is: Main.hs
   other-modules:
@@ -109,6 +135,36 @@ test-suite opaquetypes-test
   hs-source-dirs:
       test/opaquetypes
       app/opaquetypes
+  ghc-options: -threaded -rtsopts -with-rtsopts=-N
+  build-depends:
+      base >=4.7 && <5
+    , ch8
+    , containers
+    , hspec
+    , transformers
+    , yapb >=0.2.3
+  default-language: Haskell2010
+
+test-suite procmodules-test
+  type: exitcode-stdio-1.0
+  main-is: Spec.hs
+  other-modules:
+      TypeCheckerTest
+      EitherState
+      Env
+      Expr
+      Interp
+      Lexer
+      Main
+      MainUtil
+      Parser
+      Token
+      TyEnv
+      TypeCheck
+      Paths_ch8
+  hs-source-dirs:
+      test/procmodules
+      app/procmodules
   ghc-options: -threaded -rtsopts -with-rtsopts=-N
   build-depends:
       base >=4.7 && <5
