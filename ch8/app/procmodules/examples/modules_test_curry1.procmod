@@ -1,0 +1,29 @@
+module maker1
+    interface
+    ((m1 : [opaque t
+            s : (t -> t)])
+        => [transparent t = from m1 take t
+            d : (t -> t)])
+    body
+    module_proc
+        (m1 : [opaque t
+            s : (t -> t)])
+        [type t = from m1 take t
+        d = proc (x : t) (from m1 take s (from m1 take s x))]
+
+module m0
+    interface
+        [opaque t
+        s : (t -> t)]
+    body
+        [type t = int
+        s = proc (u : t) -(u, -1)]
+
+module m1
+    interface
+    [opaque t
+    d : (t -> t)]
+    body
+    (maker1 m0)
+
+33

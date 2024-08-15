@@ -1,0 +1,12 @@
+module m1 
+    interface ((m : [v : int]) => [w : int])
+    body 
+        module_proc (m : [v : int]) [w = -(from m take v, 1)]
+module m2 
+    interface [v : int] 
+    body [v = 33]
+module m3  
+    interface [w : int] 
+    body 
+    (m1 m2)
+from m3 take w

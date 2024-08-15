@@ -1,0 +1,27 @@
+module m1
+    interface
+        ((m : [v : int]) =>  [u : int])
+    body 
+        module_proc (m : [v : int])
+        [u = from m take v]
+
+module m2 
+interface [v : int] 
+body [v = 33]
+
+module m1a 
+interface ((m : [v : int]) => [u : int])
+body
+    m1
+
+module m2a
+    interface [v : int]
+    body 
+    m2
+
+module m3  
+    interface [u : int] 
+    body
+    (m1a m2a)
+
+from m3 take u

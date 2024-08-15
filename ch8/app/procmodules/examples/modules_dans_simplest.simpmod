@@ -1,0 +1,12 @@
+module m1
+    interface 
+    [a : int
+    b : int]
+    body
+    [a = 33
+    c = -(a,1)
+    b = -(c,a)]
+
+    let a = 10
+    in -(-(from m1 take a, from m1 take b), 
+        a)

@@ -1,0 +1,25 @@
+module ints1
+       interface 
+        [opaque t
+          zero : t
+          succ : (t -> t)
+          iszero : (t -> bool)] 
+       body 
+        [type t = int
+         zero = 0
+         succ = proc(x : t) -(x,-1)
+         pred = proc(x : t) -(x,1)
+         iszero = proc (x : t) zero?(x)]
+      module ints2 
+       interface 
+        [zero : from ints1 take t
+         succ : (from ints1 take t -> from ints1 take t)
+         iszero : (from ints1 take t -> bool)]
+       body
+        [zero = from ints1 take zero
+         succ = from ints1 take succ
+         iszero = from ints1 take iszero]
+      let s = from ints2 take succ
+      in let z? = from ints2 take iszero
+      in let z = from ints2 take zero
+      in (z? (s z))

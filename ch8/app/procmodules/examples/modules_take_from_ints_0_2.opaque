@@ -1,0 +1,8 @@
+module m1
+          interface [opaque t
+             zero : t
+             check : (t -> bool)] 
+          body [type t = int
+             zero = 0
+             check = proc(x : t) zero?(x)]
+         (from m1 take check  from m1 take zero)

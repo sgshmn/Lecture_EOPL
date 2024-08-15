@@ -1,0 +1,21 @@
+module ints2
+    interface [opaque t
+            zero : t
+            succ : (t -> t)
+            pred : (t -> t)
+            iszero : (t -> bool)]  
+    body [type t = int
+                    zero = 0
+                    succ = proc(x : t) -(x,3)
+                    pred = proc(x : t) -(x,-3)
+                    iszero = proc (x : t) zero?(x)
+                    ]
+
+let z = from ints2 take zero
+in let s = from ints2 take succ
+in let p = from ints2 take pred
+in let z? = from ints2 take iszero
+in letrec int toint (x : from ints2 take t) =
+            if (z? x) then 0
+                else -((toint (p x)), -1)
+in (toint (s (s z)))

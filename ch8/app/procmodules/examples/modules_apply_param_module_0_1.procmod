@@ -1,0 +1,10 @@
+module copy_module
+    interface 
+    ((m : [opaque t zero : t]) => 
+    [opaque t 
+    zero : t])
+    body 
+    module_proc (n : [opaque t zero : t]) 
+    [type t = from n take t
+    zero = from n take zero]
+33

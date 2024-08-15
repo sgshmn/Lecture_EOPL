@@ -1,0 +1,7 @@
+module m
+ interface 
+  [u : int]
+ body 
+  [u = 3]
+
+from m take u

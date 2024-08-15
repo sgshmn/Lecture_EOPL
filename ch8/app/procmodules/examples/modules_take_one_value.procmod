@@ -1,0 +1,26 @@
+module m
+ interface 
+  [u : int]
+ body 
+  [u = 3]
+
+from m take u"
+        int 3)
+
+       (modules_take_one_value_no_import
+        "module m 
+          interface 
+           [u : int] 
+          body 
+           [u = 3]
+         from m take u"
+        int 3)
+
+       (modules_take_from_parameterized_module "
+module m
+ interface 
+  ((m1 : []) => [u : int])
+ body 
+  module_proc (m1 : []) [u = 3]
+
+from m take u

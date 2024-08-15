@@ -1,0 +1,16 @@
+module m1 
+    interface 
+        [transparent u = int
+        transparent t = u]
+    body 
+        [type u = int
+        type t = u]
+module m2 
+    interface 
+        [transparent u = int
+        x : from m1 take t]
+    body
+        [type u = int
+        x = 3]
+
+33

@@ -1,0 +1,47 @@
+module add_double 
+    interface 
+    ((m : [opaque t 
+        zero : t 
+        succ : (t -> t)
+        pred : (t -> t)
+        is_zero : (t -> bool)])
+    => [double : (from m take t -> from m take t)])
+    body 
+    module_proc (m : [opaque t 
+                    zero : t 
+                    succ : (t -> t)
+                    pred : (t -> t)
+                    is_zero : (t -> bool)])
+    [double 
+    = letrec 
+        from m take t double (x : from m take t) 
+        = if (from m take is_zero x)
+            then from m take zero
+            else (from m take succ
+                (from m take succ x))
+        in double]
+
+module ints_1
+    interface 
+    [opaque t 
+    zero : t
+    succ : (t -> t)
+    pred : (t -> t)
+    is_zero : (t -> bool)]  
+    body 
+    [type t = int
+    zero = 0
+    succ = proc(x : t) -(x,2)
+    pred = proc(x : t) -(x,-2)
+    is_zero = proc (x : t) zero?(x)
+    ]  
+
+module ints_2  
+    interface [double : (from ints_1 take t -> from ints_1 take t)]
+    body
+    (add_double ints_1)
+
+(from ints_1 take is_zero
+    (from ints_2 take double
+    (from ints_1 take succ
+        from ints_1 take zero)))

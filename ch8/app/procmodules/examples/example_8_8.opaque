@@ -1,0 +1,17 @@
+module colors
+    interface
+        [opaque color
+        red : color
+        green : color
+        isred? : (color -> bool)
+        switchcolors : (color -> color)]
+
+    body
+        [type color = int
+        red = 0
+        green = 1
+        isred? = proc (c : color) zero?(c)
+        switchcolors = proc (c : color) 
+                        if (isred? c) then green else red]
+
+44

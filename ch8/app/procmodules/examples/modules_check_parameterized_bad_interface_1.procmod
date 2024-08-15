@@ -1,0 +1,6 @@
+module m1 
+    interface ((m : [v : int])  => [w : int])
+    body module_proc (m : [v : int]) [w = from m take v]
+module m2 interface [v : int] body [x = 33]  % bad
+module m3 interface [w : int] body  (m1 m2)
+from m3 take w

@@ -1,0 +1,6 @@
+module m1
+          interface [opaque t  
+             zero : t] 
+          body [type t = int
+             zero = 0]
+         from m1 take zero

@@ -1,0 +1,33 @@
+module maker1 
+    interface 
+    ((m : [opaque t 
+            succ : (t -> t)])
+    => [transparent t = from m take t 
+        double : (t -> t)])
+    body 
+    module_proc (m : [opaque t succ : (t -> t)])
+    [type t = from m take t
+        double = let s = from m take succ
+                in proc (x : t) (s (s x))]
+
+module m0 
+    interface 
+    [opaque t 
+    succ : (t -> t)
+    zero : t]
+    body 
+    [type t = int
+    succ = proc(x : t)-(x,-1)
+    zero = 0]
+
+module m2 
+    interface 
+    [transparent t = from m0 take t
+    double : (t -> t)]
+    body
+    (maker1 m0)
+
+    let check = proc (x : from m0 take t) zero?(0)
+    in (check
+        (from m2 take double
+        from m0 take zero))

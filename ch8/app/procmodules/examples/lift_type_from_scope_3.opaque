@@ -1,0 +1,9 @@
+module m1 
+    interface 
+        [opaque t2
+        f : (t1 -> t1)]
+    body 
+        [type t1 = bool
+        f = proc (x : t1) x]
+
+from m1 take f

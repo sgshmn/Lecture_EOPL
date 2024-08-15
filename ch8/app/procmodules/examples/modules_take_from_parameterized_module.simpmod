@@ -1,0 +1,7 @@
+module m
+ interface 
+  ((m1 : []) => [u : int])
+ body 
+  module-proc (m1 : []) [u = 3]
+
+from m take u

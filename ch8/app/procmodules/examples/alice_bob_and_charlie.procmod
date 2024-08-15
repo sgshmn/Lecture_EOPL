@@ -1,0 +1,53 @@
+module Alices_point_builder
+   interface
+    ((database : [opaque db_type
+                  opaque node_type
+                  insert_node : (node_type -> (db_type -> db_type))
+                  ])
+     => [opaque point
+         initial_point : (int -> point)])
+
+   body
+    module_proc
+     (database : [opaque db_type
+                  opaque node_type
+                  insert_node : (node_type -> (db_type -> db_type))])
+
+     [type point = int
+      initial_point = proc (x : int) x]
+
+  module Bobs_db_module
+   interface 
+    [opaque db_type
+     opaque node_type
+     insert_node : (node_type -> (db_type -> db_type))]
+   body
+    [type db_type = int
+     type node_type = bool
+     insert_node = proc (n : node_type) proc (d : db_type) d]
+
+  module Alices_points
+   interface
+    [opaque point
+     initial_point : (int -> point)]
+   body
+    (Alices_point_builder Bobs_db_module)
+
+  module Davids_db_module
+   interface 
+    [opaque db_type
+     opaque node_type
+     insert_node : (node_type -> (db_type -> db_type))]
+   body
+   [type db_type = bool
+     type node_type = int
+     insert_node = proc (n : node_type) proc (d : db_type) d]
+
+  module Charlies_points
+   interface
+     [opaque point
+     initial_point : (int -> point)]
+   body
+    (Alices_point_builder Davids_db_module)
+
+  44

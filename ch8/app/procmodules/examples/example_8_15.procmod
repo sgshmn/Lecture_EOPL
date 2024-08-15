@@ -1,0 +1,46 @@
+module to_int_maker 
+         interface
+          ((m1 : [opaque t
+                  zero : t
+                  succ : (t -> t)
+                  pred : (t -> t)
+                  is_zero : (t -> bool)]) 
+            => [to_int : (from m1 take t -> int)])
+         body 
+          module_proc 
+           (m1 : [opaque t
+                  zero : t
+                  succ : (t -> t)
+                  pred : (t -> t)
+                  is_zero : (t -> bool)])
+           [to_int 
+             = let z? = from m1 take is_zero
+               in let p = from m1 take pred
+               in letrec int to_int (x : from m1 take t) 
+                 = if (z? x) 
+                   then 0
+                   else -((to_int (p x)), -1)
+               in to_int]
+
+        module ints_1
+         interface [opaque t
+                    zero : t
+                    succ : (t -> t)
+                    pred : (t -> t)
+                    is_zero : (t -> bool)]  
+         body [type t = int
+                         zero = 0
+                         succ = proc(x : t) -(x,-5)
+                         pred = proc(x : t) -(x,5)
+                         is_zero = proc (x : t) zero?(x)]
+        
+        module ints_1_to_int
+         interface [to_int : (from ints_1 take t -> int)]
+         body  
+          (to_int_maker ints_1)
+
+        let two1 = (from ints_1 take succ
+                    (from ints_1 take succ
+                     from ints_1 take zero))
+        in (from ints_1_to_int take to_int
+            two1)
