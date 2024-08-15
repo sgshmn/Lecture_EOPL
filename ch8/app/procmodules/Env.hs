@@ -1,6 +1,6 @@
 module Env where
 
-import Expr (Identifier,Exp)
+import Expr (Identifier,Exp,ModuleBody)
 
 -- Environment
 data Env =
@@ -45,7 +45,9 @@ lookup_module_name_in_env mod_name (Extend_env_with_module saved_mod_name saved_
   | otherwise                = lookup_module_name_in_env mod_name env
 
 -- Typed modules
-data TypedModule = SimpleModule Env
+data TypedModule = 
+    SimpleModule Env
+  | ProcModule Identifier ModuleBody Env
 
 -- Expressed values
 data ExpVal =

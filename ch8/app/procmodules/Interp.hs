@@ -60,9 +60,17 @@ add_module_defns_to_env (ModuleDef mod_name _ mod_body : mod_defns) env =
 value_of_module_body :: ModuleBody -> Env -> TypedModule
 value_of_module_body (DefnsModuleBody defs) env = 
   SimpleModule (defns_to_env defs env)
-value_of_module_body (ProcModuleBody m iface mbody) env = undefined
-value_of_module_body (VarModuleBody m) env = undefined
-value_of_module_body (AppModuleBody mfun marg) env = undefined
+value_of_module_body (VarModuleBody mname) env =
+  lookup_module_name_in_env mname env  
+value_of_module_body (ProcModuleBody marg iface mbody) env =
+  ProcModule marg mbody env
+value_of_module_body (AppModuleBody mFunName mArgName) env =
+  let mFunVal = lookup_module_name_in_env mFunName env 
+      mArgVal = lookup_module_name_in_env mArgName env
+  in case mFunVal of 
+       ProcModule mname mbody env1 -> 
+         value_of_module_body mbody (extend_env_with_module mname mArgVal env) 
+       SimpleModule env1 -> error $ "Can't apply non-proc-module-value: " ++ mFunName
 
 defns_to_env :: [Definition] -> Env -> Env
 defns_to_env [] env = env
