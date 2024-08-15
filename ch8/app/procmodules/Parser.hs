@@ -138,10 +138,10 @@ parserSpec = ParserSpec
     ],
     
     baseDir        = "./",
-    actionTblFile  = "action_table_opaquetypes.txt",
-    gotoTblFile    = "goto_table_opaquetypes.txt",
-    grammarFile    = "prod_rules_opaquetypes.txt",
-    parserSpecFile = "mygrammar_opaquetypes.grm",
+    actionTblFile  = "action_table_procmodules.txt",
+    gotoTblFile    = "goto_table_procmodules.txt",
+    grammarFile    = "prod_rules_procmodules.txt",
+    parserSpecFile = "mygrammar_procmodules.grm",
     genparserexe   = "yapb-exe"
   }
 

@@ -30,6 +30,26 @@ interface_of :: ModuleBody -> TyEnv -> Either_ String Interface
 interface_of (DefnsModuleBody defs) tyenv = 
   do decls <- defns_to_decls defs tyenv
      _Right $ SimpleIface decls
+interface_of (VarModuleBody mname) tyenv =
+  lookup_module_name_in_tyenv tyenv mname
+interface_of (AppModuleBody mfname margname) tyenv =
+  do fniface <- lookup_module_name_in_tyenv tyenv mfname 
+     argiface <- lookup_module_name_in_tyenv tyenv margname
+     case fniface of
+       SimpleIface decls -> 
+         _Left $ "attempt to apply non-parameterized module: " ++ show mfname
+       ProcIface mname iface1 iface2 ->
+         do b <- sub_iface argiface iface1 tyenv 
+            if b
+            then _Right $ rename_in_iface iface2 mname margname
+            else _Left $ "bad module application : " ++ mfname ++ " " ++ margname ++ "\n"
+                          ++ "actual interface: " ++ show argiface ++ "\n"
+                          ++ "expected interface: " ++ show iface1
+interface_of (ProcModuleBody mname iface mbody) tyenv =
+  do  expandediface <- expand_iface mname iface tyenv
+      bodyiface <- interface_of mbody
+                    (extend_tyenv_with_module mname expandediface tyenv)
+      _Right $ ProcIface mname iface bodyiface
 
 defns_to_decls :: [ Definition ] -> TyEnv -> Either_ String [ Declaration ]
 defns_to_decls [] tyenv = _Right []
@@ -48,6 +68,20 @@ defns_to_decls (TypeDefn var ty : defs) tyenv =
 sub_iface :: Interface -> Interface -> TyEnv -> Either_ String Bool
 sub_iface (SimpleIface decls1) (SimpleIface decls2) tyenv =
   sub_decls decls1 decls2 tyenv 
+sub_iface (ProcIface mname1 argIface1 resIface1) 
+          (ProcIface mname2 argIface2 resIface2) tyenv =
+  do newNum <- _fresh
+     let newname = "m$" ++ show newNum 
+     let resIface1' = rename_in_iface resIface1 mname1 newname 
+     let resIface2' = rename_in_iface resIface2 mname2 newname 
+     expandedArgIface1 <- expand_iface newname argIface1 tyenv
+     argB <- sub_iface argIface2 argIface1 tyenv 
+     resB <- sub_iface resIface1' resIface2' 
+              (extend_tyenv_with_module newname expandedArgIface1 tyenv)
+     if argB && resB 
+     then _Right True 
+     else _Right False  
+sub_iface _ _ _ = _Right False
 
 sub_decls :: [Declaration] -> [Declaration] -> TyEnv -> Either_ String Bool
 sub_decls decls1 [] tyenv = _Right True 
@@ -78,7 +112,7 @@ sub_decls (decl1:decls1) (decl2:decls2) tyenv =
 extend_tyenv_with_decl :: Declaration -> TyEnv -> Either_ String TyEnv
 extend_tyenv_with_decl (ValDecl var ty) tyenv = _Right tyenv 
 extend_tyenv_with_decl (OpaqueTypeDecl var) tyenv =
-  do newNum <- _get
+  do newNum <- _fresh
      _Right $ extend_tyenv_with_type var (TyQualified ("$m" ++ show newNum) var) tyenv -- Fixed!!
 extend_tyenv_with_decl (TransparentTypeDecl var ty) tyenv =
   do expanded_ty <- expand_type ty tyenv
@@ -181,7 +215,8 @@ expand_iface :: Identifier -> Interface -> TyEnv -> Either_ String Interface
 expand_iface m (SimpleIface decls) tyenv = 
   do decls' <- expand_decls m decls tyenv
      _Right $ SimpleIface decls'
-expand_iface m (ProcIface mprocname iface1 iface2) tyenv = undefined       
+expand_iface m (ProcIface mprocname iface1 iface2) tyenv =
+  _Right $ ProcIface mprocname iface1 iface2   
 
 -- Declaration expansion
 expand_decls :: Identifier -> [Declaration] -> TyEnv -> Either_ String [Declaration]

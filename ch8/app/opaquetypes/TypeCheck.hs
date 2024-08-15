@@ -78,7 +78,7 @@ sub_decls (decl1:decls1) (decl2:decls2) tyenv =
 extend_tyenv_with_decl :: Declaration -> TyEnv -> Either_ String TyEnv
 extend_tyenv_with_decl (ValDecl var ty) tyenv = _Right tyenv 
 extend_tyenv_with_decl (OpaqueTypeDecl var) tyenv =
-  do newNum <- _get
+  do newNum <- _fresh
      _Right $ extend_tyenv_with_type var (TyQualified ("$m" ++ show newNum) var) tyenv -- Fixed!!
 extend_tyenv_with_decl (TransparentTypeDecl var ty) tyenv =
   do expanded_ty <- expand_type ty tyenv

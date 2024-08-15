@@ -2,7 +2,7 @@
 {-# HLINT ignore "Use camelCase" #-}
 module TyEnv where
 
-import Expr(Identifier, Type, Interface(..), Declaration(..))
+import Expr(Identifier, Type(..), Interface(..), Declaration(..))
 import EitherState
 
 -- Invariant: Types in type environments are always fully expanded. 
@@ -83,3 +83,37 @@ lookup_variable_name_in_decls var (TransparentTypeDecl x ty : decls)
   | var == x = _Right ty
   | otherwise = lookup_variable_name_in_decls var decls
 
+rename_in_iface :: Interface -> Identifier -> Identifier -> Interface
+rename_in_iface (SimpleIface decls) oldm newm = 
+  SimpleIface (rename_in_decls decls oldm newm)
+rename_in_iface (ProcIface mname iface1 iface2) oldm newm = 
+  let iface1' = rename_in_iface iface1 oldm newm in
+    if mname == oldm then ProcIface mname iface1' iface2 
+    else ProcIface mname iface1' (rename_in_iface iface2 oldm newm) 
+
+rename_in_decls :: [Declaration] -> Identifier -> Identifier -> [Declaration]
+rename_in_decls [] oldm newm = [] 
+rename_in_decls ((ValDecl x ty):decls) oldm newm =
+  ValDecl x (rename_in_type ty oldm newm) : rename_in_decls decls oldm newm
+rename_in_decls ((OpaqueTypeDecl t):decls) oldm newm =
+  let decl1 = OpaqueTypeDecl t in
+    if t == oldm then decl1 : decls 
+    else decl1 : rename_in_decls decls oldm newm 
+rename_in_decls ((TransparentTypeDecl x ty):decls) oldm newm =
+  let decl1 = TransparentTypeDecl x (rename_in_type ty oldm newm) in
+    if x == oldm then decl1 : decls
+    else decl1 : rename_in_decls decls oldm newm
+
+rename_in_type :: Type -> Identifier -> Identifier -> Type
+rename_in_type (TyQualified m t) oldm newm =
+  TyQualified (rename_name m oldm newm) t
+rename_in_type (TyFun ty1 ty2) oldm newm = 
+  TyFun (rename_in_type ty1 oldm newm) (rename_in_type ty2 oldm newm)
+rename_in_type (TyName t) oldm newm =
+  TyName (rename_name t oldm newm)
+rename_in_type ty oldm newm = ty 
+
+rename_name :: Identifier -> Identifier -> Identifier -> Identifier
+rename_name name oldm newm
+  | name == oldm = newm
+  | otherwise = name 

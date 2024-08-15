@@ -35,9 +35,9 @@ _run exp =
 _onLeft :: Either_ e a -> (e -> Either_ e a) -> Either_ e a
 _onLeft mExp action = catchE mExp action
 
-_get :: Either_ e InternalState
-_get = do newNum <- lift $ get
-          lift $ modify (+1)
-          return newNum 
+_fresh :: Either_ e InternalState
+_fresh = do newNum <- lift $ get
+            lift $ modify (+1)
+            return newNum 
 
 
