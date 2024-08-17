@@ -15,18 +15,19 @@ import System.IO
 import System.Environment (getArgs, withArgs)
 
 parser text = do
-  parsing False                            -- parser converting a text-based program
-     parserSpec ((), 1, 1, text)           -- into a program in abstract syntax tree (Expr)
-     (aLexer lexerSpec)
-     (fromToken (endOfToken lexerSpec))
+  astProg <- 
+    parsing False                            -- parser converting a text-based program
+      parserSpec ((), 1, 1, text)           -- into a program in abstract syntax tree (Expr)
+      (aLexer lexerSpec)
+      (fromToken (endOfToken lexerSpec))
+  return (fromASTProgram astProg)
 
 run text = do
   val <- runProg text True
   putStrLn (show val)
 
 runProg text bool = do 
-  programAst <- parser text
-  let program = fromASTProgram programAst
+  program <- parser text
 
   if bool then putStrLn (show program) else return ()
   
@@ -35,14 +36,8 @@ runProg text bool = do
 
 typecheck text = do
   let debugFlag = False
-        
-  programAst <-
-    parsing debugFlag
-       parserSpec ((), 1, 1, text)
-       (aLexer lexerSpec)
-       (fromToken (endOfToken lexerSpec))
 
-  let program = fromASTProgram programAst
+  program <- parser text
   
   putStrLn (show program)
 
