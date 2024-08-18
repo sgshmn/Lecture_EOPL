@@ -1,6 +1,7 @@
 module Env where
 
 import Expr (Identifier,Exp)
+import Data.List (intersperse)
 
 -- Environment
 data Env =
@@ -8,6 +9,14 @@ data Env =
   | Extend_env Identifier ExpVal Env
   | Extend_env_rec Identifier Identifier Exp Env
   | Extend_env_with_module Identifier TypedModule Env
+
+instance Show Env where
+  show env = "[" ++ (concat $ intersperse "," $ showEnv env) ++ "]"
+
+showEnv Empty_env = []
+showEnv (Extend_env x v env) = (x ++ " = " ++ show v) : showEnv env
+showEnv (Extend_env_rec f x _ env) = ("rec fun " ++ f) : showEnv env
+showEnv (Extend_env_with_module m mod env) = (m ++ " " ++ show mod) : showEnv env
 
 empty_env :: Env
 empty_env = Empty_env
@@ -45,7 +54,7 @@ lookup_module_name_in_env mod_name (Extend_env_with_module saved_mod_name saved_
   | otherwise                = lookup_module_name_in_env mod_name env
 
 -- Typed modules
-data TypedModule = SimpleModule Env
+data TypedModule = SimpleModule Env deriving Show
 
 -- Expressed values
 data ExpVal =

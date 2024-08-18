@@ -62,9 +62,11 @@ value_of_module_body (DefnsModuleBody defs) env =
   SimpleModule (defns_to_env defs env)
 
 defns_to_env :: [Definition] -> Env -> Env
-defns_to_env [] env = env
+defns_to_env [] env = empty_env
 defns_to_env (ValDefn var exp : defns) env =
-  defns_to_env defns (extend_env var (value_of exp env) env)
+  let val = value_of exp env
+      newenv = extend_env var val env 
+  in extend_env var val (defns_to_env defns newenv)
 defns_to_env (TypeDefn var ty : defns) env = -- Just ignore the type definitions!
   defns_to_env defns env 
 
