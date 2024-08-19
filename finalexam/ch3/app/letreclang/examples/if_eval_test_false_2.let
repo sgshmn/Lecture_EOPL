@@ -1,1 +1,0 @@
-if zero?(-(11,12)) then foo else 4
