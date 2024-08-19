@@ -44,9 +44,9 @@
 
  - [THREADS: A multi-threaded concurrent language (based on LETRE-CPS and IMPLICIT-REFS)](https://docs.google.com/presentation/d/1d2jd_NtCxMdSEZTJI5M9kNz2QVk11cea-d86fnTo9zk/edit?usp=sharing)
 
-### Chapter 7: [Types (CHECKED)](https://docs.google.com/presentation/d/1Jl8IkUpaIn5Mtmd6kKeSiBLpvWwO6RjMoMq4brT8Oc8/edit?usp=sharing)
+### Chapter 7: Types (CHECKED)
 
- - CHECKED: A type-checked language (based on LETREC)
+ - [CHECKED: A type-checked language (based on LETREC)](https://docs.google.com/presentation/d/1Jl8IkUpaIn5Mtmd6kKeSiBLpvWwO6RjMoMq4brT8Oc8/edit?usp=sharing)
  - INFERRED: A language with type inference (based on CHECKED)
 
 ### Chapter 8: Modules
