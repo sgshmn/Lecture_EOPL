@@ -52,7 +52,7 @@
 ### Chapter 8: Modules
 
  - [SIMPLE-MODULES: A modular language (based on CHECKED)](https://docs.google.com/presentation/d/1__dfiyEu3NSFawXhrNiHJv0ilB6lBDAN_CYjtVgt7Q0/edit?usp=sharing)
- - OPAQUE-TYPES: A modular language with interfaces, i.e., module types (based on SIMPLE-MODULES)
+ - [OPAQUE-TYPES: A modular language with interfaces, i.e., module types (based on SIMPLE-MODULES))[https://docs.google.com/presentation/d/1SyUOEjuTCI1jRPhETEBtWbEWTCSaUVM15MVKaYJVUhQ/edit?usp=sharing]
  - PROC-MODULES: A modular language with parameterized modules (based on OPAQUE-TYPES)
 
 ### Chapter 9: Objects and Classes (CLASSES)
