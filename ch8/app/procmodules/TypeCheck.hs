@@ -22,9 +22,10 @@ add_module_defns_to_tyenv (ModuleDef m iface mbody : moddefs) tyenv =
         do  iface' <- expand_iface m iface tyenv               -- important!
             let newtyenv = extend_tyenv_with_module m iface' tyenv       
             add_module_defns_to_tyenv moddefs newtyenv 
-     else _Left $ "In the module " ++ m
-                   ++ "\n  expected interface: " ++ show iface
+     else _Left $ "In the module " ++ m ++ ", not subinterface: "
+                   ++ "\n  expected interface: " ++ show iface      
                    ++ "\n  actual interface: " ++ show actual_iface
+                  
 
 interface_of :: ModuleBody -> TyEnv -> Either_ String Interface 
 interface_of (DefnsModuleBody defs) tyenv = 
@@ -206,7 +207,7 @@ expand_type TyBool tyenv = _Right TyBool
 expand_type (TyFun ty1 ty2) tyenv = 
   do ty1' <- expand_type ty1 tyenv
      ty2' <- expand_type ty2 tyenv
-     _Right $ TyFun ty1' ty2
+     _Right $ TyFun ty1' ty2'
 expand_type (TyName n) tyenv = lookup_type_name_in_tyenv n tyenv
 expand_type (TyQualified m t) tyenv = lookup_qualified_type_in_tyenv m t tyenv
 
@@ -265,5 +266,7 @@ equalType (TyFun ty1 ty1') (TyFun ty2 ty2') =
   equalType ty1 ty2 && equalType ty1' ty2'
 equalType (TyQualified m1 t1) (TyQualified m2 t2) =
   m1 == m2 && t1 == t2
+equalType (TyName tname1) (TyName tname2) = 
+  tname1 == tname2  
 equalType _ _ = False
 

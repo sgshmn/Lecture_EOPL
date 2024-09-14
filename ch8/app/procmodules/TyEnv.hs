@@ -8,9 +8,10 @@ import EitherState
 -- Invariant: Types in type environments are always fully expanded. 
 data TyEnv = 
     Empty_tyenv
-  | Extend_tyenv Identifier Type TyEnv
+  | Extend_tyenv Identifier Type TyEnv                     -- variable name : type
   | Extend_tyenv_with_module Identifier Interface TyEnv
-  | Extend_tyenv_with_type Identifier Type TyEnv
+  | Extend_tyenv_with_type Identifier Type TyEnv           -- abbreviated type name : type
+  deriving Show 
 
 empty_tyenv :: TyEnv
 empty_tyenv = Empty_tyenv
