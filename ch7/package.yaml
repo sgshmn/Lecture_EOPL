@@ -50,6 +50,16 @@ executables:
     - -with-rtsopts=-N
     dependencies:
     - ch7
+  inferredlang-exe:
+    main:                Main.hs
+    source-dirs:         
+    - app/inferredlang
+    ghc-options:
+    - -threaded
+    - -rtsopts
+    - -with-rtsopts=-N
+    dependencies:
+    - ch7    
 
 tests:
   checkedlang-test:
@@ -63,3 +73,14 @@ tests:
     - -with-rtsopts=-N
     dependencies:
     - ch7
+  inferredlang-test:
+    main:                Spec.hs
+    source-dirs:         
+    - test/inferredlang
+    - app/inferredlang
+    ghc-options:
+    - -threaded
+    - -rtsopts
+    - -with-rtsopts=-N
+    dependencies:
+    - ch7    
