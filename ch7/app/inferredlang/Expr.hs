@@ -19,6 +19,8 @@ data Exp =
 
 type Identifier = String
 
+type TypeVariable = Integer
+
 data Type =
     TyInt
   | TyBool

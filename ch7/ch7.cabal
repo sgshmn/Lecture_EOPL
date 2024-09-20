@@ -34,6 +34,7 @@ library
       base >=4.7 && <5
     , containers
     , hspec
+    , transformers
     , yapb >=0.2.3
   default-language: Haskell2010
 
@@ -58,21 +59,25 @@ executable checkedlang-exe
     , ch7
     , containers
     , hspec
+    , transformers
     , yapb >=0.2.3
   default-language: Haskell2010
 
 executable inferredlang-exe
   main-is: Main.hs
   other-modules:
+      EitherState
       Env
       Expr
       Interp
       Lexer
       MainUtil
       Parser
+      Subst
       Token
       TyEnv
       TypeCheck
+      TypeInfer
       Paths_ch7
   hs-source-dirs:
       app/inferredlang
@@ -82,6 +87,7 @@ executable inferredlang-exe
     , ch7
     , containers
     , hspec
+    , transformers
     , yapb >=0.2.3
   default-language: Haskell2010
 
@@ -110,6 +116,7 @@ test-suite checkedlang-test
     , ch7
     , containers
     , hspec
+    , transformers
     , yapb >=0.2.3
   default-language: Haskell2010
 
@@ -118,6 +125,7 @@ test-suite inferredlang-test
   main-is: Spec.hs
   other-modules:
       TypeCheckerTest
+      EitherState
       Env
       Expr
       Interp
@@ -125,9 +133,11 @@ test-suite inferredlang-test
       Main
       MainUtil
       Parser
+      Subst
       Token
       TyEnv
       TypeCheck
+      TypeInfer
       Paths_ch7
   hs-source-dirs:
       test/inferredlang
@@ -138,5 +148,6 @@ test-suite inferredlang-test
     , ch7
     , containers
     , hspec
+    , transformers
     , yapb >=0.2.3
   default-language: Haskell2010
