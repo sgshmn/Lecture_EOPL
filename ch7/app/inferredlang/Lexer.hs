@@ -48,6 +48,6 @@ lexerSpec = LexerSpec
         
         ("[a-zA-Z][a-zA-Z0-9]*"    , mkFn IDENTIFIER),
 
-        ("?"       , mkFn OPTIONAL_TYPE)
+        ("\\?"       , mkFn OPTIONAL_TYPE)
       ]
   } 
