@@ -28,6 +28,21 @@ data Type =
   | TyVar Integer
   deriving (Show, Eq)
 
+isTyVar (TyVar _) = True
+isTyVar _ = False 
+
+isTyFun (TyFun _ _) = True
+isTyFun _ = False 
+
+typeVariable (TyVar tvar) = tvar
+typeVariable ty = error $ "typeVariable : not TyVar: " ++ show ty
+
+argType (TyFun argTy _) = argTy 
+argType ty = error $ "argType: not TyFun: " ++ show ty
+
+resType (TyFun _ resTy) = resTy
+resType ty = error $ "resType: not TyFun: " ++ show ty 
+
 data OptionalType = 
     NoType
   | AType Type

@@ -1,4 +1,4 @@
-module Subst(apply_subst, empty_subst, extend_subst, 
+module Subst(Subst, apply_subst, empty_subst, extend_subst, 
              apply_one_subst, apply_subst_to_type) where
 
 import Expr
@@ -6,7 +6,7 @@ import TyEnv
 
 import Data.Maybe
 
--- Substitutions
+-- 7.4.1 Substitutions
 data Subst = 
     Empty_Subst
   | Extend_Subst Subst TypeVariable Type 
@@ -53,3 +53,4 @@ apply_subst_to_type (TyVar tvar0) subst =
   case apply_subst tvar0 subst of
     Nothing -> TyVar tvar0
     Just ty -> ty 
+
