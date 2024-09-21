@@ -54,3 +54,23 @@ apply_subst_to_type (TyVar tvar0) subst =
     Nothing -> TyVar tvar0
     Just ty -> ty 
 
+-- for testing type equality in the presence of type variables 
+equal_up_to_typevars :: Type -> Type -> Bool 
+equal_up_to_typevars ty1 ty2 = 
+  apply_subst_to_type ty1 (canonical_subst ty1) == apply_subst_to_type ty2 (canonical_subst ty2)
+
+canonical_subst :: Type -> Subst 
+canonical_subst ty = canonical_subst' ty empty_subst
+
+canonical_subst' TyInt subst = subst 
+canonical_subst' TyBool subst = subst
+canonical_subst' (TyVar tyvar) subst = 
+  Extend_Subst subst tyvar (TyVar (length_subst subst))
+canonical_subst' (TyFun argTy resTy) subst =
+  let subst1 = canonical_subst' argTy subst 
+      subst2 = canonical_subst' resTy subst1
+  in subst2
+
+length_subst :: Subst -> Integer 
+length_subst Empty_Subst = 0
+length_subst (Extend_Subst subst tyvar ty) = length_subst subst + 1
