@@ -27,8 +27,6 @@ lexerSpec = LexerSpec
         ("\\,"     , mkFn COMMA),
         
         (":"       , mkFn COLON),
-
-        ("?"       , mkFn OPTIONAL_TYPE),
         
         ("zero\\?" , mkFn ISZERO),
 
@@ -48,6 +46,8 @@ lexerSpec = LexerSpec
         ("proc"    , mkFn PROC),
 
         
-        ("[a-zA-Z][a-zA-Z0-9]*"    , mkFn IDENTIFIER)
+        ("[a-zA-Z][a-zA-Z0-9]*"    , mkFn IDENTIFIER),
+
+        ("?"       , mkFn OPTIONAL_TYPE)
       ]
   } 
