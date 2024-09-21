@@ -9,6 +9,8 @@ import Parser
 import Expr
 import Interp
 import TypeCheck
+import TypeInfer
+import Subst
 
 import Control.Monad (when)
 import System.IO
@@ -33,7 +35,7 @@ runProg text bool = do
   let val = value_of_program expression      -- interpreter
   return val 
 
-typecheck text = do
+typeinference text = do
   let debugFlag = False
         
   expressionAst <-
@@ -46,10 +48,10 @@ typecheck text = do
   
   putStrLn (show expression)
 
-  eitherTyOrErr <- typeCheck expression
-  case eitherTyOrErr of
-    Right ty ->
-      do putStrLn (show ty)
+  eitherTySubstOrErr <- typeCheck expression
+  case eitherTySubstOrErr of
+    Right (ty,subst) ->
+      do putStrLn (show (apply_subst_to_type ty subst))
 
          let val = value_of_program expression
          putStrLn (show val)
