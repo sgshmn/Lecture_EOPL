@@ -1,5 +1,6 @@
 module Subst(Subst, apply_subst, empty_subst, extend_subst, 
-             apply_one_subst, apply_subst_to_type) where
+             apply_one_subst, apply_subst_to_type,
+             equal_up_to_typevars) where
 
 import Expr
 import TyEnv
@@ -65,7 +66,9 @@ canonical_subst ty = canonical_subst' ty empty_subst
 canonical_subst' TyInt subst = subst 
 canonical_subst' TyBool subst = subst
 canonical_subst' (TyVar tyvar) subst = 
-  Extend_Subst subst tyvar (TyVar (length_subst subst))
+  case apply_subst tyvar subst of
+    Nothing -> Extend_Subst subst tyvar (TyVar (length_subst subst))
+    Just _ -> subst
 canonical_subst' (TyFun argTy resTy) subst =
   let subst1 = canonical_subst' argTy subst 
       subst2 = canonical_subst' resTy subst1
