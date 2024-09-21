@@ -48,7 +48,7 @@ typeinference text = do
   
   putStrLn (show expression)
 
-  eitherTySubstOrErr <- typeCheck expression
+  eitherTySubstOrErr <- typeInfer expression
   case eitherTySubstOrErr of
     Right (ty,subst) ->
       do putStrLn (show (apply_subst_to_type ty subst))
