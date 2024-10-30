@@ -212,3 +212,11 @@ method_decls_method_envs method_decls super_name field_names =
 merge_method_envs :: MethodEnv -> MethodEnv -> MethodEnv
 merge_method_envs superMethodEnvs newMethodEnvs = newMethodEnvs ++ superMethodEnvs
 
+-- 
+is_subclass :: Identifier -> Identifier -> ClassEnv -> Bool
+is_subclass class_name1 class_name2 class_env = 
+  if class_name1 == class_name2
+    then True
+    else case class_super_name (lookup_class class_name1 class_env) of
+            Just super_name -> is_subclass super_name class_name2 class_env
+            Nothing         -> False  

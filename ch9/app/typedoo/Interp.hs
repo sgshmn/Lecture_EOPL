@@ -125,6 +125,20 @@ value_of class_env (New_Object_Exp class_name args) env store =
                       obj args_val class_env store2
   in  (Object_Val obj, store3)
 
+value_of class_env (Cast_Exp exp class_name) env store =
+  let (val1,store1) = value_of class_env exp env store
+      class_name1 = object_class_name (expval_obj val1)
+  in  if is_subclass class_name1 class_name class_env
+      then (val1,store1)
+      else error $ "Invalid cast:" ++ class_name1 ++ " to " ++ class_name
+
+value_of class_env (InstanceOf_Exp exp class_name) env store =      
+  let (val1,store1) = value_of class_env exp env store
+      class_name1 = object_class_name (expval_obj val1)
+  in  if is_subclass class_name1 class_name class_env
+      then (Bool_Val True,store1)
+      else (Bool_Val False,store1)
+
 -- Helper function for evaluating args
 value_of_arg class_env env (vals,store) arg =
     let (val,store') = value_of class_env arg env store
