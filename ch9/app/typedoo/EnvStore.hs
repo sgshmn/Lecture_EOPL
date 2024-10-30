@@ -4,7 +4,7 @@
 module EnvStore where
 
 import Ref(Location)
-import Expr (Identifier,Exp,ClassDecl(..),MethodDecl(..))
+import Expr (Identifier,Exp,Type,ClassDecl(..),MethodDecl(..))
 
 import Data.Maybe
 import Data.List (elemIndex,lookup)
@@ -120,7 +120,7 @@ initStore = (1,[])
 -- Classes
 data Class = AClass 
   { class_super_name :: Maybe Identifier, 
-    class_field_names :: [Identifier], 
+    class_field_names :: [(Type, Identifier)], 
     class_method_env :: MethodEnv
   }
 
@@ -137,10 +137,10 @@ new_object class_name class_env store =
 
 -- Methods
 data Method = AMethod 
-  { method_vars :: [Identifier], 
+  { method_vars :: [(Type, Identifier)], 
     method_body :: Exp,
     method_super_name :: Identifier,
-    method_field_names :: [Identifier]
+    method_field_names :: [(Type, Identifier)]
   }
 
 -- apply_method in Interp.hs
@@ -166,7 +166,7 @@ initialize_class_env classDecls =
   foldl (flip initialize_class_decl) initClassEnv classDecls    
 
 initialize_class_decl :: ClassDecl -> ClassEnv -> ClassEnv
-initialize_class_decl (Class_Decl class_name super_name field_names method_decls) class_env = 
+initialize_class_decl (Class_Decl class_name super_name ifaces field_names method_decls) class_env = 
   let accumulated_field_names = 
         append_field_names
           (class_field_names (lookup_class super_name class_env))
@@ -178,14 +178,18 @@ initialize_class_decl (Class_Decl class_name super_name field_names method_decls
                         method_decls super_name accumulated_field_names))
   in add_to_class_env class_name aClass class_env
 
-append_field_names :: [Identifier] -> [Identifier] -> [Identifier]
+append_field_names :: [(Type, Identifier)] -> [(Type, Identifier)] -> [(Type, Identifier)]
 append_field_names super_fields new_fields =
   rename_super_fields 1 super_fields
   where
     rename_super_fields n [] = new_fields
-    rename_super_fields n (f:fs)
-      | f `elem` new_fields = (f ++ "_" ++ show n) : rename_super_fields (n+1) fs
-      | otherwise           = f : rename_super_fields n fs
+    rename_super_fields n ((ty,f):fs)
+      | f `elem'` new_fields = (ty, f ++ "_" ++ show n) : rename_super_fields (n+1) fs
+      | otherwise           = (ty,f) : rename_super_fields n fs
+
+    elem' :: Identifier -> [(Type, Identifier)] -> Bool
+    elem' f [] = False
+    elem' f ((_,f'):fs) = f == f' || elem' f fs
 
 -- Method Environments
 type MethodEnv = [ (Identifier, Method)]
@@ -198,11 +202,11 @@ find_method class_name method_name class_env =
       Just method -> method
       Nothing     -> error ("Method " ++ method_name ++ " not found.")
 
-method_decls_method_envs :: [MethodDecl] -> Identifier -> [Identifier] -> MethodEnv
+method_decls_method_envs :: [MethodDecl] -> Identifier -> [(Type, Identifier)] -> MethodEnv
 method_decls_method_envs method_decls super_name field_names = 
   map method_decl_method_env method_decls
   where
-    method_decl_method_env (Method_Decl method_name vars body) = 
+    method_decl_method_env (Method_Decl ty method_name vars body) = 
       (method_name, AMethod vars body super_name field_names)
 
 merge_method_envs :: MethodEnv -> MethodEnv -> MethodEnv

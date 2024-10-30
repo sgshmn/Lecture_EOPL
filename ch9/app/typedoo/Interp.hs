@@ -165,9 +165,9 @@ apply_method (AMethod vars body super_name field_names) self args class_env stor
               (refs_to_args++[loc],store')
 
       object_env = 
-        extend_env vars refs_to_args
+        extend_env (map snd vars) refs_to_args
           (extend_env_with_self_and_super self super_name
-            (extend_env field_names (object_fields self)
+            (extend_env (map snd field_names) (object_fields self)
               empty_env))
         
   in value_of class_env body object_env store'
