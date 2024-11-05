@@ -1,0 +1,151 @@
+
+Ch5의 threads 테스트케이스 만드는 방법
+
+$ cd Lecture_EOPL/ch5
+
+$ mkdir -p test/threads
+
+$ cd test
+
+implicitrefs를 확장해서 threads를 만들어기 때문에
+threads의 Spec.hs를 implicitrefs의 Spech.hs를 가져옴
+
+$ cp ../ch4/test/implicitrefslang/Spec.hs .
+
+cf. cp vs copy    / vs \
+
+$ cd threads
+
+test/threads/Spec.hs를 편집
+
+  describe "implicitrefslang" $ do
+    let atdir f = "./app/implicitrefslang/examples/" ++ f
+
+  ==>
+
+  describe "threads" $ do
+    let atdir f = "./app/threads/examples/" ++ f
+
+$ ch5/package.yaml을 편집해서 ch5/tests/threads 프로젝트를 추가
+
+tests:
+  letreccps-test:
+    main:                Spec.hs
+    source-dirs:         
+    - test/letreccps
+    - app/letreccps
+    ghc-options:
+    - -threaded
+    - -rtsopts
+    - -with-rtsopts=-N
+    dependencies:
+    - ch5
+
+
+  exceptions-test:
+    main:                Spec.hs
+    source-dirs:         
+    - test/exceptions
+    - app/exceptions
+    ghc-options:
+    - -threaded
+    - -rtsopts
+    - -with-rtsopts=-N
+    dependencies:
+    - ch5    
+
+  threads-test:                            <==  추가 !!!
+    main:                Spec.hs
+    source-dirs:         
+    - test/threads
+    - app/threads
+    ghc-options:
+    - -threaded
+    - -rtsopts
+    - -with-rtsopts=-N
+    dependencies:
+    - ch5    
+
+
+(*) github.com/eopl3/를 참고해서 Spec.hs의 각 테스트케이스를 작성
+
+테스트 실행하는 방법
+
+$ stack test  ch5안에 들어 있는 모든 프로젝트 테스트
+
+$ stack test ch5:test:exceptions-test
+
+exceptions
+  ./app/exceptions/examples/positive_const.let
+  ./app/exceptions/examples/negative_const.let
+  ./app/exceptions/examples/simple_arith_1.let
+  ./app/exceptions/examples/nested_arith_left.let
+  ./app/exceptions/examples/nested_arith_right.let
+  ./app/exceptions/examples/test_var_1.let
+  ./app/exceptions/examples/test_var_2.let
+  ./app/exceptions/examples/test_var_3.let
+  ./app/exceptions/examples/test_unbound_var_1.let
+  ./app/exceptions/examples/test_unbound_var_2.let
+  ./app/exceptions/examples/if_true.let
+  ./app/exceptions/examples/if_false.let
+  ./app/exceptions/examples/no_bool_to_diff_1.let
+  ./app/exceptions/examples/no_bool_to_diff_2.let
+  ./app/exceptions/examples/no_int_to_if.let
+  ./app/exceptions/examples/if_eval_test_true.let
+  ./app/exceptions/examples/if_eval_test_false.let
+  ./app/exceptions/examples/if_eval_test_true_2.let
+  ./app/exceptions/examples/if_eval_test_false_2.let
+  ./app/exceptions/examples/simple_let_1.let
+  ./app/exceptions/examples/eval_let_body.let
+  ./app/exceptions/examples/eval_let_rhs.let
+  ./app/exceptions/examples/simple_nested_let.let
+  ./app/exceptions/examples/check_shadowing_in_body.let
+  ./app/exceptions/examples/check_shadowing_in_rhs.let
+  ./app/exceptions/examples/apply_proc_in_rator_pos.proc
+  ./app/exceptions/examples/apply_simple_proc.proc
+  ./app/exceptions/examples/let_to_proc_1.proc
+  ./app/exceptions/examples/nested_procs_1.proc
+  ./app/exceptions/examples/nested_procs_2.proc
+  ./app/exceptions/examples/if_eval_test_true.let
+  ./app/exceptions/examples/if_eval_test_false.let
+  ./app/exceptions/examples/if_eval_test_true_2.let
+  ./app/exceptions/examples/if_eval_test_false_2.let
+  ./app/exceptions/examples/twice.proc
+  ./app/exceptions/examples/simple_letrec_1.letrec
+  ./app/exceptions/examples/simple_letrec_2.letrec
+  ./app/exceptions/examples/simple_letrec_3.letrec
+  ./app/exceptions/examples/ho_nested_letrecs.letrec
+  ./app/exceptions/examples/lists_1.exn
+  ./app/exceptions/examples/car_1.exn
+  ./app/exceptions/examples/cdr_1.exn
+  ./app/exceptions/examples/simple_succeed.exn
+  ./app/exceptions/examples/dont_run_handler_til_failure.exn
+  ./app/exceptions/examples/simple_failure.exn
+  ./app/exceptions/examples/uncaught_exception.exn
+  ./app/exceptions/examples/exceptions_have_dynamic_scope_1.exn
+  ./app/exceptions/examples/handler_in_non_tail_recursive_position.exn
+  ./app/exceptions/examples/propagate_error_1.exn
+  ./app/exceptions/examples/propagate_error_2.exn
+  ./app/exceptions/examples/text_example_0_1.exn
+  ./app/exceptions/examples/text_example_0_2.exn
+  ./app/exceptions/examples/text_example_1_1.exn
+  ./app/exceptions/examples/text_example_1_2.exn
+
+Finished in 0.6273 seconds
+54 examples, 0 failures
+
+$ stack test ch5:test:threads-test
+
+위와 같은 결과가 threads-test에서도 나오면 OK!
+
+=====
+
+$ cd Lecture_EOPL/ch7
+
+$ ls -al test/inferredlang/
+
+Spec.hs              => Interpreter 테스트
+TypeCheckerTest.hs   => Type checker 테스트
+
+테스트 프로그램 구조를 리팩토링한 다음 진행!
+
