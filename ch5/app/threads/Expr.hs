@@ -28,4 +28,3 @@ data Exp =
 data UnaryOp = IsZero | IsNull | Car | Cdr | Print deriving Show
 
 type Identifier = String
-

@@ -129,8 +129,7 @@ value_of_k (Const_List_Exp nums) env cont store sched =
 value_of_k (Var_Exp var) env cont store sched =
   let (loc,store') = apply_env env store var
       val = deref store' loc
-  in
-    apply_cont cont val store' sched
+  in apply_cont cont val store' sched
 
 value_of_k (Diff_Exp exp1 exp2) env cont store sched =
   value_of_k exp1 env (Diff1_Cont exp2 env cont) store sched 
