@@ -1,3 +1,5 @@
+{-# OPTIONS_GHC -Wno-unrecognised-pragmas #-}
+{-# HLINT ignore "Use camelCase" #-}
 module Interp where
 
 import Expr
@@ -9,75 +11,87 @@ type FinalAnswer = ExpVal
 
 data Cont =
     End_Cont
-  | Let_Exp_Cont Identifier Exp Env Cont
-  | If_Test_Cont Exp Exp Env Cont
-  | Diff1_Cont Exp Env Cont
-  | Diff2_Cont ExpVal Cont
-  | Rator_Cont Exp Env Cont
-  | Rand_Cont ExpVal Cont
-  | Unop_Arg_Cont UnaryOp Cont
-  | Try_Cont Identifier Exp Env Cont
-  | Raise1_Cont Cont
+  | Let_Exp_Cont Identifier Exp Env Cont Cont
+  | If_Test_Cont Exp Exp Env Cont Cont
+  | Diff1_Cont Exp Env Cont Cont
+  | Diff2_Cont ExpVal Cont Cont
+  | Rator_Cont Exp Env Cont Cont
+  | Rand_Cont ExpVal Cont Cont
+  | Unop_Arg_Cont UnaryOp Cont Cont
+  | Try_Cont Identifier Exp Env Cont Cont
+  | Raise1_Cont Cont Cont
+
+
+
+getExceptionCont (Let_Exp_Cont _ _ _ _ exceptionCont) = exceptionCont
+getExceptionCont (If_Test_Cont _ _ _ _ exceptionCont) = exceptionCont
+getExceptionCont (Diff1_Cont _ _ _ exceptionCont) = exceptionCont
+getExceptionCont (Diff2_Cont _ _ exceptionCont) = exceptionCont
+getExceptionCont (Rator_Cont _ _ _ exceptionCont) = exceptionCont
+getExceptionCont (Rand_Cont _ _ exceptionCont) = exceptionCont
+getExceptionCont (Unop_Arg_Cont _ _ exceptionCont) = exceptionCont
+getExceptionCont (Raise1_Cont _ exceptionCont) = exceptionCont
+getExceptionCont cont = cont
 
 apply_cont :: Cont -> ExpVal -> FinalAnswer
 apply_cont End_Cont v = v
     
-apply_cont (Let_Exp_Cont var body env cont) val1 =
+apply_cont (Let_Exp_Cont var body env cont exceptionCont) val1 =
   value_of_k body (extend_env var val1 env) cont
 
-apply_cont (If_Test_Cont exp2 exp3 env cont) v =
+apply_cont (If_Test_Cont exp2 exp3 env cont exceptionCont) v =
   if expval_bool v
   then value_of_k exp2 env cont
   else value_of_k exp3 env cont
   
-apply_cont (Diff1_Cont exp2 env cont) val1 =
-  value_of_k exp2 env (Diff2_Cont val1 cont)
+apply_cont (Diff1_Cont exp2 env cont exceptionCont) val1 =
+  value_of_k exp2 env (Diff2_Cont val1 cont exceptionCont)
 
-apply_cont (Diff2_Cont val1 cont) val2 =
+apply_cont (Diff2_Cont val1 cont exceptionCont) val2 =
   let num1 = expval_num val1
       num2 = expval_num val2
   in  apply_cont cont (Num_Val (num1 - num2))
 
-apply_cont (Unop_Arg_Cont op cont) val =
+apply_cont (Unop_Arg_Cont op cont exceptionCont) val =
   apply_cont cont (apply_unop op val)
 
-apply_cont (Rator_Cont rand env cont) ratorVal =
-  value_of_k rand env (Rand_Cont ratorVal cont)
+apply_cont (Rator_Cont rand env cont exceptionCont) ratorVal =
+  value_of_k rand env (Rand_Cont ratorVal cont exceptionCont)
 
-apply_cont (Rand_Cont ratorVal cont) randVal =
+apply_cont (Rand_Cont ratorVal cont exceptionCont) randVal =
   let proc = expval_proc ratorVal in
     apply_procedure_k proc randVal cont
 
-apply_cont (Try_Cont var handler_exp env cont) val =
+apply_cont (Try_Cont var handler_exp env cont exceptionCont) val =
   apply_cont cont val
                            
-apply_cont (Raise1_Cont cont) val =
-  apply_handler val cont
+apply_cont (Raise1_Cont cont exceptionCont) val =
+  apply_handler val exceptionCont
 
 
 
 apply_handler :: ExpVal -> Cont -> FinalAnswer
-apply_handler val (Try_Cont var handler_exp env saved_cont) =
+apply_handler val (Try_Cont var handler_exp env saved_cont exceptionCont) =
   value_of_k handler_exp (extend_env var val env) saved_cont
 
-apply_handler val (End_Cont) =
+apply_handler val End_Cont =
   error ("Uncaught exception: " ++ show val)
 
-apply_handler val (Raise1_Cont cont) = apply_handler val cont
+-- apply_handler val (Raise1_Cont cont exceptionCont) = apply_handler val exceptionCont
 
-apply_handler val (Let_Exp_Cont x body env cont) = apply_handler val cont
+-- apply_handler val (Let_Exp_Cont x body env cont exceptionCont) = apply_handler val exceptionCont
 
-apply_handler val (If_Test_Cont exp2 exp3 env cont) = apply_handler val cont
+-- apply_handler val (If_Test_Cont exp2 exp3 env cont exceptionCont) = apply_handler val exceptionCont
 
-apply_handler val (Diff1_Cont exp env cont) = apply_handler val cont
+-- apply_handler val (Diff1_Cont exp env cont exceptionCont) = apply_handler val exceptionCont
 
-apply_handler val (Diff2_Cont val1 cont) = apply_handler val cont
+-- apply_handler val (Diff2_Cont val1 cont exceptionCont) = apply_handler val exceptionCont
 
-apply_handler val (Unop_Arg_Cont op cont) = apply_handler val cont
+-- apply_handler val (Unop_Arg_Cont op cont exceptionCont) = apply_handler val exceptionCont
 
-apply_handler val (Rator_Cont exp env cont) = apply_handler val cont
+-- apply_handler val (Rator_Cont exp env cont exceptionCont) = apply_handler val exceptionCont
 
-apply_handler val (Rand_Cont val1 cont) = apply_handler val cont
+-- apply_handler val (Rand_Cont val1 cont exceptionCont) = apply_handler val exceptionCont
 
 
 apply_unop :: UnaryOp -> ExpVal -> ExpVal 
@@ -99,16 +113,16 @@ value_of_k (Const_List_Exp nums) env cont = apply_cont cont (List_Val (map Num_V
 value_of_k (Var_Exp var) env cont = apply_cont cont (apply_env env var)
 
 value_of_k (Diff_Exp exp1 exp2) env cont =
-  value_of_k exp1 env (Diff1_Cont exp2 env cont)
+  value_of_k exp1 env (Diff1_Cont exp2 env cont (getExceptionCont cont))
 
 value_of_k (Unary_Exp op exp1) env cont =
-  value_of_k exp1 env (Unop_Arg_Cont op cont)
+  value_of_k exp1 env (Unop_Arg_Cont op cont (getExceptionCont cont))
   
 value_of_k (If_Exp exp1 exp2 exp3) env cont =
-  value_of_k exp1 env (If_Test_Cont exp2 exp3 env cont)
+  value_of_k exp1 env (If_Test_Cont exp2 exp3 env cont (getExceptionCont cont))
 
 value_of_k (Let_Exp var exp1 body) env cont =
-  value_of_k exp1 env (Let_Exp_Cont var body env cont)
+  value_of_k exp1 env (Let_Exp_Cont var body env cont (getExceptionCont cont))
 
 value_of_k (Letrec_Exp proc_name bound_var proc_body letrec_body) env cont =
   value_of_k letrec_body (extend_env_rec proc_name bound_var proc_body env) cont
@@ -117,13 +131,13 @@ value_of_k (Proc_Exp var body) env cont =
   apply_cont cont (Proc_Val (procedure var body env))
 
 value_of_k (Call_Exp rator rand) env cont =
-  value_of_k rator env (Rator_Cont rand env cont)
+  value_of_k rator env (Rator_Cont rand env cont (getExceptionCont cont))
   
 value_of_k (Try_Exp exp var handler_exp) env cont =
-  value_of_k exp env (Try_Cont var handler_exp env cont)
+  value_of_k exp env (Try_Cont var handler_exp env cont (getExceptionCont cont))
 
 value_of_k (Raise_Exp exp) env cont =
-  value_of_k exp env (Raise1_Cont cont)
+  value_of_k exp env (Raise1_Cont cont (getExceptionCont cont))
 
 --
 value_of_program :: Exp -> ExpVal
