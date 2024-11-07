@@ -1,0 +1,10 @@
+letrec pairof listof int * listof bool 
+         unzip (l : listof pairof int * bool) 
+           if null? (l)
+           then newpair (emptylist_int, emptylist_bool)     
+           else let h = car (l) in -- h : pairof int * bool      
+                 let t = cdr (l) in -- t : listof pairof int * bool
+                 unpair f s = h in -- f : int, s : bool
+                 unpair fl sl = (unzip t) in -- fl : listof int, sl : listof bool
+                     newpair ( cons( f, fl ), cons ( s, sl ) )
+in  (unzip list ( newpair (1, true), newpair (2, false) ) )

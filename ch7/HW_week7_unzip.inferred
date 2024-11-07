@@ -1,0 +1,38 @@
+letrec ? unzip (l : ?) -- unzip : t0, l : tl
+           if null? (l) -- if : t1, null? : t2
+           then newpair (emptylist_int, emptylist_bool) -- newpair : t3, emptylist_int : t4, emptylist_bool : t5
+           else let h = car (l) in -- let : t6, h : th
+                 let t = cdr (l) in -- let : t7, t : tt
+                 unpair f s = h in -- unpair : t8, f : tf, s : ts
+                 unpair fl sl = (unzip t) in -- unpair : t9, fl : tfl, sl : tsl, (unzip t) : t10
+                     newpair ( cons( f, fl ), cons ( s, sl ) ) -- newpair : t11, cons : t9, cons : t10
+in  (unzip list ( newpair (1, true), newpair (2, false) ) ) -- (unzip ...) : t12, list : t13, newpair : t14, newpair : t15
+
+
+equations
+t0 = tl -> t1
+t3 = t1
+t6 = t1
+t2 = bool
+t3 = pairof t4 * t5
+t4 = listof int
+t5 = listof bool
+t7 = t6
+th = tl의 원소의 타입
+t8 = t7
+tt = tl
+t9 = t8
+tf = pair h의 첫 원소의 타입
+ts = pair h의 둘째 원소의 타입
+t11 = t9
+tfl = pair (unzip t)의 첫 원소의 타입
+tsl = pair (unzip t)의 둘째 원소의 타입
+t0 = tt -> t10
+t12 = t11
+t9 = tfl
+t10 = tsl
+t0 = t13 -> t12
+listof t14 = t13
+listof t15 = t13
+t14 = pairof int * bool
+t15 = pairof int * bool
