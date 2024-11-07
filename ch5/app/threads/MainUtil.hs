@@ -27,6 +27,7 @@ runProg text bool = do
   if bool then putStrLn (show expression) else return ()
   
   let val = value_of_program expression timeslice     -- interpreter
-  putStrLn (show val)
+  return val
+--  putStrLn (show val)
   
 run text = runProg text True
