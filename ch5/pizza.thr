@@ -1,0 +1,23 @@
+let pizza = 8 in
+    let grap = mutex() in
+        let student = proc(name)
+            proc(g)
+                proc(d)
+                    begin
+                        wait(g);
+                        print(name);
+                        print(pizza);
+                        set pizza = -(pizza,1);
+                        signal(g);
+                        wait(g);
+                        print(name);
+                        print(pizza);
+                        set pizza = -(pizza,1);
+                        signal(g)
+                    end
+in
+let s1 = spawn ( ((student 11) grap) ) in
+let s2 = spawn ( ((student 22) grap) ) in
+let s3 = spawn ( ((student 33) grap) ) in
+let s3 = spawn ( ((student 44) grap) ) in
+1111
