@@ -79,11 +79,11 @@ parserSpec = ParserSpec
 
       rule "ZeroMoreTypedIdentifier -> " (\rhs -> return $ fromTypeIdList []),
 
-      rule "OneMoreTypedIdentifier -> Type identifier , OneMoreTypedIdentifier" 
-        (\rhs -> return $ fromTypeIdList $ (typeFrom (get rhs 1), getText rhs 2) : typeIdListFrom (get rhs 4)),
+      rule "OneMoreTypedIdentifier -> identifier : Type , OneMoreTypedIdentifier" 
+        (\rhs -> return $ fromTypeIdList $ (typeFrom (get rhs 3), getText rhs 1) : typeIdListFrom (get rhs 5)),
 
-      rule "OneMoreTypedIdentifier -> Type identifier"
-        (\rhs -> return $ fromTypeIdList [ (typeFrom (get rhs 1), getText rhs 1) ]),
+      rule "OneMoreTypedIdentifier -> identifier : Type"
+        (\rhs -> return $ fromTypeIdList [ (typeFrom (get rhs 3), getText rhs 1) ]),
   
 
       {- Multiple expressions -}
@@ -180,11 +180,11 @@ parserSpec = ParserSpec
 
       rule "Expression -> letrec LetRecBindings in Expression"
         (\rhs -> return $ fromExp $ 
-                  Letrec_Exp (idIdListExpListFrom (get rhs 2)) (expFrom (get rhs 4))),
+                  Letrec_Exp (idTypeIdListExpListFrom (get rhs 2)) (expFrom (get rhs 4))),
 
-      rule "Expression -> proc ( ZeroMoreIdentifier ) Expression"
+      rule "Expression -> proc ( ZeroMoreTypedIdentifier ) Expression"
         (\rhs -> return $ fromExp $ 
-                  Proc_Exp (idListFrom (get rhs 3)) (expFrom (get rhs 5))),
+                  Proc_Exp (typeIdListFrom (get rhs 3)) (expFrom (get rhs 5))),
 
       rule "Expression -> ( Expression ExpressionListSpace )"
         (\rhs -> return $ fromExp $ 
@@ -211,14 +211,14 @@ parserSpec = ParserSpec
                   ((getText rhs 1, expFrom (get rhs 3)) : idExpListFrom (get rhs 4))),
 
       {- Letrec bindings -}
-      rule "LetRecBindings -> identifier ( ZeroMoreIdentifier ) = Expression"
-        (\rhs -> return $ fromIdIdListExpList 
-                  [(getText rhs 1, idListFrom (get rhs 3), expFrom (get rhs 6))]),
+      rule "LetRecBindings -> identifier ( ZeroMoreTypedIdentifier ) = Expression"
+        (\rhs -> return $ fromIdTypeIdListExpList 
+                  [(getText rhs 1, typeIdListFrom (get rhs 3), expFrom (get rhs 6))]),
 
-      rule "LetRecBindings -> identifier ( ZeroMoreIdentifier ) = Expression LetRecBindings"
-        (\rhs -> return $ fromIdIdListExpList 
-                  ((getText rhs 1, idListFrom (get rhs 3), expFrom (get rhs 6)) 
-                      : idIdListExpListFrom (get rhs 7))),
+      rule "LetRecBindings -> identifier ( ZeroMoreTypedIdentifier ) = Expression LetRecBindings"
+        (\rhs -> return $ fromIdTypeIdListExpList 
+                  ((getText rhs 1, typeIdListFrom (get rhs 3), expFrom (get rhs 6)) 
+                      : idTypeIdListExpListFrom (get rhs 7))),
 
       {- Types -}
       rule "ZeroMoreArgTypes -> " (\rhs -> return $ fromTypeList []),

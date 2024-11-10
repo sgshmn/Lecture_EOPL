@@ -118,11 +118,13 @@ initStore :: Store
 initStore = (1,[])
 
 -- Classes
-data Class = AClass 
-  { class_super_name :: Maybe Identifier, 
-    class_field_names :: [(Type, Identifier)], 
-    class_method_env :: MethodEnv
-  }
+data Class = 
+   AClass { class_super_name :: Maybe Identifier, 
+            class_field_names :: [(Type, Identifier)], 
+            class_method_env :: MethodEnv}
+  | AnInterface 
+          { interface_name :: Identifier, 
+            interface_method_env :: MethodEnv }
 
 new_object :: Identifier -> ClassEnv -> Store -> (Object, Store)
 new_object class_name class_env store = 
@@ -138,10 +140,12 @@ new_object class_name class_env store =
 -- Methods
 data Method = AMethod 
   { method_vars :: [(Type, Identifier)], 
-    method_body :: Exp,
-    method_super_name :: Identifier,
+    method_body :: Maybe Exp,
+    method_super_name :: Maybe Identifier,
     method_field_names :: [(Type, Identifier)]
   }
+
+  -- abstract method: method_body = Nothing, method_field_names = [] 
 
 -- apply_method in Interp.hs
 
@@ -175,8 +179,12 @@ initialize_class_decl (Class_Decl class_name super_name ifaces field_names metho
                   (merge_method_envs 
                     (class_method_env (lookup_class super_name class_env)) 
                       (method_decls_method_envs 
-                        method_decls super_name accumulated_field_names))
+                        method_decls (Just super_name) accumulated_field_names))
   in add_to_class_env class_name aClass class_env
+
+initialize_class_decl (Interface_Decl iface_name method_decls) class_env = 
+  let anIface = AnInterface iface_name (method_decls_method_envs method_decls Nothing [])
+  in add_to_class_env iface_name anIface class_env
 
 append_field_names :: [(Type, Identifier)] -> [(Type, Identifier)] -> [(Type, Identifier)]
 append_field_names super_fields new_fields =
@@ -202,12 +210,12 @@ find_method class_name method_name class_env =
       Just method -> method
       Nothing     -> error ("Method " ++ method_name ++ " not found.")
 
-method_decls_method_envs :: [MethodDecl] -> Identifier -> [(Type, Identifier)] -> MethodEnv
-method_decls_method_envs method_decls super_name field_names = 
+method_decls_method_envs :: [MethodDecl] -> Maybe Identifier -> [(Type, Identifier)] -> MethodEnv
+method_decls_method_envs method_decls maybe_super_name field_names = 
   map method_decl_method_env method_decls
   where
     method_decl_method_env (Method_Decl ty method_name vars body) = 
-      (method_name, AMethod vars body super_name field_names)
+      (method_name, AMethod vars (Just body) maybe_super_name field_names)
 
 merge_method_envs :: MethodEnv -> MethodEnv -> MethodEnv
 merge_method_envs superMethodEnvs newMethodEnvs = newMethodEnvs ++ superMethodEnvs

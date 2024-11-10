@@ -33,6 +33,7 @@ lexerSpec = LexerSpec
         
         ("\\="     , mkFn EQ),
         (";"    , mkFn SEMICOLON),
+        (":"    , mkFn COLON),
 
         ("[_a-zA-Z][_a-zA-Z0-9]*"    , keywordOrIdentifier)
       ]

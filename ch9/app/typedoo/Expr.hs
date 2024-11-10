@@ -1,10 +1,10 @@
 module Expr(Program(..),ClassDecl(..),MethodDecl(..),Exp(..),Identifier,
             PET(..),
             fromExp,fromType,
-            fromExpList,fromIdExpList,fromIdIdListExpList,fromIdList,fromTypeList,fromTypeIdList,
+            fromExpList,fromIdExpList,fromIdTypeIdListExpList,fromIdList,fromTypeList,fromTypeIdList,
             fromClassDecl,fromClassDeclList,fromMethodDecl,fromMethodDeclList,
             fromProgram,
-            Type(..),
+            Type(..), LetRecBindings,
             TypeDeclTestCase(..), TypeDeclTestSuite(..)) where
 
 -- Untyped class-based expression language
@@ -33,7 +33,7 @@ data Exp =
   | Var_Exp    Identifier
   | Let_Exp    LetBindings Exp    -- let bindings in expr
   | Letrec_Exp LetRecBindings Exp -- letrec rec_bindings in expr
-  | Proc_Exp   [Identifier] Exp   -- proc
+  | Proc_Exp   [ (Type, Identifier) ] Exp   -- proc
   | Call_Exp   Exp [Exp]          -- e1 e2 ... en (n >= 1)
   | Block_Exp  [Exp]
   | Set_Exp    Identifier Exp
@@ -54,7 +54,7 @@ type Identifier = String
 type LetBindings = [ (Identifier, Exp) ]  
 
 -- f1(x11,...,xn1) = expr1  ...  fk(xk1,...,xkn) = exprk
-type LetRecBindings = [(Identifier, [Identifier], Exp)] 
+type LetRecBindings = [(Identifier, [ (Type, Identifier) ], Exp)] 
 
 data Type =
     TyInt
@@ -69,7 +69,7 @@ data Type =
 --- Parsed Expression Tree
 
 data PET =
-    PET_IdIdListExpList {idIdListExpListFrom :: [(Identifier, [Identifier], Exp)] }
+    PET_IdTypeIdListExpList {idTypeIdListExpListFrom :: [(Identifier, [(Type, Identifier)], Exp)] }
   | PET_IdExpList {idExpListFrom :: [(Identifier, Exp)] }
   | PET_ExpList {expListFrom :: [Exp] }
   | PET_Exp {expFrom :: Exp}
@@ -88,9 +88,9 @@ fromExp exp                 = PET_Exp exp
 fromType ty                 = PET_Type ty
 fromExpList expList         = PET_ExpList expList
 fromIdExpList idExpList     = PET_IdExpList idExpList
-fromIdIdListExpList :: [(Identifier, [Identifier], Exp)] -> PET
-fromIdIdListExpList idIdListExpList 
-                            = PET_IdIdListExpList idIdListExpList
+
+fromIdTypeIdListExpList idTypeIdListExpList 
+                            = PET_IdTypeIdListExpList idTypeIdListExpList
 fromIdList idList           = PET_IdList idList
 fromTypeList tyList         = PET_TypeList tyList
 fromTypeIdList typeIdList   = PET_TypeIdList typeIdList

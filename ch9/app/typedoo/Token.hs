@@ -33,6 +33,7 @@ data Token =
   | BEGIN                       -- begin ..;..;.. end
   | END
   | SEMICOLON
+  | COLON
 
   | SET                         -- set
   | LIST                         -- list
@@ -75,7 +76,8 @@ tokenStrList =
     (ISZERO, "zero?"),
     (IDENTIFIER, "identifier"), 
     (EQ, "="),
-    (SEMICOLON, ";")
+    (SEMICOLON, ";"),
+    (COLON, ":")
   ] ++ keywords
 
 keywords :: [(Token, String)]

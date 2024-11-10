@@ -6,7 +6,7 @@ class c1 extends object
   
 class c2 extends c1 
   method int initialize()1
-  method m2()2
+  method int m2()2
   
 let o1 = new c1()
     o2 = new c2()

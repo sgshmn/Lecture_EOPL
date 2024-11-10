@@ -56,13 +56,14 @@ value_of class_env (Let_Exp varExpList body) env store =
   in value_of class_env body env' store'
 
 value_of class_env (Letrec_Exp letbindings letrec_body) env store =
-  value_of class_env letrec_body (extend_env_rec (extend letbindings) env) store
+  value_of class_env letrec_body 
+    (extend_env_rec (extend (mkUntypedLetRecBindings letbindings)) env) store
   where extend [] = []
         extend ((proc_name, bound_vars, proc_body):letbindings) =
           (proc_name,bound_vars,proc_body) : extend letbindings
 
 value_of class_env (Proc_Exp var body) env store =
-  (Proc_Val (procedure var body env),store)
+  (Proc_Val (procedure (mkUntyped var) body env),store)
 
 value_of class_env (Call_Exp rator rands) env store =
   let (val1,store1) = value_of class_env rator env store
@@ -170,7 +171,7 @@ apply_procedure proc args class_env store =
       (extend_env (proc_vars proc) locs (saved_env proc)) store1
 
 apply_method :: Method -> Object -> [ExpVal] -> ClassEnv -> Store -> (ExpVal, Store)
-apply_method (AMethod vars body super_name field_names) self args class_env store = 
+apply_method (AMethod vars (Just body) (Just super_name) field_names) self args class_env store = 
   let (refs_to_args, store') = 
         foldl mkRefToArg ([], store) args
         where
@@ -185,3 +186,10 @@ apply_method (AMethod vars body super_name field_names) self args class_env stor
               empty_env))
         
   in value_of class_env body object_env store'
+
+-- Utility
+mkUntypedLetRecBindings :: LetRecBindings -> [ (Identifier, [Identifier], Exp) ]
+mkUntypedLetRecBindings = map (\(x,y,z) -> (x, mkUntyped y,z))
+
+mkUntyped :: [(Type, Identifier)] -> [Identifier]
+mkUntyped = map snd
