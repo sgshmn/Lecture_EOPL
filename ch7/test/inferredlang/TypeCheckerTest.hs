@@ -177,17 +177,13 @@ typechecker_tests =
       -- circular type
       TDTC "circular-type" " \
                \ let fix = proc (f : ?) \
-                           \ let d = proc (x : ?) proc (z : ?) (f (x x) z) \
-                           \ in proc (n : ?) (f (d d) n) \
+                           \ let d = proc (x : ?) proc (z : ?) ((f (x x)) z) \
+                           \ in proc (n : ?) ((f (d d)) n) \
                \ in let t4m = proc (f : ?) proc(x : ?) \
                                  \ if zero?(x) then 0 else -(4, -(0,(f -(x,1)))) \
                \ in let times4 = (fix t4m) \
                \ in (times4 3)"
             Nothing,
-
-      -- https://github.com/mwand/eopl3/blob/master/chapter7/inferred/tests.scm
-      -- 278번째 줄 proc (f : ?, x : ?) 이거를 어떻게 표현할지
-      -- proc (f : ?) proc (x : ?)로 표현 할지 고민
 
       
       -- multiple arguments not in the language
@@ -196,8 +192,8 @@ typechecker_tests =
       --          \ in letrec ? odd(x : ?) = if zero?(x) then 0 else (even odd -(x,1))
       --          \ in (odd 13)"
       --       (Just TyInt),
-      -- 여기도 비슷한 이유로 주석 처리
-      -- letrec ? even (odd : ?, x : ?)
+
+      -- letrec ? even (odd : ?, x : ?) ?????
 
       TDTC "pgm11b-curried" " \
                \ letrec ? even (odd : ?) = proc (x : ?) if zero?(x) then 1 else (odd -(x,1)) \
