@@ -157,7 +157,7 @@ typechecker_tests =
       TDTC "pgm7b" " \
                \ letrec ? fact (x : ?) = if zero?(x) then 1 else -(x, (fact -(x,1))) \
                \ in fact"
-            (Just (Tyfun TyInt TyInt)),
+            (Just (TyFun TyInt TyInt)),
 
       
       -- multiple letrecs no longer in the language
@@ -165,9 +165,9 @@ typechecker_tests =
                \ letrec ? odd (x : ?) = if zero?(x) then 0 else (even -(x,1)) \
                \ in letrec ? even(x : ?) = if zero?(x) then 1 else (odd -(x,1))\
                \ in odd"
-            (Just (Tyfun TyInt TyInt)),
+            (Just (TyFun TyInt TyInt)),
 
-      TDTC "pgm8b" " \
+      TDTC "pgm8ab" " \
                \ letrec ? odd (x : ?) = if zero?(x) then 0 else (even -(x,1)) \
                \ in letrec ? even(x : bool) = if zero?(x) then 1 else (odd -(x,1))\
                \ in odd"
@@ -175,15 +175,15 @@ typechecker_tests =
 
 
       -- circular type
-      -- TDTC "circular-type" " \
-      --          \ let fix = proc (f : ?) \
-      --                      \ let d = proc (x : ?) proc (z : ?) (f (x x) z) \
-      --                      \ in proc (n : ?) (f (d d) n) \
-      --          \ in let t4m = proc (f : ?, x : ?) \
-      --                            \ if zero?(x) then 0 else -(4, -(0,(f -(x,1)))) \
-      --          \ in let times4 = (fix t4m) \
-      --          \ in (times4 3)"
-      --       Nothing,
+      TDTC "circular-type" " \
+               \ let fix = proc (f : ?) \
+                           \ let d = proc (x : ?) proc (z : ?) (f (x x) z) \
+                           \ in proc (n : ?) (f (d d) n) \
+               \ in let t4m = proc (f : ?) proc(x : ?) \
+                                 \ if zero?(x) then 0 else -(4, -(0,(f -(x,1)))) \
+               \ in let times4 = (fix t4m) \
+               \ in (times4 3)"
+            Nothing,
 
       -- https://github.com/mwand/eopl3/blob/master/chapter7/inferred/tests.scm
       -- 278번째 줄 proc (f : ?, x : ?) 이거를 어떻게 표현할지
@@ -211,7 +211,7 @@ typechecker_tests =
 
       TDTC "polymorphic-type-1" " \
                \ letrec ? f (x : ?) = (f x) in f"
-            (Just (TyFun (TyVar 1) (Tyvar 2))),
+            (Just (TyFun (TyVar 1) (TyVar 2))),
 
       -- this test should fail, because the type given is insufficiently
       -- polymorphic.  So we use it for testing the test harness, but not for

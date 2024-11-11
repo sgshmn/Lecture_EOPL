@@ -2,6 +2,8 @@ module Main where
 
 import Expr
 import TypeCheck
+import Subst
+import TypeInfer
 import TypeCheckerTest
   
 import CommonParserUtil
@@ -49,7 +51,7 @@ doTest (TDTC tcname expr_text maybeResult) =
               Left errMsg ->
                 putStrLn ("Expected " ++ show ty' ++ " but got " ++ errMsg ++ " in " ++ show expression)
               Right ty -> 
-                if equalType ty ty'
+                if equal_up_to_typevars ty ty'
                     then putStr "" -- putStrLn "Successfully typechecked."
                     else putStrLn ("Expected " ++ show ty' ++ " but got " ++ show ty ++ " in " ++ show expression)
         Nothing ->
