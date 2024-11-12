@@ -46,16 +46,17 @@ doTest (TDTC tcname expr_text maybeResult) =
       -- Just to add the type of x!
       case maybeResult of 
         Just ty' ->
-          do eitherTyOrErr <- typeCheck (Let_Exp "x" (Const_Exp 1) expression)
+          do eitherTyOrErr <- typeInfer (Let_Exp "x" (Const_Exp 1) expression)
              case eitherTyOrErr of
               Left errMsg ->
                 putStrLn ("Expected " ++ show ty' ++ " but got " ++ errMsg ++ " in " ++ show expression)
-              Right ty -> 
+              Right (ty_,subst) -> 
+                let ty = apply_subst_to_type ty_ subst in
                 if equal_up_to_typevars ty ty'
-                    then putStr "" -- putStrLn "Successfully typechecked."
+                    then putStr "" -- putStrLn "Successfully type inferred."
                     else putStrLn ("Expected " ++ show ty' ++ " but got " ++ show ty ++ " in " ++ show expression)
         Nothing ->
-          do eitherTyOrErr <- typeCheck (Let_Exp "x" (Const_Exp 1) expression)
+          do eitherTyOrErr <- typeInfer (Let_Exp "x" (Const_Exp 1) expression)
              case eitherTyOrErr of
-              Left errMsg -> putStr "" -- putStrLn "Successfully type-unchecked." -- Is it the same error?
+              Left errMsg -> putStr "" -- putStrLn "Successfully type inferred." -- Is it the same error?
               Right ty -> putStr "" -- putStrLn "Should not be typechecked."

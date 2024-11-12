@@ -165,7 +165,7 @@ typechecker_tests =
                \ letrec ? odd (x : ?) = if zero?(x) then 0 else (even -(x,1)) \
                \ in letrec ? even(x : ?) = if zero?(x) then 1 else (odd -(x,1))\
                \ in odd"
-            (Just (TyFun TyInt TyInt)),
+            Nothing,
 
       TDTC "pgm8ab" " \
                \ letrec ? odd (x : ?) = if zero?(x) then 0 else (even -(x,1)) \
