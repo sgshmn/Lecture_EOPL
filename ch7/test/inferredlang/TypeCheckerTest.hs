@@ -152,6 +152,72 @@ typechecker_tests =
           \ in letrec \
           \     int fact(x : int) = if zero?(x) then 1 else ((times x) (fact -(x,1))) \
           \   in (fact 4)"
-        (Just TyInt)
+        (Just TyInt),
 
+      TDTC "pgm7b" " \
+               \ letrec ? fact (x : ?) = if zero?(x) then 1 else -(x, (fact -(x,1))) \
+               \ in fact"
+            (Just (TyFun TyInt TyInt)),
+
+      
+      -- multiple letrecs no longer in the language
+      TDTC "pgm8b" " \
+               \ letrec ? odd (x : ?) = if zero?(x) then 0 else (even -(x,1)) \
+               \ in letrec ? even(x : ?) = if zero?(x) then 1 else (odd -(x,1))\
+               \ in odd"
+            (Just (TyFun TyInt TyInt)),
+
+      TDTC "pgm8ab" " \
+               \ letrec ? odd (x : ?) = if zero?(x) then 0 else (even -(x,1)) \
+               \ in letrec ? even(x : bool) = if zero?(x) then 1 else (odd -(x,1))\
+               \ in odd"
+            Nothing,
+
+
+      -- circular type
+      TDTC "circular-type" " \
+               \ let fix = proc (f : ?) \
+                           \ let d = proc (x : ?) proc (z : ?) ((f (x x)) z) \
+                           \ in proc (n : ?) ((f (d d)) n) \
+               \ in let t4m = proc (f : ?) proc(x : ?) \
+                                 \ if zero?(x) then 0 else -(4, -(0,(f -(x,1)))) \
+               \ in let times4 = (fix t4m) \
+               \ in (times4 3)"
+            Nothing,
+
+      
+      -- multiple arguments not in the language
+      -- TDTC "pgm11b" " \
+      --          \ letrec ? even (odd : ?, x : ?) = if zero?(x) then 1 else (odd -(x,1)) \
+      --          \ in letrec ? odd(x : ?) = if zero?(x) then 0 else (even odd -(x,1))
+      --          \ in (odd 13)"
+      --       (Just TyInt),
+
+      -- letrec ? even (odd : ?, x : ?) ?????
+
+      TDTC "pgm11b-curried" " \
+               \ letrec ? even (odd : ?) = proc (x : ?) if zero?(x) then 1 else (odd -(x,1)) \
+               \ in letrec ? odd(x : ?) = if zero?(x) then 0 else ((even odd) -(x,1)) \
+               \ in (odd 13)"
+            (Just TyInt),
+
+      TDTC "dont-infer-circular-type" " \
+               \ letrec ? f (x : ?) = (f f) in 33"
+            Nothing,
+
+      TDTC "polymorphic-type-1" " \
+               \ letrec ? f (x : ?) = (f x) in f"
+            (Just (TyFun (TyVar 1) (TyVar 2))),
+
+      -- this test should fail, because the type given is insufficiently
+      -- polymorphic.  So we use it for testing the test harness, but not for
+      -- testing the checker.
+
+      -- TDTC "polymorphic-type-1a" " \
+      --          \ letrec ? f (x : ?) = (f x) in f"
+      --       (Just (TyFun (TyVar 1) (TyVar 1))),
+
+      TDTC "polymorphic-type-2" " \
+               \ letrec ? f (x : ?) = (f x) in proc (n : ?) (f -(n,1))"
+            (Just (TyFun TyInt (TyVar 1)))
    ]

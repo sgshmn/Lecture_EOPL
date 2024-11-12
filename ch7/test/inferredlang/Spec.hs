@@ -2,6 +2,8 @@ module Main where
 
 import Expr
 import TypeCheck
+import Subst
+import TypeInfer
 import TypeCheckerTest
   
 import CommonParserUtil
@@ -15,8 +17,8 @@ import Control.Exception(try, throw, SomeException)
 main :: IO ()
 main = 
   hspec $ do 
-    describe "exceptions" $ do
-      let atdir f = "checkedlang:" ++ f
+    describe "inferredlang" $ do
+      let atdir f = "inferredlang:" ++ f
       let TypeDeclTestSuite typechecker_tests' = typechecker_tests
 
       mapM_ 
@@ -49,7 +51,7 @@ doTest (TDTC tcname expr_text maybeResult) =
               Left errMsg ->
                 putStrLn ("Expected " ++ show ty' ++ " but got " ++ errMsg ++ " in " ++ show expression)
               Right ty -> 
-                if equalType ty ty'
+                if equal_up_to_typevars ty ty'
                     then putStr "" -- putStrLn "Successfully typechecked."
                     else putStrLn ("Expected " ++ show ty' ++ " but got " ++ show ty ++ " in " ++ show expression)
         Nothing ->
