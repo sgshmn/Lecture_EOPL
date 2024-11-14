@@ -105,11 +105,32 @@ type_of clzEnv (Method_Call_Exp exp1 mname expList) tyenv = undefined
 
 type_of clzEnv (Super_Call_Exp mname expList) tyenv = undefined
 
-type_of clzEnv Self_Exp tyenv = undefined
+type_of clzEnv Self_Exp tyenv = apply_tyenv tyenv self
 
-type_of clzEnv (Cast_Exp exp cname) tyenv = undefined
+type_of clzEnv (Cast_Exp exp cname) tyenv =
+  do objTy <- type_of clzEnv exp tyenv
+     case objTy of 
+      TyClass _ -> Right objTy 
+      _ -> expectedButErr (TyClass "...") objTy exp
 
-type_of clzEnv (InstanceOf_Exp exp cname) tyenv = undefined
+type_of clzEnv (InstanceOf_Exp exp cname) tyenv =
+  do objTy <- type_of clzEnv exp tyenv
+     case objTy of 
+      TyClass _ -> Right TyBool
+      _ -> expectedButErr (TyClass "...") objTy exp
+
+type_of_call :: Type -> [Type] -> [Exp] -> Exp -> Either String Type
+type_of_call (TyFun _argTyList _resTy) argTyList argList exp
+  | length _argTyList == length argTyList =
+      undefined -- foreach check_is_subtype _argTyList argTyList argList 
+      
+  | otherwise = wrongNumberOfArgsErr _argTyList argTyList exp
+type_of_call funTy _ _ exp = expectedFuntyButErr funTy exp
+  -- where foreach f [] [] [] = Right _resTy
+  --       foreach f (x:xs) (y:ys) (z:zs) = 
+  --         f x y z >>= \_ -> foreach f xs ys zs
+
+
 
 -- Static Class Environment
 initializeStaticClassEnv :: [ClassDecl] -> StaticClassEnv
@@ -149,6 +170,11 @@ inequalArgtyErr argTy1 argTy2 funexp argexp =
   Left $ "Type mismatch: \n"
           ++ "\t" ++ show argTy1 ++ " for the arugment of " ++ show funexp
           ++ "\t" ++ show argTy2 ++ " in " ++ show argexp
+
+wrongNumberOfArgsErr _argTyList argTyList exp =
+  Left $ "Wrong number of arguments: \n"
+          ++ "\t" ++ show _argTyList ++ "\n"
+          ++ "\t" ++ show argTyList ++ " in " ++ show exp          
 
 equalType :: Type -> Type -> Bool
 equalType TyInt  TyInt  = True
