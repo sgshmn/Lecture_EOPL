@@ -1,6 +1,6 @@
 module TyEnv where
 
-import Expr(Identifier, Type)
+import Expr(Identifier, Type, ClassDecl)
 
 data TyEnv = 
     Empty_tyenv
@@ -17,3 +17,17 @@ apply_tyenv Empty_tyenv var = Left $ "Variable not found: " ++ var
 apply_tyenv (Extend_tyenv v ty tyenv) var
   | var == v = Right ty
   | otherwise = apply_tyenv tyenv var
+
+type StaticClassEnv = [StaticClass]
+
+data StaticClass =
+    AStaticClass {
+      superName :: Identifier
+    , interfaceNames :: [Identifier]
+    , fieldNames :: [Identifier]
+    , fieldTypes :: [Type]
+    , methodTyEnv :: [(Identifier, Type)]
+    }
+  | AnInterface { 
+      ifaceMethodTyEnv :: [(Identifier, Type)] 
+    }
