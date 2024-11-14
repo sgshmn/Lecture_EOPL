@@ -1,10 +1,10 @@
 module Expr(Program(..),ClassDecl(..),MethodDecl(..),Exp(..),Identifier,
-            PET(..),
+            PET(..), Type(..),
             fromExp,fromType,
             fromExpList,fromIdExpList,fromIdTypeIdListExpList,fromIdList,fromTypeList,fromTypeIdList,
             fromClassDecl,fromClassDeclList,fromMethodDecl,fromMethodDeclList,
             fromProgram,
-            Type(..), LetRecBindings,
+            LetRecBindings,
             TypeDeclTestCase(..), TypeDeclTestSuite(..)) where
 
 -- Untyped class-based expression language

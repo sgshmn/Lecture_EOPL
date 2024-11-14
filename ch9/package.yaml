@@ -60,6 +60,17 @@ executables:
     - ch9    
 
 tests:
+  classes-test:
+    main:                Spec.hs
+    source-dirs:         
+    - test/classes
+    - app/classes
+    ghc-options:
+    - -threaded
+    - -rtsopts
+    - -with-rtsopts=-N
+    dependencies:
+    - ch9
   typedoo-test:
     main:                Spec.hs
     source-dirs:         
