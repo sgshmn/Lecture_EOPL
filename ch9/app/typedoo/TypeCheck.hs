@@ -81,6 +81,28 @@ type_of (Call_Exp rator randList) tyenv = undefined
 
 type_of _ _ = undefined         
 
+-- 
+initializeStaticClassEnv :: [ClassDecl] -> StaticClassEnv
+initializeStaticClassEnv classDecls = 
+  AStaticClass "object" [] [] [] []
+   : map classDeclToStaticClass classDecls
+
+classDeclToStaticClass :: ClassDecl -> StaticClass
+classDeclToStaticClass (Class_Decl cname superName ifaceNames fieldTypeNames methodDecls) =
+  AStaticClass superName ifaceNames fieldNames fieldTypes methodTyEnv
+  where
+    fieldNames = map snd fieldTypeNames
+    fieldTypes = map fst fieldTypeNames
+    methodTyEnv = map methodDeclToTyEnv methodDecls
+classDeclToStaticClass (Interface_Decl ifaceName methodDecls) =
+  AnInterface methodTyEnv
+  where
+    methodTyEnv = map methodDeclToTyEnv methodDecls
+
+methodDeclToTyEnv :: MethodDecl -> (Identifier, Type)
+methodDeclToTyEnv (Method_Decl ty name tyArgs _) = (name, TyFun (map fst tyArgs) ty)
+methodDeclToTyEnv (AbstractMethod_Decl ty name tyArgs) = (name, TyFun (map fst tyArgs) ty) 
+
 -- Utilities
 expectedButErr expectedTy gotTy exp =
   Left $ "Expected " ++ show expectedTy ++ " but got " ++ show gotTy ++ " in " ++ show exp
