@@ -122,15 +122,47 @@ type_of clzEnv (InstanceOf_Exp exp cname) tyenv =
 type_of_call :: Type -> [Type] -> [Exp] -> Exp -> Either String Type
 type_of_call (TyFun _argTyList _resTy) argTyList argList exp
   | length _argTyList == length argTyList =
-      undefined -- foreach check_is_subtype _argTyList argTyList argList 
+      do type_of_args _argTyList argTyList argList
+         Right _resTy
       
   | otherwise = wrongNumberOfArgsErr _argTyList argTyList exp
 type_of_call funTy _ _ exp = expectedFuntyButErr funTy exp
-  -- where foreach f [] [] [] = Right _resTy
-  --       foreach f (x:xs) (y:ys) (z:zs) = 
-  --         f x y z >>= \_ -> foreach f xs ys zs
 
+type_of_args :: [Type] -> [Type] -> [Exp] -> Either String ()
+type_of_args [] [] [] = Right ()
+type_of_args (randTy:randTys) (argTy:argTys) (rand:rands) = 
+  do check_is_subtype randTy argTy rand
+     type_of_args randTys argTys rands 
+    
+check_is_subtype :: Type -> Type -> Exp -> Either String ()
+check_is_subtype randTy argTy exp = 
+  if is_subtype randTy argTy then Right () 
+  else subtypeFailure randTy argTy exp
 
+is_subtype :: Type -> Type -> Bool
+is_subtype (TyClass clzName1) (TyClass clzName2) = 
+  statically_is_subclass clzName1 clzName2
+is_subtype (TyFun argTys1 resTy1) (TyFun argTys2 resTy2) = 
+  is_subtype_list argTys1 argTys2 && is_subtype resTy2 resTy1 
+is_subtype ty1 ty2 = equalType ty1 ty2
+
+is_subtype_list :: [Type] -> [Type] -> Bool
+is_subtype_list [] [] = True
+is_subtype_list (ty1:tys1) (ty2:tys2) = 
+  is_subtype ty1 ty2 && is_subtype_list tys1 tys2 
+
+statically_is_subclass :: Identifier -> Identifier -> Bool
+statically_is_subclass clzName1 clzName2 = 
+  if clzName1 == clzName2 then True
+  else 
+    let maybeSuperName1 = undefined in 
+      case maybeSuperName1 of
+        Just superName1 -> statically_is_subclass superName1 clzName2 
+        Nothing -> 
+          let maybeIfaceNames1 = undefined :: Maybe [Identifier] in 
+            case maybeIfaceNames1 of
+              Just ifaceNames1 -> elem clzName2 ifaceNames1 
+              Nothing -> False  
 
 -- Static Class Environment
 initializeStaticClassEnv :: [ClassDecl] -> StaticClassEnv
@@ -174,7 +206,12 @@ inequalArgtyErr argTy1 argTy2 funexp argexp =
 wrongNumberOfArgsErr _argTyList argTyList exp =
   Left $ "Wrong number of arguments: \n"
           ++ "\t" ++ show _argTyList ++ "\n"
-          ++ "\t" ++ show argTyList ++ " in " ++ show exp          
+          ++ "\t" ++ show argTyList ++ " in " ++ show exp      
+
+subtypeFailure randTy argTy exp =
+  Left $ "Subtype failure: \n"
+          ++ "\t" ++ show randTy ++ " is not a subtype of\n"
+          ++ "\t" ++ show argTy ++ " in " ++ show exp                
 
 equalType :: Type -> Type -> Bool
 equalType TyInt  TyInt  = True
