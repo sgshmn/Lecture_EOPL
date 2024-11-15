@@ -38,3 +38,7 @@ lookup_static_class [] clzName =
 lookup_static_class ((clzName_,staticClz):clzEnv) clzName
   | clzName_ == clzName = staticClz 
   | otherwise = lookup_static_class clzEnv clzName 
+
+find_method_type :: StaticClassEnv -> Identifier -> Identifier -> Type 
+find_method_type clzEnv clzName mName = 
+  undefined -- maybe_find_method_type clzEnv clzName mName

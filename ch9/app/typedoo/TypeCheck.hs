@@ -101,7 +101,14 @@ type_of clzEnv (List_Exp expList) tyenv = undefined
 
 type_of clzEnv (New_Object_Exp cname expList) tyenv = undefined
 
-type_of clzEnv (Method_Call_Exp exp1 mname expList) tyenv = undefined
+type_of clzEnv exp@(Method_Call_Exp exp1 mname expList) tyenv =
+  do argTys <- types_of_exps clzEnv expList tyenv 
+     objTy <- type_of clzEnv exp1 tyenv 
+     case objTy of 
+       TyClass clzName -> 
+        type_of_call clzEnv 
+          (find_method_type clzEnv clzName mname) argTys expList exp
+       _ -> expectedClasstyButErr objTy exp
 
 type_of clzEnv (Super_Call_Exp mname expList) tyenv = undefined
 
@@ -118,6 +125,13 @@ type_of clzEnv (InstanceOf_Exp exp cname) tyenv =
      case objTy of 
       TyClass _ -> Right TyBool
       _ -> expectedButErr (TyClass "...") objTy exp
+
+types_of_exps :: StaticClassEnv -> [Exp] -> TyEnv -> Either String [Type]
+types_of_exps clzEnv [] tyenv = Right []
+types_of_exps clzEnv (exp:exps) tyenv = 
+  do ty <- type_of clzEnv exp tyenv 
+     tys <- types_of_exps clzEnv exps tyenv 
+     Right (ty:tys)
 
 type_of_call :: StaticClassEnv -> Type -> [Type] -> [Exp] -> Exp -> Either String Type
 type_of_call clzEnv (TyFun _argTyList _resTy) argTyList argList exp
@@ -158,7 +172,7 @@ statically_is_subclass clzEnv clzName1 clzName2 =
   if clzName1 == clzName2 then True
   else 
     let maybeSuperName1 = 
-          superName (lookup_static_class clzEnv clzName1) in 
+          superName (lookup_static_class clzEnv clzName1) in -- Todo: superName, lookup_static_class
       case maybeSuperName1 of
         Just superName1 -> statically_is_subclass clzEnv superName1 clzName2 
         Nothing -> 
@@ -194,6 +208,9 @@ expectedButErr expectedTy gotTy exp =
 
 expectedFuntyButErr gotTy exp =
   Left $ "Expected function type but got " ++ show gotTy ++ " in " ++ show exp
+
+expectedClasstyButErr gotTy exp =
+  Left $ "Expected class type but got " ++ show gotTy ++ " in " ++ show exp
 
 inequalIfBranchTyErr thenTy elseTy exp2 exp3 =
   Left $ "Type mismatch: \n"
