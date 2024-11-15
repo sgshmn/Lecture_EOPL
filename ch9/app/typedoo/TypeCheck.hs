@@ -119,66 +119,68 @@ type_of clzEnv (InstanceOf_Exp exp cname) tyenv =
       TyClass _ -> Right TyBool
       _ -> expectedButErr (TyClass "...") objTy exp
 
-type_of_call :: Type -> [Type] -> [Exp] -> Exp -> Either String Type
-type_of_call (TyFun _argTyList _resTy) argTyList argList exp
+type_of_call :: StaticClassEnv -> Type -> [Type] -> [Exp] -> Exp -> Either String Type
+type_of_call clzEnv (TyFun _argTyList _resTy) argTyList argList exp
   | length _argTyList == length argTyList =
-      do type_of_args _argTyList argTyList argList
+      do type_of_args clzEnv _argTyList argTyList argList
          Right _resTy
       
   | otherwise = wrongNumberOfArgsErr _argTyList argTyList exp
-type_of_call funTy _ _ exp = expectedFuntyButErr funTy exp
+type_of_call clzEnv funTy _ _ exp = expectedFuntyButErr funTy exp
 
-type_of_args :: [Type] -> [Type] -> [Exp] -> Either String ()
-type_of_args [] [] [] = Right ()
-type_of_args (randTy:randTys) (argTy:argTys) (rand:rands) = 
-  do check_is_subtype randTy argTy rand
-     type_of_args randTys argTys rands 
+type_of_args :: StaticClassEnv -> [Type] -> [Type] -> [Exp] -> Either String ()
+type_of_args clzEnv [] [] [] = Right ()
+type_of_args clzEnv (randTy:randTys) (argTy:argTys) (rand:rands) = 
+  do check_is_subtype clzEnv randTy argTy rand
+     type_of_args clzEnv randTys argTys rands 
     
-check_is_subtype :: Type -> Type -> Exp -> Either String ()
-check_is_subtype randTy argTy exp = 
-  if is_subtype randTy argTy then Right () 
+check_is_subtype :: StaticClassEnv -> Type -> Type -> Exp -> Either String ()
+check_is_subtype clzEnv randTy argTy exp = 
+  if is_subtype clzEnv randTy argTy then Right () 
   else subtypeFailure randTy argTy exp
 
-is_subtype :: Type -> Type -> Bool
-is_subtype (TyClass clzName1) (TyClass clzName2) = 
-  statically_is_subclass clzName1 clzName2
-is_subtype (TyFun argTys1 resTy1) (TyFun argTys2 resTy2) = 
-  is_subtype_list argTys1 argTys2 && is_subtype resTy2 resTy1 
-is_subtype ty1 ty2 = equalType ty1 ty2
+is_subtype :: StaticClassEnv -> Type -> Type -> Bool
+is_subtype clzEnv (TyClass clzName1) (TyClass clzName2) = 
+  statically_is_subclass clzEnv clzName1 clzName2
+is_subtype clzEnv (TyFun argTys1 resTy1) (TyFun argTys2 resTy2) = 
+  is_subtype_list clzEnv argTys1 argTys2 
+    && is_subtype clzEnv resTy2 resTy1 
+is_subtype clzEnv ty1 ty2 = equalType ty1 ty2
 
-is_subtype_list :: [Type] -> [Type] -> Bool
-is_subtype_list [] [] = True
-is_subtype_list (ty1:tys1) (ty2:tys2) = 
-  is_subtype ty1 ty2 && is_subtype_list tys1 tys2 
+is_subtype_list :: StaticClassEnv -> [Type] -> [Type] -> Bool
+is_subtype_list clzEnv [] [] = True
+is_subtype_list clzEnv (ty1:tys1) (ty2:tys2) = 
+  is_subtype clzEnv ty1 ty2 
+    && is_subtype_list clzEnv tys1 tys2 
 
-statically_is_subclass :: Identifier -> Identifier -> Bool
-statically_is_subclass clzName1 clzName2 = 
+statically_is_subclass :: StaticClassEnv -> Identifier -> Identifier -> Bool
+statically_is_subclass clzEnv clzName1 clzName2 = 
   if clzName1 == clzName2 then True
   else 
-    let maybeSuperName1 = undefined in 
+    let maybeSuperName1 = 
+          superName (lookup_static_class clzEnv clzName1) in 
       case maybeSuperName1 of
-        Just superName1 -> statically_is_subclass superName1 clzName2 
+        Just superName1 -> statically_is_subclass clzEnv superName1 clzName2 
         Nothing -> 
-          let maybeIfaceNames1 = undefined :: Maybe [Identifier] in 
-            case maybeIfaceNames1 of
-              Just ifaceNames1 -> elem clzName2 ifaceNames1 
-              Nothing -> False  
+          let ifaceNames1 = 
+                interfaceNames (lookup_static_class clzEnv clzName1)
+          in elem clzName2 ifaceNames1
 
 -- Static Class Environment
 initializeStaticClassEnv :: [ClassDecl] -> StaticClassEnv
 initializeStaticClassEnv classDecls =
-  AStaticClass "object" [] [] [] []
-   : map classDeclToStaticClass classDecls
+  ("object", AStaticClass Nothing [] [] [] [])
+    : map classDeclToStaticClass classDecls
 
-classDeclToStaticClass :: ClassDecl -> StaticClass
+classDeclToStaticClass :: ClassDecl -> (Identifier, StaticClass)
 classDeclToStaticClass (Class_Decl cname superName ifaceNames fieldTypeNames methodDecls) =
-  AStaticClass superName ifaceNames fieldNames fieldTypes methodTyEnv
+  (cname, AStaticClass (Just superName) ifaceNames fieldNames fieldTypes methodTyEnv)
   where
     fieldNames = map snd fieldTypeNames
     fieldTypes = map fst fieldTypeNames
     methodTyEnv = map methodDeclToTyEnv methodDecls
 classDeclToStaticClass (Interface_Decl ifaceName methodDecls) =
-  AnInterface methodTyEnv
+ (ifaceName, AnInterface methodTyEnv)
   where
     methodTyEnv = map methodDeclToTyEnv methodDecls
 

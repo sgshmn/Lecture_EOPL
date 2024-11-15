@@ -18,11 +18,11 @@ apply_tyenv (Extend_tyenv v ty tyenv) var
   | var == v = Right ty
   | otherwise = apply_tyenv tyenv var
 
-type StaticClassEnv = [StaticClass]
+type StaticClassEnv = [(Identifier, StaticClass)]
 
 data StaticClass =
     AStaticClass {
-      superName :: Identifier
+      superName :: Maybe Identifier
     , interfaceNames :: [Identifier]
     , fieldNames :: [Identifier]
     , fieldTypes :: [Type]
@@ -31,3 +31,10 @@ data StaticClass =
   | AnInterface { 
       ifaceMethodTyEnv :: [(Identifier, Type)] 
     }
+
+lookup_static_class :: StaticClassEnv -> Identifier -> StaticClass
+lookup_static_class [] clzName =
+  error $ clzName ++ " is not found in the static class env"
+lookup_static_class ((clzName_,staticClz):clzEnv) clzName
+  | clzName_ == clzName = staticClz 
+  | otherwise = lookup_static_class clzEnv clzName 
