@@ -1,6 +1,7 @@
 module TyEnv where
 
 import Expr(Identifier, Type, ClassDecl)
+import Data.List(lookup)
 
 data TyEnv = 
     Empty_tyenv
@@ -32,13 +33,23 @@ data StaticClass =
       ifaceMethodTyEnv :: [(Identifier, Type)] 
     }
 
-lookup_static_class :: StaticClassEnv -> Identifier -> StaticClass
+lookup_static_class :: StaticClassEnv -> Identifier -> Either String StaticClass
 lookup_static_class [] clzName =
-  error $ clzName ++ " is not found in the static class env"
+  Left $ clzName ++ " is not found in the static class env"
 lookup_static_class ((clzName_,staticClz):clzEnv) clzName
-  | clzName_ == clzName = staticClz 
+  | clzName_ == clzName = Right staticClz 
   | otherwise = lookup_static_class clzEnv clzName 
 
-find_method_type :: StaticClassEnv -> Identifier -> Identifier -> Type 
+find_method_type :: StaticClassEnv -> Identifier -> Identifier -> Either String Type 
 find_method_type clzEnv clzName mName = 
-  undefined -- maybe_find_method_type clzEnv clzName mName
+  do aClz <- lookup_static_class clzEnv clzName 
+     case aClz of 
+        AStaticClass _ _ _ _ mtyenv ->
+          case lookup mName mtyenv of 
+            Just ty -> Right ty 
+            Nothing -> Left $ "Method " ++ mName ++ " is not found in class " ++ clzName
+           
+        AnInterface absmdecls -> 
+          case lookup mName absmdecls of 
+            Just ty -> Right ty
+            Nothing -> Left $ "Method " ++ mName ++ " is not found in interface " ++ clzName

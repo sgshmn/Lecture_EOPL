@@ -105,9 +105,9 @@ type_of clzEnv exp@(Method_Call_Exp exp1 mname expList) tyenv =
   do argTys <- types_of_exps clzEnv expList tyenv 
      objTy <- type_of clzEnv exp1 tyenv 
      case objTy of 
-       TyClass clzName -> 
-        type_of_call clzEnv 
-          (find_method_type clzEnv clzName mname) argTys expList exp
+       TyClass clzName ->
+         do mty <- find_method_type clzEnv clzName mname
+            type_of_call clzEnv mty argTys expList exp
        _ -> expectedClasstyButErr objTy exp
 
 type_of clzEnv (Super_Call_Exp mname expList) tyenv = undefined
@@ -155,7 +155,7 @@ check_is_subtype clzEnv randTy argTy exp =
 
 is_subtype :: StaticClassEnv -> Type -> Type -> Bool
 is_subtype clzEnv (TyClass clzName1) (TyClass clzName2) = 
-  statically_is_subclass clzEnv clzName1 clzName2
+  True -- Todo: statically_is_subclass clzEnv clzName1 clzName2
 is_subtype clzEnv (TyFun argTys1 resTy1) (TyFun argTys2 resTy2) = 
   is_subtype_list clzEnv argTys1 argTys2 
     && is_subtype clzEnv resTy2 resTy1 
@@ -167,18 +167,19 @@ is_subtype_list clzEnv (ty1:tys1) (ty2:tys2) =
   is_subtype clzEnv ty1 ty2 
     && is_subtype_list clzEnv tys1 tys2 
 
-statically_is_subclass :: StaticClassEnv -> Identifier -> Identifier -> Bool
+statically_is_subclass :: StaticClassEnv -> Identifier -> Identifier -> Either String Bool
 statically_is_subclass clzEnv clzName1 clzName2 = 
-  if clzName1 == clzName2 then True
+  if clzName1 == clzName2 then Right True
   else 
-    let maybeSuperName1 = 
-          superName (lookup_static_class clzEnv clzName1) in -- Todo: superName, lookup_static_class
-      case maybeSuperName1 of
-        Just superName1 -> statically_is_subclass clzEnv superName1 clzName2 
-        Nothing -> 
-          let ifaceNames1 = 
-                interfaceNames (lookup_static_class clzEnv clzName1)
-          in elem clzName2 ifaceNames1
+    do aClz <- lookup_static_class clzEnv clzName1
+       case aClz of 
+         AStaticClass maybeSuperName1 ifaceNames1 fs ftys mtyenv ->
+            case maybeSuperName1 of
+              Just superName1 -> statically_is_subclass clzEnv superName1 clzName2 
+              Nothing -> Right (elem clzName2 ifaceNames1)
+           
+         AnInterface absmdecls -> Right False 
+         -- Note: interfaces have no inheritance relationship in TYPED-OO.  
 
 -- Static Class Environment
 initializeStaticClassEnv :: [ClassDecl] -> StaticClassEnv
