@@ -104,13 +104,20 @@ type_of clzEnv (New_Object_Exp cname expList) tyenv = undefined
 type_of clzEnv exp@(Method_Call_Exp exp1 mname expList) tyenv =
   do argTys <- types_of_exps clzEnv expList tyenv 
      objTy <- type_of clzEnv exp1 tyenv 
-     case objTy of 
+     case objTy of  -- Note: no check like this in the EOPL book
        TyClass clzName ->
          do mty <- find_method_type clzEnv clzName mname
             type_of_call clzEnv mty argTys expList exp
-       _ -> expectedClasstyButErr objTy exp -- Note: no check like this in the EOPL book
+       _ -> expectedClasstyButErr objTy exp 
 
-type_of clzEnv (Super_Call_Exp mname expList) tyenv = undefined
+type_of clzEnv exp@(Super_Call_Exp mname expList) tyenv =
+  do argTys <- types_of_exps clzEnv expList tyenv 
+     objTy <- apply_tyenv tyenv self
+     case objTy of  -- Note: no check like this in the EOPL book
+       TyClass clzName ->
+         do mty <- find_method_type clzEnv clzName mname
+            type_of_call clzEnv mty argTys expList exp
+       _ -> expectedClasstyButErr objTy exp 
 
 type_of clzEnv Self_Exp tyenv = apply_tyenv tyenv self
 
