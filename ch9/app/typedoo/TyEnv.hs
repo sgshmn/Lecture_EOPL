@@ -33,23 +33,22 @@ data StaticClass =
       ifaceMethodTyEnv :: [(Identifier, Type)] 
     }
 
-lookup_static_class :: StaticClassEnv -> Identifier -> Either String StaticClass
-lookup_static_class [] clzName =
-  Left $ clzName ++ " is not found in the static class env"
+lookup_static_class :: StaticClassEnv -> Identifier -> Maybe StaticClass
+lookup_static_class [] clzName = Nothing
 lookup_static_class ((clzName_,staticClz):clzEnv) clzName
-  | clzName_ == clzName = Right staticClz 
+  | clzName_ == clzName = Just staticClz 
   | otherwise = lookup_static_class clzEnv clzName 
 
 find_method_type :: StaticClassEnv -> Identifier -> Identifier -> Either String Type 
 find_method_type clzEnv clzName mName = 
-  do aClz <- lookup_static_class clzEnv clzName 
-     case aClz of 
-        AStaticClass _ _ _ _ mtyenv ->
-          case lookup mName mtyenv of 
-            Just ty -> Right ty 
-            Nothing -> Left $ "Method " ++ mName ++ " is not found in class " ++ clzName
+  case lookup_static_class clzEnv clzName of
+    Nothing -> Left $ "Class " ++ clzName ++ " is not found"
+    Just (AStaticClass _ _ _ _ mtyenv) ->
+      case lookup mName mtyenv of 
+        Just ty -> Right ty 
+        Nothing -> Left $ "Method " ++ mName ++ " is not found in class " ++ clzName
            
-        AnInterface absmdecls -> 
-          case lookup mName absmdecls of 
-            Just ty -> Right ty
-            Nothing -> Left $ "Method " ++ mName ++ " is not found in interface " ++ clzName
+    Just (AnInterface absmdecls) -> 
+      case lookup mName absmdecls of 
+        Just ty -> Right ty
+        Nothing -> Left $ "Method " ++ mName ++ " is not found in interface " ++ clzName

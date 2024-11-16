@@ -108,7 +108,7 @@ type_of clzEnv exp@(Method_Call_Exp exp1 mname expList) tyenv =
        TyClass clzName ->
          do mty <- find_method_type clzEnv clzName mname
             type_of_call clzEnv mty argTys expList exp
-       _ -> expectedClasstyButErr objTy exp
+       _ -> expectedClasstyButErr objTy exp -- Note: no check like this in the EOPL book
 
 type_of clzEnv (Super_Call_Exp mname expList) tyenv = undefined
 
@@ -147,6 +147,8 @@ type_of_args clzEnv [] [] [] = Right ()
 type_of_args clzEnv (randTy:randTys) (argTy:argTys) (rand:rands) = 
   do check_is_subtype clzEnv randTy argTy rand
      type_of_args clzEnv randTys argTys rands 
+type_of_args clzEnv randTys argTys exps = 
+  wrongNumberOfArgsErr3 randTys argTys exps
     
 check_is_subtype :: StaticClassEnv -> Type -> Type -> Exp -> Either String ()
 check_is_subtype clzEnv randTy argTy exp = 
@@ -155,7 +157,7 @@ check_is_subtype clzEnv randTy argTy exp =
 
 is_subtype :: StaticClassEnv -> Type -> Type -> Bool
 is_subtype clzEnv (TyClass clzName1) (TyClass clzName2) = 
-  True -- Todo: statically_is_subclass clzEnv clzName1 clzName2
+  statically_is_subclass clzEnv clzName1 clzName2
 is_subtype clzEnv (TyFun argTys1 resTy1) (TyFun argTys2 resTy2) = 
   is_subtype_list clzEnv argTys1 argTys2 
     && is_subtype clzEnv resTy2 resTy1 
@@ -165,20 +167,20 @@ is_subtype_list :: StaticClassEnv -> [Type] -> [Type] -> Bool
 is_subtype_list clzEnv [] [] = True
 is_subtype_list clzEnv (ty1:tys1) (ty2:tys2) = 
   is_subtype clzEnv ty1 ty2 
-    && is_subtype_list clzEnv tys1 tys2 
+    && is_subtype_list clzEnv tys1 tys2
+is_subtype_list clzEnv _ _ = False    
 
-statically_is_subclass :: StaticClassEnv -> Identifier -> Identifier -> Either String Bool
+statically_is_subclass :: StaticClassEnv -> Identifier -> Identifier -> Bool
 statically_is_subclass clzEnv clzName1 clzName2 = 
-  if clzName1 == clzName2 then Right True
-  else 
-    do aClz <- lookup_static_class clzEnv clzName1
-       case aClz of 
-         AStaticClass maybeSuperName1 ifaceNames1 fs ftys mtyenv ->
+  if clzName1 == clzName2 then True else 
+    case lookup_static_class clzEnv clzName1 of
+      Nothing -> False
+      Just (AStaticClass maybeSuperName1 ifaceNames1 fs ftys mtyenv) ->
             case maybeSuperName1 of
               Just superName1 -> statically_is_subclass clzEnv superName1 clzName2 
-              Nothing -> Right (elem clzName2 ifaceNames1)
+              Nothing -> elem clzName2 ifaceNames1
            
-         AnInterface absmdecls -> Right False 
+      Just (AnInterface absmdecls) -> False 
          -- Note: interfaces have no inheritance relationship in TYPED-OO.  
 
 -- Static Class Environment
@@ -227,6 +229,13 @@ wrongNumberOfArgsErr _argTyList argTyList exp =
   Left $ "Wrong number of arguments: \n"
           ++ "\t" ++ show _argTyList ++ "\n"
           ++ "\t" ++ show argTyList ++ " in " ++ show exp      
+
+
+wrongNumberOfArgsErr3 _argTyList argTyList exps =
+  Left $ "Wrong number of arguments: \n"
+          ++ "\t" ++ show _argTyList ++ "\n"
+          ++ "\t" ++ show argTyList ++ "\n" 
+          ++ "\t" ++ show exps             
 
 subtypeFailure randTy argTy exp =
   Left $ "Subtype failure: \n"
