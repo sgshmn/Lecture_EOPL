@@ -6,12 +6,21 @@ import Data.List(lookup)
 data TyEnv = 
     Empty_tyenv
   | Extend_tyenv Identifier Type TyEnv
+  | Extend_tyenv_with_self_and_super Type Identifier TyEnv 
 
 empty_tyenv :: TyEnv
 empty_tyenv = Empty_tyenv
 
 extend_tyenv :: Identifier -> Type -> TyEnv -> TyEnv
 extend_tyenv var ty tyenv = Extend_tyenv var ty tyenv 
+
+extend_tyenv_with :: [Identifier] -> [Type] -> TyEnv -> TyEnv
+extend_tyenv_with [] [] tyenv = tyenv
+extend_tyenv_with (var:vars) (ty:tys) tyenv = 
+  extend_tyenv var ty (extend_tyenv_with vars tys tyenv)
+
+extend_tyenv_with_self_and_super :: Type -> Identifier -> TyEnv -> TyEnv
+extend_tyenv_with_self_and_super ty var tyenv = Extend_tyenv_with_self_and_super ty var tyenv
 
 apply_tyenv :: TyEnv -> Identifier -> Either String Type 
 apply_tyenv Empty_tyenv var = Left $ "Variable not found: " ++ var

@@ -186,13 +186,13 @@ is_subtype_list clzEnv _ _ = False
 
 statically_is_subclass :: StaticClassEnv -> Identifier -> Identifier -> Bool
 statically_is_subclass clzEnv clzName1 clzName2 = 
-  if clzName1 == clzName2 then True else 
+  clzName1 == clzName2 ||
     case lookup_static_class clzEnv clzName1 of
       Nothing -> False
       Just (AStaticClass maybeSuperName1 ifaceNames1 fs ftys mtyenv) ->
             case maybeSuperName1 of
               Just superName1 -> statically_is_subclass clzEnv superName1 clzName2 
-              Nothing -> elem clzName2 ifaceNames1
+              Nothing -> clzName2 `elem` ifaceNames1
            
       Just (AnInterface absmdecls) -> False 
          -- Note: interfaces have no inheritance relationship in TYPED-OO.  
@@ -218,6 +218,80 @@ classDeclToStaticClass (Interface_Decl ifaceName methodDecls) =
 methodDeclToTyEnv :: MethodDecl -> (Identifier, Type)
 methodDeclToTyEnv (Method_Decl ty name tyArgs _) = (name, TyFun (map fst tyArgs) ty)
 methodDeclToTyEnv (AbstractMethod_Decl ty name tyArgs) = (name, TyFun (map fst tyArgs) ty)
+
+-- 
+check_class_decl :: StaticClassEnv -> ClassDecl -> Either String ()
+check_class_decl clzEnv (Class_Decl cname superName ifaceNames fieldTypeNames methodDecls) =
+  case lookup_static_class clzEnv cname of
+    Nothing -> Left $ "Class " ++ cname ++ " is not found"
+    Just sc -> 
+      let fieldNames = map snd fieldTypeNames 
+          fieldTypes = map fst fieldTypeNames
+      in do check_method_decls clzEnv cname superName fieldNames fieldTypes methodDecls
+            check_if_implements clzEnv cname ifaceNames 
+check_class_decl clzEnv (Interface_Decl ifaceName methodDecls) = Right ()
+
+check_method_decls :: StaticClassEnv -> Identifier -> Identifier -> [Identifier] -> [Type] -> [MethodDecl] -> Either String ()
+check_method_decls clzEnv cname superName fieldNames fieldTypes [] = Right ()
+check_method_decls clzEnv cname superName fieldNames fieldTypes (methodDecl:methodDecls) =
+  do check_method_decl clzEnv cname superName fieldNames fieldTypes methodDecl
+     check_method_decls clzEnv cname superName fieldNames fieldTypes methodDecls
+
+check_method_decl :: StaticClassEnv -> Identifier -> Identifier -> [Identifier] -> [Type] -> MethodDecl -> Either String ()
+check_method_decl clzEnv cname superName fieldNames fieldTypes (Method_Decl ty name tyArgs body) =
+  let vars   = map snd tyArgs
+      varTys = map fst tyArgs
+      tyenv = extend_tyenv_with vars varTys 
+                (extend_tyenv_with_self_and_super (TyClass cname) superName 
+                  (extend_tyenv_with fieldNames fieldTypes empty_tyenv)) in
+    do bodyTy <- type_of clzEnv body tyenv
+       check_is_subtype clzEnv bodyTy ty body
+       if name == initialize then Right ()
+       else
+         case lookup_static_class clzEnv superName of
+           Nothing -> Right () 
+           Just (AStaticClass _ _ _ _ mtyenv) -> 
+             case lookup name mtyenv of 
+               Just mty -> check_is_subtype clzEnv ty mty body
+               Nothing -> Right ()
+           Just (AnInterface mtyenv) ->
+             case lookup name mtyenv of 
+               Just mty -> check_is_subtype clzEnv ty mty body
+               Nothing -> Right ()
+
+check_method_decl clzEnv cname superName fieldNames fieldTypes (AbstractMethod_Decl ty name tyArgs) =
+  Right () -- Deadcode: Abstract methods never appear in class definitions in TYPED-OO.
+
+check_if_implements :: StaticClassEnv -> Identifier -> [Identifier] -> Either String ()
+check_if_implements clzEnv cname [] = Right ()
+check_if_implements clzEnv cname (iname:inames) =
+  do check_if_implements_ clzEnv cname iname 
+     check_if_implements clzEnv cname inames
+
+check_if_implements_ :: StaticClassEnv -> Identifier -> Identifier -> Either String ()
+check_if_implements_ clzEnv cname iname =
+  case lookup_static_class clzEnv iname of
+    Nothing -> Left $ "Interface " ++ iname ++ " is not found"
+    Just (AnInterface iface_mtyenv) -> 
+      case lookup_static_class clzEnv cname of
+        Nothing -> Left $ "Class " ++ cname ++ " is not found"
+        Just (AStaticClass _ _ _ _ clz_mtyenv) -> 
+          check_mth_impl clzEnv iface_mtyenv clz_mtyenv
+        Just (AnInterface _) -> 
+          Left $ "Interface " ++ cname ++ " cannot implement another interface " ++ iname
+    Just (AStaticClass _ _ _ _ _) -> 
+      Left $ "class " ++ cname ++ " attempts to implement non-interface " ++ iname
+
+check_mth_impl :: StaticClassEnv -> [(Identifier,Type)] -> [(Identifier,Type)] -> Either String ()
+check_mth_impl clzEnv [] clz_mtyenv = Right ()
+check_mth_impl clzEnv ((mname, iface_mty):iface_mtyenv) clz_mtyenv =
+  case lookup mname clz_mtyenv of
+    Just clz_mty -> 
+      do check_is_subtype clzEnv clz_mty iface_mty (Var_Exp mname) -- Todo: The exp is ad-hoc!
+         check_mth_impl clzEnv iface_mtyenv clz_mtyenv
+    Nothing -> 
+      Left $ "class attempts to implement missing method " ++ mname
+
 
 -- Utilities
 expectedButErr expectedTy gotTy exp =
