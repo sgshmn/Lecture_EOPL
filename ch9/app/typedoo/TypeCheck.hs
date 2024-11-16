@@ -99,7 +99,14 @@ type_of clzEnv (Set_Exp var exp) tyenv = undefined
 
 type_of clzEnv (List_Exp expList) tyenv = undefined
 
-type_of clzEnv (New_Object_Exp cname expList) tyenv = undefined
+type_of clzEnv exp@(New_Object_Exp cname expList) tyenv =
+  do argTys <- types_of_exps clzEnv expList tyenv
+     case lookup_static_class clzEnv cname of 
+        Nothing -> Left $ "Class " ++ cname ++ " is not found in " ++ show exp
+        Just (AStaticClass _ _ _ _ mtyenv) -> 
+          do mty <- find_method_type clzEnv cname initialize 
+             type_of_call clzEnv mty argTys expList exp
+        Just (AnInterface _) -> Left $ "Cannot instantiate an interface: " ++ cname
 
 type_of clzEnv exp@(Method_Call_Exp exp1 mname expList) tyenv =
   do argTys <- types_of_exps clzEnv expList tyenv 

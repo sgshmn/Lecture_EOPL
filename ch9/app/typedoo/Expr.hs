@@ -1,5 +1,5 @@
 module Expr(Program(..),ClassDecl(..),MethodDecl(..),Exp(..),Identifier,
-            PET(..), Type(..), self,
+            PET(..), Type(..), self, initialize,
             fromExp,fromType,
             fromExpList,fromIdExpList,fromIdTypeIdListExpList,fromIdList,fromTypeList,fromTypeIdList,
             fromClassDecl,fromClassDeclList,fromMethodDecl,fromMethodDeclList,
@@ -52,6 +52,9 @@ type Identifier = String
 
 self :: Identifier
 self = "self"
+
+initialize :: Identifier
+initialize = "initialize"
 
 -- x1 = expr1  ...  xn = exprn
 type LetBindings = [ (Identifier, Exp) ]  
