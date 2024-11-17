@@ -6,55 +6,6 @@ typechecker_tests :: TypeDeclTestSuite
 typechecker_tests =
   TypeDeclTestSuite
    [
-     -- simple arithmetic
-     
-     TDTC "positive-const" "11" (Just TyInt),
-     TDTC "negative-const" "-33" (Just TyInt),
-     TDTC "simple-arith-1" "-(44,33)" (Just TyInt),
-  
-     -- nested arithmetic
-     TDTC "nested-arith-left" "-(-(44,33),22)" (Just TyInt),
-     TDTC "nested-arith-right" "-(55, -(22,11))" (Just TyInt),
-  
-     -- simple variables
-     TDTC "test-var-1" "x" (Just TyInt),
-     TDTC "test-var-2" "-(x,1)" (Just TyInt),
-     TDTC "test-var-3" "-(1,x)" (Just TyInt),
-
-     TDTC "zero-test-1" "zero?(-(3,2))" (Just TyBool),
-     TDTC "zero-test-2" "-(2,zero?(0))" Nothing,
-      
-     -- simple unbound variables
-     TDTC "test-unbound-var-1" "foo" Nothing,
-     TDTC "test-unbound-var-2" "-(x,foo)" Nothing,
-  
-     -- simple conditionals
-     TDTC "if-true" "if zero?(1) then 3 else 4" (Just TyInt),
-     TDTC "if-false" "if zero?(0) then 3 else 4" (Just TyInt),
-
-     -- make sure that the test and both arms get evaluated
-     -- properly. 
-     TDTC "if-eval-test-true" "if zero?(-(11,12)) then 3 else 4" (Just TyInt),
-     TDTC "if-eval-test-false" "if zero?(-(11, 11)) then 3 else 4" (Just TyInt),
-     TDTC "if-eval-then" "if zero?(1) then -(22,1) else -(22,2)" (Just TyInt),
-     TDTC "if-eval-else" "if zero?(0) then -(22,1) else -(22,2)" (Just TyInt),
-      
-     -- make sure types of arms agree (new for lang5-1)
-     TDTC "if-compare-arms" "if zero?(0) then 1 else zero?(1)" Nothing,
-     TDTC "if-check-test-is-boolean" "if 1 then 11 else 12" Nothing,
-
-     -- simple let
-     TDTC "simple-let-1" "let x = 3 in x" (Just TyInt),
-
-     -- make sure the body and rhs get evaluated
-     TDTC "eval-let-body" "let x = 3 in -(x,1)" (Just TyInt),
-     TDTC "eval-let-rhs" "let x = -(4,1) in -(x,1)" (Just TyInt),
-
-     -- check nested let and shadowing
-     TDTC "simple-nested-let" "let x = 3 in let y = 4 in -(x,y)" (Just TyInt),
-     TDTC "check-shadowing-in-body" "let x = 3 in let x = 4 in x" (Just TyInt),
-     TDTC "check-shadowing-in-rhs" "let x = 3 in let x = -(x,1) in x" (Just TyInt),
-
      -- simple applications
      TDTC "apply-proc-in-rator-pos" "(proc(x : int) -(x,1)  30)" (Just TyInt),
      TDTC "checker-doesnt-ignore-type-info-in-proc"
@@ -147,11 +98,143 @@ typechecker_tests =
                \    in fact"
         (Just (TyFun TyInt TyInt)),
 
-     TDTC "letrec-apply-fact" " \
-          \ let times = proc (x : int) proc (y : int) -(x,y) \
+     TDTC "letrec-apply-fcn" " \
+          \ let f = proc (x : int) proc (y : int) -(x,y)  \
           \ in letrec \
-          \     int fact(x : int) = if zero?(x) then 1 else ((times x) (fact -(x,1))) \
-          \   in (fact 4)"
-        (Just TyInt)
+          \     int loop(x : int) = if zero?(x) then 1 else ((f x) (loop -(x,1))) \
+          \   in (loop 4)"
+        (Just TyInt),
 
+      TDTC "modules-declare-and-ignore" "\
+            \ module m \
+            \     interface \
+            \        [u : int] \
+            \     body \
+            \        [u = 3] \
+            \ 33"
+         (Just TyInt),
+
+      TDTC "modules-take-one-value" "\
+            \ module m \
+            \     interface \
+            \        [u : int] \
+            \     body \
+            \        [u = 3] \
+            \ from m take u"
+         (Just TyInt),
+
+      -- ?? : same with modules-take-one-value
+      TDTC "modules-take-one-value-no-import" "\
+            \ module m \
+            \     interface \
+            \        [u : int] \
+            \     body \
+            \        [u = 3] \
+            \ from m take u"
+         (Just TyInt),
+
+      -- Parse error
+      TDTC "modules-take-from-parameterized-module" "\
+            \ module m \
+            \     interface \
+            \        ((m1 : []) => [u : int]) \
+            \     body \
+            \        module-proc (m1 : []) [u = 3] \
+            \ from m take u"
+         Nothing,
+
+      TDTC "modules-check-iface-subtyping-1" "\
+            \ module m \
+            \     interface \
+            \        [u : int] \
+            \     body \
+            \        [u = 3 v = 4] \
+            \ from m take u"
+         (Just TyInt),
+
+      -- if the interpreter always called the typechecker, or put
+      -- only declared variables in the module, this would raise an
+      -- error.  Exercise: make this modification.
+      TDTC "modules-take-one-value-but-interface-bad" "\
+            \ module m interface []  body [u = 3] \
+            \ from m take u"
+         Nothing,
+      
+      TDTC "modules-take-bad-value" "\
+            \ module m interface []  body [u = 3] \
+            \ from m take x"
+         Nothing,
+
+      TDTC "modules-two-vals" "\
+            \ module m \
+            \     interface \
+            \        [u : int \
+            \         v : int] \
+            \     body \
+            \        [u = 44 \
+            \         v = 33] \
+            \ -(from m take u, from m take v)"
+         (Just TyInt),
+
+      TDTC "modules-two-vals-bad-interface-1" "\
+            \ module m interface [u : int v : bool]  \
+            \           body [u = 44 v = 33] \
+            \ -(from m take u, from m take v)"
+         Nothing,
+
+      TDTC "modules-extra-vals-are-ok-1" "\
+            \ module m interface [x : int] body [x = 3 y = 4] \
+            \ from m take x"
+         (Just TyInt),
+
+      TDTC "module-extra-vals-are-ok-2" "\
+            \ module m interface [y : int] body [x = 3 y = 4] \
+            \ from m take y"
+         (Just TyInt),
+
+      TDTC "modules-two-vals-bad-interface-14" "\
+            \ module m interface\
+            \        [v : int \
+            \         u : int] \
+            \     body \
+            \        [v = zero?(0) u = 33] \
+            \ -(from m take u, from m take v)"
+         Nothing,
+
+      TDTC "modules-check-let*-1" "\
+            \ module m interface      [u : int v : int] \
+            \          body [u = 44  v = -(u,11)] \
+            \ -(from m take u, from m take v)"
+         (Just TyInt),
+
+      TDTC "modules-check-let*-2.0" "\
+            \ module m1 interface [u : int] body [u = 44] \
+            \ module m2 interface [v : int] \
+            \           body \
+            \              [v = -(from m1 take u,11)] \
+            \ -(from m1 take u, from m2 take v)"
+         (Just TyInt),
+
+      TDTC "modules-check-let*-2.05" "\
+            \ module m1 interface [u : int] body [u = 44] \
+            \ module m2 interface [v : int] body [v = -(from m1 take u,11)] \
+            \ 33"
+         (Just TyInt),
+
+      TDTC "modules-check-let*-2.1" "\
+            \ module m1 interface [u : int] body [u = 44] \
+            \ module m2  \
+            \     interface [v : int] \
+            \     body [v = -(from m1 take u,11)] \
+            \ -(from m1 take u, from m2 take v)"
+         (Just TyInt),
+
+      TDTC "modules-check-let*-2.2" "\
+            \ module m2 \
+            \     interface [v : int]   \
+            \     body  \
+            \        [v = -(from m1 take u,11)] \
+            \ module m1 interface [u : int] body [u = 44] \
+            \ -(from m1 take u, from m2 take v)"
+         Nothing
    ]
