@@ -15,7 +15,7 @@ import Control.Exception(try, throw, SomeException)
 main :: IO ()
 main = 
   hspec $ do 
-    describe "exceptions" $ do
+    describe "simplemodules" $ do
       let atdir f = "SIMEPLE-MODULES:" ++ f
       let TypeDeclTestSuite typechecker_tests' = typechecker_tests
 
@@ -39,12 +39,15 @@ doTest (TDTC tcname expr_text maybeResult) =
               (aLexer lexerSpec)
               (fromToken (endOfToken lexerSpec))
 
-      let expression = fromASTExp expressionAst
+      let expression = 
+            case expressionAst of
+              ASTExp e -> Program [] (fromASTExp expressionAst)
+              ASTProgram p -> fromASTProgram expressionAst
 
       -- Just to add the type of x!
       case maybeResult of 
         Just ty' ->
-          do eitherTyOrErr <- typeCheck (Let_Exp "x" (Const_Exp 1) expression)
+          do eitherTyOrErr <- typeCheck expression
              case eitherTyOrErr of
               Left errMsg ->
                 putStrLn ("Expected " ++ show ty' ++ " but got " ++ errMsg ++ " in " ++ show expression)
@@ -53,7 +56,7 @@ doTest (TDTC tcname expr_text maybeResult) =
                     then putStr "" -- putStrLn "Successfully typechecked."
                     else putStrLn ("Expected " ++ show ty' ++ " but got " ++ show ty ++ " in " ++ show expression)
         Nothing ->
-          do eitherTyOrErr <- typeCheck (Let_Exp "x" (Const_Exp 1) expression)
+          do eitherTyOrErr <- typeCheck expression
              case eitherTyOrErr of
               Left errMsg -> putStr "" -- putStrLn "Successfully type-unchecked." -- Is it the same error?
               Right ty -> putStr "" -- putStrLn "Should not be typechecked."
