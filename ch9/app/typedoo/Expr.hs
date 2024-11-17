@@ -1,7 +1,7 @@
 module Expr(Program(..),ClassDecl(..),MethodDecl(..),Exp(..),Identifier,
             PET(..), Type(..), self, initialize,
             fromExp,fromType,
-            fromExpList,fromIdExpList,fromIdTypeIdListExpList,fromIdList,fromTypeList,fromTypeIdList,
+            fromExpList,fromIdExpList,fromTypeIdTypeIdListExpList,fromIdList,fromTypeList,fromTypeIdList,
             fromClassDecl,fromClassDeclList,fromMethodDecl,fromMethodDeclList,
             fromProgram,
             LetRecBindings,
@@ -60,7 +60,7 @@ initialize = "initialize"
 type LetBindings = [ (Identifier, Exp) ]  
 
 -- f1(x11,...,xn1) = expr1  ...  fk(xk1,...,xkn) = exprk
-type LetRecBindings = [(Identifier, [ (Type, Identifier) ], Exp)] 
+type LetRecBindings = [(Type, Identifier, [ (Type, Identifier) ], Exp)] 
 
 data Type =
     TyInt
@@ -75,7 +75,7 @@ data Type =
 --- Parsed Expression Tree
 
 data PET =
-    PET_IdTypeIdListExpList {idTypeIdListExpListFrom :: [(Identifier, [(Type, Identifier)], Exp)] }
+    PET_TypeIdTypeIdListExpList {typeIdTypeIdListExpListFrom :: [(Type, Identifier, [(Type, Identifier)], Exp)] }
   | PET_IdExpList {idExpListFrom :: [(Identifier, Exp)] }
   | PET_ExpList {expListFrom :: [Exp] }
   | PET_Exp {expFrom :: Exp}
@@ -95,8 +95,8 @@ fromType ty                 = PET_Type ty
 fromExpList expList         = PET_ExpList expList
 fromIdExpList idExpList     = PET_IdExpList idExpList
 
-fromIdTypeIdListExpList idTypeIdListExpList 
-                            = PET_IdTypeIdListExpList idTypeIdListExpList
+fromTypeIdTypeIdListExpList typeIdTypeIdListExpList 
+                            = PET_TypeIdTypeIdListExpList typeIdTypeIdListExpList
 fromIdList idList           = PET_IdList idList
 fromTypeList tyList         = PET_TypeList tyList
 fromTypeIdList typeIdList   = PET_TypeIdList typeIdList

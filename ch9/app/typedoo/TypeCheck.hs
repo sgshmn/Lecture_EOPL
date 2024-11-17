@@ -58,46 +58,62 @@ type_of clzEnv exp@(If_Exp exp1 exp2 exp3) tyenv =
 
        _      -> expectedButErr TyBool condTy exp1
 
-type_of clzEnv (Let_Exp letBindings body) tyenv = undefined
+type_of clzEnv (Let_Exp letBindings body) tyenv =
+  do tys <- types_of_exps clzEnv (map snd letBindings) tyenv 
+     type_of clzEnv body 
+       (extend_tyenv_with (map fst letBindings) tys tyenv)
 
--- type_of (Let_Exp var exp1 body) tyenv =
---   do expTy  <- type_of exp1 tyenv 
---      bodyTy <- type_of body (extend_tyenv var expTy tyenv) 
---      Right bodyTy
+type_of clzEnv (Letrec_Exp letrecBindings letrec_body) tyenv =
+  let vars = map (\(_, f, _, _) -> f) letrecBindings 
+      tys  = map (\(resTy, _, tyVarList, _) -> 
+                     TyFun (map fst tyVarList) resTy) letrecBindings 
+      tyenv1 = extend_tyenv_with vars tys tyenv  
+  in do mapM_ (\(resTy, f, tyVarList, proc_body)-> 
+                  do procbodyTy <- type_of clzEnv proc_body tyenv1 
+                     if equalType resTy procbodyTy
+                     then Right ()
+                     else expectedButErr resTy procbodyTy proc_body) letrecBindings 
+        type_of clzEnv letrec_body tyenv1
 
-type_of clzEnv (Letrec_Exp letrecBindings letrec_body) tyenv = undefined
+type_of clzEnv (Proc_Exp tyVarList body) tyenv =
+  do let argTys = map fst tyVarList
+         vars   = map snd tyVarList
+     bodyTy <- type_of clzEnv body (extend_tyenv_with vars argTys tyenv)
+     Right (TyFun argTys bodyTy)
 
-  -- do let tyenv1 = extend_tyenv bound_var bvar_ty
-  --                   (extend_tyenv proc_name (TyFun bvar_ty ty) tyenv)
-  --    procbodyTy <- type_of proc_body tyenv1
+type_of clzEnv exp@(Call_Exp rator randList) tyenv =
+  do ratorTy  <- type_of clzEnv rator tyenv
+     randTys <- types_of_exps clzEnv randList tyenv
+     type_of_call clzEnv ratorTy randTys randList exp
 
-  --    let tyenv2 = extend_tyenv proc_name (TyFun bvar_ty ty) tyenv
-  --    letrecbodyTy <- type_of letrec_body tyenv2
+type_of clzEnv (Block_Exp []) tyenv = 
+  Left $ "Empty block is not allowed"
 
-  --    if equalType ty procbodyTy
-  --      then Right letrecbodyTy
-  --      else expectedButErr ty procbodyTy proc_body
+type_of clzEnv (Block_Exp (exp:expList)) tyenv =
+  let type_of_begins exp expList =
+       do ty <- type_of clzEnv exp tyenv 
+          if null expList then Right ty
+          else type_of_begins (head expList) (tail expList)
+  in  type_of_begins exp expList
 
-type_of clzEnv (Proc_Exp tyVarList body) tyenv = undefined
-  -- type_of (Proc_Exp var argTy body) tyenv = 
-  -- do bodyTy <- type_of body (extend_tyenv var argTy tyenv)
-  --    Right (TyFun argTy bodyTy)
+type_of clzEnv exp@(Set_Exp var rhsExp) tyenv =
+  do lhsTy <- apply_tyenv tyenv var 
+     rhsTy <- type_of clzEnv rhsExp tyenv 
+     check_is_subtype clzEnv rhsTy lhsTy exp 
+     Right TyVoid
 
-type_of clzEnv (Call_Exp rator randList) tyenv = undefined
--- type_of (Call_Exp rator rand) tyenv =
---   do funTy <- type_of rator tyenv
---      argTy <- type_of rand tyenv
---      case funTy of
---        TyFun ty1 ty2 -> if equalType ty1 argTy
---                         then Right ty2
---                         else inequalArgtyErr ty1 argTy rator rand
---        _             -> expectedFuntyButErr funTy rator
+type_of clzEnv (List_Exp []) tyenv =
+  Left $ "Cannot type check the empty list"
 
-type_of clzEnv (Block_Exp expList) tyenv = undefined
-
-type_of clzEnv (Set_Exp var exp) tyenv = undefined
-
-type_of clzEnv (List_Exp expList) tyenv = undefined
+type_of clzEnv (List_Exp (exp:expList)) tyenv =
+  do ty <- type_of clzEnv exp tyenv 
+     let type_of_list expList =
+          if null expList then Right (TyListOf ty)
+          else do let exp = head expList
+                  ty1 <- type_of clzEnv exp tyenv 
+                  if equalType ty ty1 then type_of_list (tail expList)
+                  else expectedButErr ty ty1 exp
+     type_of_list expList 
 
 type_of clzEnv exp@(New_Object_Exp cname expList) tyenv =
   do argTys <- types_of_exps clzEnv expList tyenv

@@ -189,7 +189,7 @@ apply_method (AMethod vars (Just body) (Just super_name) field_names) self args 
 
 -- Utility
 mkUntypedLetRecBindings :: LetRecBindings -> [ (Identifier, [Identifier], Exp) ]
-mkUntypedLetRecBindings = map (\(x,y,z) -> (x, mkUntyped y,z))
+mkUntypedLetRecBindings = map (\(_,x,y,z) -> (x, mkUntyped y,z))
 
 mkUntyped :: [(Type, Identifier)] -> [Identifier]
 mkUntyped = map snd
