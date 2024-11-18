@@ -22,26 +22,26 @@ apply_tyenv (Extend_tyenv v ty tyenv) var
   | var == v = Right ty
   | otherwise = apply_tyenv tyenv var
 
-lookup_qualified_var_in_tyenv :: Identifier -> Identifier -> TyEnv -> Type
+lookup_qualified_var_in_tyenv :: Identifier -> Identifier -> TyEnv -> Either String Type
 lookup_qualified_var_in_tyenv mod_var var tyenv =
-  let iface = lookup_module_name_in_tyenv tyenv mod_var in 
-    case iface of
-      SimpleIface decls -> 
-        lookup_variable_name_in_decls var decls
+  do iface <- lookup_module_name_in_tyenv tyenv mod_var 
+     case iface of
+       SimpleIface decls -> 
+         lookup_variable_name_in_decls var decls
 
-lookup_module_name_in_tyenv :: TyEnv -> Identifier -> Interface
+lookup_module_name_in_tyenv :: TyEnv -> Identifier -> Either String Interface
 lookup_module_name_in_tyenv Empty_tyenv mod_var = 
-  error $ "lookup_module_name_in_tyenv: " ++ mod_var ++ " not found"
+  Left $ "lookup_module_name_in_tyenv: " ++ mod_var ++ " not found"
 lookup_module_name_in_tyenv (Extend_tyenv _ _ tyenv) mod_var = 
   lookup_module_name_in_tyenv tyenv mod_var
 lookup_module_name_in_tyenv (Extend_tyenv_with_module m iface tyenv) mod_var
-  | m == mod_var = iface 
+  | m == mod_var = Right iface 
   | otherwise = lookup_module_name_in_tyenv tyenv mod_var
 
-lookup_variable_name_in_decls :: Identifier -> [Declaration] -> Type
+lookup_variable_name_in_decls :: Identifier -> [Declaration] -> Either String Type
 lookup_variable_name_in_decls var [] = 
-  error $ "lookup_variable_name_in_decls: " ++ var ++ " not found"
+  Left $ "lookup_variable_name_in_decls: " ++ var ++ " not found"
 lookup_variable_name_in_decls var (ValDecl x ty : decls) 
-  | var == x = ty
+  | var == x = Right ty
   | otherwise = lookup_variable_name_in_decls var decls
 

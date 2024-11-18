@@ -11,25 +11,27 @@ typeCheck program = return (type_of_program program )
 add_module_defns_to_tyenv :: [ ModuleDef ] -> TyEnv -> Either String TyEnv
 add_module_defns_to_tyenv [] tyenv = Right tyenv
 add_module_defns_to_tyenv (ModuleDef m iface mbody : moddefs) tyenv = 
-  let actual_iface = interface_of mbody tyenv in 
-    if sub_iface actual_iface iface tyenv 
-    then let newtyenv = extend_tyenv_with_module m iface tyenv in 
-            add_module_defns_to_tyenv moddefs newtyenv 
-    else Left $ "In the module " ++ m
-                  ++ "\n  expected interface: " ++ show iface
-                  ++ "\n  actual interface: " ++ show actual_iface
+  do actual_iface <- interface_of mbody tyenv
+     if sub_iface actual_iface iface tyenv 
+     then let newtyenv = extend_tyenv_with_module m iface tyenv in 
+              add_module_defns_to_tyenv moddefs newtyenv 
+     else Left $ "In the module " ++ m
+                   ++ "\n  expected interface: " ++ show iface
+                   ++ "\n  actual interface: " ++ show actual_iface
 
-interface_of :: ModuleBody -> TyEnv -> Interface 
+interface_of :: ModuleBody -> TyEnv -> Either String Interface 
 interface_of (DefnsModuleBody defs) tyenv = 
-  SimpleIface (defns_to_decls defs tyenv)
+  do decls <- defns_to_decls defs tyenv
+     Right (SimpleIface decls)
 
-defns_to_decls :: [ Definition ] -> TyEnv -> [ Declaration ]
-defns_to_decls [] tyenv = []
+defns_to_decls :: [ Definition ] -> TyEnv -> Either String [ Declaration ]
+defns_to_decls [] tyenv = Right []
 defns_to_decls (ValDefn var exp : defs) tyenv = 
   case type_of exp tyenv of
-    Left errmsg -> error $ errmsg ++ " in the declaration of " ++ var
+    Left errmsg -> Left $ errmsg ++ " in the declaration of " ++ var
     Right ty -> 
-      ValDecl var ty : defns_to_decls defs (extend_tyenv var ty tyenv)
+      do decls <- defns_to_decls defs (extend_tyenv var ty tyenv)
+         Right (ValDecl var ty : decls)
 
 sub_iface :: Interface -> Interface -> TyEnv -> Bool
 sub_iface (SimpleIface decls1) (SimpleIface decls2) tyenv =
@@ -61,8 +63,7 @@ type_of (Const_Exp n) tyenv = Right TyInt
 
 type_of (Var_Exp var) tyenv = apply_tyenv tyenv var
 
-type_of (QualifiedVar_Exp m v) tyenv = 
-  Right ( lookup_qualified_var_in_tyenv m v tyenv )
+type_of (QualifiedVar_Exp m v) tyenv = lookup_qualified_var_in_tyenv m v tyenv
 
 type_of (Diff_Exp exp1 exp2) tyenv =
   do ty1 <- type_of exp1 tyenv 
