@@ -57,6 +57,6 @@
 
 ### Chapter 9: Objects and Classes (CLASSES)
 
- - CLASSES: An untyped object-oriented language (based on IMPLICIT-REFS)
+ - [CLASSES: An untyped object-oriented language (based on IMPLICIT-REFS)](https://docs.google.com/presentation/d/17_Hdq32S8KnPg18zf6yXLmxIFvbKLSpcux5q9ObC9FE/edit?usp=sharing)
  - TYPED-OO: A typed object-oriented language (based on CLASSES)
 
