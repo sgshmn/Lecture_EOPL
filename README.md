@@ -55,8 +55,8 @@
  - [OPAQUE-TYPES: A modular language with interfaces, i.e., module types (based on SIMPLE-MODULES)](https://docs.google.com/presentation/d/1SyUOEjuTCI1jRPhETEBtWbEWTCSaUVM15MVKaYJVUhQ/edit?usp=sharing)
  - [PROC-MODULES: A modular language with parameterized modules (based on OPAQUE-TYPES)](https://docs.google.com/presentation/d/1smr-YmaWr1YLof-biZ2VtHUiEZetuRHpiHLBgQGKkJk/edit?usp=sharing)
 
-### Chapter 9: Objects and Classes (CLASSES)
+### Chapter 9: [Objects and Classes](https://docs.google.com/presentation/d/17_Hdq32S8KnPg18zf6yXLmxIFvbKLSpcux5q9ObC9FE/edit?usp=sharing)
 
- - [CLASSES: An untyped object-oriented language (based on IMPLICIT-REFS)](https://docs.google.com/presentation/d/17_Hdq32S8KnPg18zf6yXLmxIFvbKLSpcux5q9ObC9FE/edit?usp=sharing)
+ - CLASSES: An untyped object-oriented language (based on IMPLICIT-REFS)
  - TYPED-OO: A typed object-oriented language (based on CLASSES)
 
