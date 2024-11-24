@@ -165,12 +165,12 @@ types_of_exps clzEnv (exp:exps) tyenv =
      Right (ty:tys)
 
 type_of_call :: StaticClassEnv -> Type -> [Type] -> [Exp] -> Exp -> Either String Type
-type_of_call clzEnv (TyFun _argTyList _resTy) argTyList argList exp
-  | length _argTyList == length argTyList =
-      do type_of_args clzEnv _argTyList argTyList argList
+type_of_call clzEnv (TyFun argTyList _resTy) randTyList argList exp
+  | length argTyList == length randTyList =
+      do type_of_args clzEnv randTyList argTyList argList
          Right _resTy
       
-  | otherwise = wrongNumberOfArgsErr _argTyList argTyList exp
+  | otherwise = wrongNumberOfArgsErr argTyList randTyList exp
 type_of_call clzEnv funTy _ _ exp = expectedFuntyButErr funTy exp
 
 type_of_args :: StaticClassEnv -> [Type] -> [Type] -> [Exp] -> Either String ()
