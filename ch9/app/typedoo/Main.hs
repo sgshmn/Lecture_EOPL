@@ -7,6 +7,7 @@ import Lexer
 import Terminal
 import Parser
 import Expr
+import TypeCheck
 import Interp
 
 import Control.Monad (when)
@@ -41,5 +42,11 @@ doProcess verbose fileName = do
 
   print program
 
-  let val = value_of_program program
-  print val
+  errOrType <- typeCheck program
+
+  case errOrType of
+    Left err -> error $ "Type check failure: " ++ err
+    Right ty ->
+     do putStrLn (show ty)
+        let val = value_of_program program
+        print val

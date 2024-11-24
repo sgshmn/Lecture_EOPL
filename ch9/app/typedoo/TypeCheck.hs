@@ -122,6 +122,7 @@ type_of clzEnv exp@(New_Object_Exp cname expList) tyenv =
         Just (AStaticClass _ _ _ _ mtyenv) -> 
           do mty <- find_method_type clzEnv cname initialize 
              type_of_call clzEnv mty argTys expList exp
+             Right (TyClass cname)
         Just (AnInterface _) -> Left $ "Cannot instantiate an interface: " ++ cname
 
 type_of clzEnv exp@(Method_Call_Exp exp1 mname expList) tyenv =
@@ -351,6 +352,7 @@ equalType TyInt  TyInt  = True
 equalType TyBool TyBool = True
 equalType (TyFun tyList1 ty1') (TyFun tyList2 ty2') =
   equalTypes tyList1 tyList2 && equalType ty1' ty2'
+equalType (TyListOf ty1) (TyListOf ty2) = equalType ty1 ty2
 equalType _ _ = False
 
 equalTypes :: [Type] -> [Type] -> Bool

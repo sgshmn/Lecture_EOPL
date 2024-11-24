@@ -6,8 +6,8 @@ class c1 extends object
   method listof int getstate()list(i,j)
   
 let o1 = new c1(3)
-    t1 = 0
-    t2 = 0
+    t1 = list(1)
+    t2 = list(1)
 in begin
     set t1 = send o1 getstate();
     send o1 countup(2);
