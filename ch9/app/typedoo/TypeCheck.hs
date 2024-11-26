@@ -4,7 +4,7 @@ module TypeCheck where
 
 import Expr
 import TyEnv
-import EnvStore (DenVal(SelfObject_Val))
+import EnvStore (DenVal(SelfObject_Val), append_field_names)
 
 --
 typeCheck :: Program -> IO (Either String Type)
@@ -217,18 +217,22 @@ statically_is_subclass clzEnv clzName1 clzName2 =
 -- Static Class Environment
 initializeStaticClassEnv :: [ClassDecl] -> StaticClassEnv
 initializeStaticClassEnv classDecls =
-  ("object", AStaticClass Nothing [] [] [] [])
-    : map classDeclToStaticClass classDecls
+  foldl classDeclToStaticClass 
+     [("object", AStaticClass Nothing [] [] [] [])] classDecls 
 
-classDeclToStaticClass :: ClassDecl -> (Identifier, StaticClass)
-classDeclToStaticClass (Class_Decl cname superName ifaceNames fieldTypeNames methodDecls) =
-  (cname, AStaticClass (Just superName) ifaceNames fieldNames fieldTypes methodTyEnv)
+classDeclToStaticClass :: StaticClassEnv -> ClassDecl -> StaticClassEnv -- (Identifier, StaticClass)
+classDeclToStaticClass clzEnv (Class_Decl cname superName ifaceNames fieldTypeNames methodDecls) =
+  clzEnv ++ [(cname, AStaticClass (Just superName) ifaceNames fNames fTypes methodTyEnv)]
   where
-    fieldNames = map snd fieldTypeNames
-    fieldTypes = map fst fieldTypeNames
+    fNames =
+      map snd (append_field_names fieldTypeNames
+                (case lookup_static_class clzEnv superName of
+                  Just clzInfo -> zip (fieldTypes clzInfo) (fieldNames clzInfo)
+                  Nothing -> []))
+    fTypes = map fst fieldTypeNames
     methodTyEnv = map methodDeclToTyEnv methodDecls
-classDeclToStaticClass (Interface_Decl ifaceName methodDecls) =
- (ifaceName, AStaticInterface methodTyEnv)
+classDeclToStaticClass clzEnv (Interface_Decl ifaceName methodDecls) =
+ clzEnv ++ [(ifaceName, AStaticInterface methodTyEnv)]
   where
     methodTyEnv = map methodDeclToTyEnv methodDecls
 
