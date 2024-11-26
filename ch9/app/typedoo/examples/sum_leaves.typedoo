@@ -1,10 +1,10 @@
 class tree extends object 
   method int initialize()1
   
-class interior_node extends tree 
-  field node left
-  field node right
-  method void initialize(l : node,r : node)
+class interior_node extends tree
+  field tree left
+  field tree right
+  method void initialize(l : tree,r : tree)
    begin
     set left = l; set right = r
    end

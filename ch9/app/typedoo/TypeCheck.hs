@@ -207,9 +207,9 @@ statically_is_subclass clzEnv clzName1 clzName2 =
     case lookup_static_class clzEnv clzName1 of
       Nothing -> False
       Just (AStaticClass maybeSuperName1 ifaceNames1 fs ftys mtyenv) ->
-            case maybeSuperName1 of
-              Just superName1 -> statically_is_subclass clzEnv superName1 clzName2 
-              Nothing -> clzName2 `elem` ifaceNames1
+            (case maybeSuperName1 of
+               Just superName1 -> statically_is_subclass clzEnv superName1 clzName2 
+               Nothing -> False) || clzName2 `elem` ifaceNames1
            
       Just (AStaticInterface absmdecls) -> False 
          -- Note: interfaces have no inheritance relationship in TYPED-OO.  

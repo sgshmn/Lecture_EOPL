@@ -2,7 +2,7 @@ interface tree
   method int sum()
   method bool equal(t : tree)
   
-class interior_node extends object 
+class interior_node extends object implements tree
   field tree left
   field tree right
   method void initialize(l : tree, r : tree)
@@ -20,7 +20,7 @@ class interior_node extends object
      else false 
      
   
-class leaf_node extends object 
+class leaf_node extends object  implements tree
   field int value
   method void initialize(v : int)set value = v
   method int sum()value

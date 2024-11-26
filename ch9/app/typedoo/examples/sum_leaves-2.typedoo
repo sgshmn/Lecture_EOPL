@@ -1,7 +1,7 @@
 interface tree
   method int sum(l : tree, r : tree)
   
-class interior_node extends object
+class interior_node extends object implements tree
   field tree left
   field tree right
   method void initialize(l : tree,r : tree)
@@ -10,7 +10,7 @@ class interior_node extends object
    end
   method int sum() +(send left sum(), send right sum())
   
-class leaf_node extends object 
+class leaf_node extends object implements tree
   field int value
   method void initialize(v : int)set value = v
   method int sum()value
