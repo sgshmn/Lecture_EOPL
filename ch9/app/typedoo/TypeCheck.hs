@@ -123,7 +123,7 @@ type_of clzEnv exp@(New_Object_Exp cname expList) tyenv =
           do mty <- find_method_type clzEnv cname initialize 
              type_of_call clzEnv mty argTys expList exp
              Right (TyClass cname)
-        Just (AnInterface _) -> Left $ "Cannot instantiate an interface: " ++ cname
+        Just (AStaticInterface _) -> Left $ "Cannot instantiate an interface: " ++ cname
 
 type_of clzEnv exp@(Method_Call_Exp exp1 mname expList) tyenv =
   do argTys <- types_of_exps clzEnv expList tyenv 
@@ -211,7 +211,7 @@ statically_is_subclass clzEnv clzName1 clzName2 =
               Just superName1 -> statically_is_subclass clzEnv superName1 clzName2 
               Nothing -> clzName2 `elem` ifaceNames1
            
-      Just (AnInterface absmdecls) -> False 
+      Just (AStaticInterface absmdecls) -> False 
          -- Note: interfaces have no inheritance relationship in TYPED-OO.  
 
 -- Static Class Environment
@@ -228,7 +228,7 @@ classDeclToStaticClass (Class_Decl cname superName ifaceNames fieldTypeNames met
     fieldTypes = map fst fieldTypeNames
     methodTyEnv = map methodDeclToTyEnv methodDecls
 classDeclToStaticClass (Interface_Decl ifaceName methodDecls) =
- (ifaceName, AnInterface methodTyEnv)
+ (ifaceName, AStaticInterface methodTyEnv)
   where
     methodTyEnv = map methodDeclToTyEnv methodDecls
 
@@ -271,7 +271,7 @@ check_method_decl clzEnv cname superName fieldNames fieldTypes (Method_Decl ty n
              case lookup name mtyenv of 
                Just mty -> check_is_subtype clzEnv ty mty body
                Nothing -> Right ()
-           Just (AnInterface mtyenv) ->
+           Just (AStaticInterface mtyenv) ->
              case lookup name mtyenv of 
                Just mty -> check_is_subtype clzEnv ty mty body
                Nothing -> Right ()
@@ -289,12 +289,12 @@ check_if_implements_ :: StaticClassEnv -> Identifier -> Identifier -> Either Str
 check_if_implements_ clzEnv cname iname =
   case lookup_static_class clzEnv iname of
     Nothing -> Left $ "Interface " ++ iname ++ " is not found"
-    Just (AnInterface iface_mtyenv) -> 
+    Just (AStaticInterface iface_mtyenv) -> 
       case lookup_static_class clzEnv cname of
         Nothing -> Left $ "Class " ++ cname ++ " is not found"
         Just (AStaticClass _ _ _ _ clz_mtyenv) -> 
           check_mth_impl clzEnv iface_mtyenv clz_mtyenv
-        Just (AnInterface _) -> 
+        Just (AStaticInterface _) -> 
           Left $ "Interface " ++ cname ++ " cannot implement another interface " ++ iname
     Just (AStaticClass _ _ _ _ _) -> 
       Left $ "class " ++ cname ++ " attempts to implement non-interface " ++ iname

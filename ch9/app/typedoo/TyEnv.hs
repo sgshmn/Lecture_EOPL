@@ -38,7 +38,7 @@ data StaticClass =
     , fieldTypes :: [Type]
     , methodTyEnv :: [(Identifier, Type)]
     }
-  | AnInterface { 
+  | AStaticInterface { 
       ifaceMethodTyEnv :: [(Identifier, Type)] 
     }
 
@@ -62,7 +62,7 @@ find_method_type clzEnv clzName mName =
         Just ty -> Right ty 
         Nothing -> Left $ "Method " ++ mName ++ " is not found in class " ++ clzName
            
-    Just (AnInterface absmdecls) -> 
+    Just (AStaticInterface absmdecls) -> 
       case lookup mName absmdecls of 
         Just ty -> Right ty
         Nothing -> Left $ "Method " ++ mName ++ " is not found in interface " ++ clzName
