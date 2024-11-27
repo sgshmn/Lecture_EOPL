@@ -14,7 +14,7 @@
  - Recursively defined data types
 
 
-### Chapter 2: [Data Abstraction](https://docs.google.com/presentation/d/1-y8zQLRDkqOtClr6bLyMXvyBJIUbyScQJFfeH_D8rjk/edit?usp=sharing)
+### Chapter 2: Data Abstraction
 
  - Environment (representation)
 
