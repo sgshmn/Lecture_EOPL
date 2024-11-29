@@ -37,12 +37,5 @@ toASTExp exp = ASTExp exp
 toASTType ty = ASTType ty
 
 
--- for testing the type checker
-type TestCaseName = String
-type ExprText = String
-
-data TypeDeclTestCase = TDTC TestCaseName ExprText (Maybe Type)
-
-data TypeDeclTestSuite = TypeDeclTestSuite [ TypeDeclTestCase ]
 
 

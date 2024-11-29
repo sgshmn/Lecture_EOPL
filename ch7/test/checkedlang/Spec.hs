@@ -3,6 +3,7 @@ module Main where
 import Expr
 import TypeCheck
 import TypeCheckerTest
+import Testcase
   
 import CommonParserUtil
 import TokenInterface
@@ -20,17 +21,27 @@ main =
       let TypeDeclTestSuite typechecker_tests' = typechecker_tests
 
       mapM_ 
-       (\tdtcArg@(TDTC tcname _ maybeResult) -> 
-          (it(atdir(tcname)) $ do
-             result <- try (doTest tdtcArg) :: IO (Either SomeException ())
-             case result of
-               Left exn -> throw exn `shouldBe` maybeResult
-               Right () -> putStr ""
-          )
+       (\tdtcArg ->
+          let (tcname, maybeResult) = nameMaybeResult tdtcArg in
+            (it(atdir(tcname)) $ do
+               result <- try (doTest tdtcArg) :: IO (Either SomeException ())
+               case result of
+                 Left exn -> throw exn `shouldBe` maybeResult
+                 Right () -> putStr ""
+            )
        )
        typechecker_tests'
   
 doTest (TDTC tcname expr_text maybeResult) =
+  typeTest tcname expr_text maybeResult
+
+doTest (TYCK tcname maybeResult) = 
+  do let atdir f = "./app/checkedlang/examples/" ++ f
+     exprText <- readFile (atdir tcname)
+     typeTest tcname exprText maybeResult
+
+
+typeTest tcname expr_text maybeResult =
   do  -- putStr $ tcname ++ " : "
 
       expressionAst <-
