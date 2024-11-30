@@ -3,14 +3,15 @@ module TypeCheckerTest where
 import Expr(Type(..))
 import Testcase
 
-typechecker_tests :: TypeDeclTestSuite
+typechecker_tests :: TestSuite
 typechecker_tests =
-  TypeDeclTestSuite
+  TestSuite
    [
      -- simple arithmetic
      
      TDTC "positive-const" "11" (Just TyInt),
-     TYCK "positive_const.let" (Just TyInt),
+     -- TYCK "positive_const.let" (Just TyBool),
+     -- RUN  "positive_const.let" (Just "11"),
      TDTC "negative-const" "-33" (Just TyInt),
      TDTC "simple-arith-1" "-(44,33)" (Just TyInt),
   

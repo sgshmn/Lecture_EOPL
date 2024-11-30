@@ -3,9 +3,9 @@ module TypeCheckerTest where
 import Expr(Type(..))
 import Testcase
 
-typechecker_tests :: TypeDeclTestSuite
+typechecker_tests :: TestSuite
 typechecker_tests =
-  TypeDeclTestSuite
+  TestSuite
    [
      -- simple arithmetic
      
@@ -141,7 +141,6 @@ typechecker_tests =
                    \  in x \
                    \ 1)"
         (Just TyInt),
-
       
      TDTC "letrec-return-fact" " \
                \ let times = proc (x : int) proc (y : int) -(x,y) \   

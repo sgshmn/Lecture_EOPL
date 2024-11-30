@@ -12,62 +12,72 @@ import TokenInterface
 import Lexer
 import Parser
 
+import Interp (value_of_program)
+
+import Data.Either(isLeft)
 import Test.Hspec
-import Control.Exception(try, throw, SomeException)
 
 main :: IO ()
 main = 
   hspec $ do 
     describe "inferredlang" $ do
       let atdir f = "inferredlang:" ++ f
-      let TypeDeclTestSuite typechecker_tests' = typechecker_tests
+      let TestSuite typechecker_tests' = typechecker_tests
 
       mapM_ 
-       (\tdtcArg ->
-          let (tcname, maybeResult) = nameMaybeResult tdtcArg in
-            (it(atdir(tcname)) $ do
-               result <- try (doTest tdtcArg) :: IO (Either SomeException ())
-               case result of
-                 Left exn -> throw exn `shouldBe` maybeResult
-                 Right () -> putStr ""
-            )
-       )
+       (\tdtcArg -> (it (atdir(tcname tdtcArg)) $ do doTest tdtcArg))
        typechecker_tests'
-  
-doTest (TDTC tcname expr_text maybeResult) =
-  typeTest tcname expr_text maybeResult
 
-doTest (TYCK tcname maybeResult) = 
-  do let atdir f = "./app/checkedlang/examples/" ++ f
+fileNameToExpr :: String -> IO Exp
+fileNameToExpr tcname =
+  do let atdir f = "./app/inferredlang/examples/" ++ f
      exprText <- readFile (atdir tcname)
-     typeTest tcname exprText maybeResult
+     textToExpr exprText
 
-
-typeTest tcname expr_text maybeResult =
-  do  -- putStr $ tcname ++ " : "
-
-      expressionAst <-
+textToExpr :: String -> IO Exp
+textToExpr exprText =
+  do expressionAst <-
           parsing False
-              parserSpec ((), 1, 1, expr_text)
+              parserSpec ((), 1, 1, exprText)
               (aLexer lexerSpec)
               (fromToken (endOfToken lexerSpec))
 
-      let expression = fromASTExp expressionAst
+     return (fromASTExp expressionAst)
 
-      -- Just to add the type of x!
+doTest (TDTC tcname exprText maybeResult) =
+  do expression <- textToExpr exprText
+     typeTest tcname expression maybeResult
+
+doTest (TYCK tcname maybeResult) = 
+  do expr <- fileNameToExpr tcname
+     typeTest tcname expr maybeResult 
+
+doTest (RUN tcname maybeResult) =
+  do expr <- fileNameToExpr tcname
+     runTest tcname expr maybeResult 
+
+typeTest tcname expression maybeResult =
+  do  -- Just add the type of x!
       case maybeResult of 
         Just ty' ->
           do eitherTyOrErr <- typeInfer (Let_Exp "x" (Const_Exp 1) expression)
              case eitherTyOrErr of
-              Left errMsg ->
-                putStrLn ("Expected " ++ show ty' ++ " but got " ++ errMsg ++ " in " ++ show expression)
+              Left errMsg -> Left errMsg `shouldBe`  Right ty'                   
               Right (ty_,subst) -> 
                 let ty = apply_subst_to_type ty_ subst in
                 if equal_up_to_typevars ty ty'
-                    then putStr "" -- putStrLn "Successfully type inferred."
-                    else putStrLn ("Expected " ++ show ty' ++ " but got " ++ show ty ++ " in " ++ show expression)
+                    then ty `shouldBe` ty
+                    else ty `shouldBe` ty'
         Nothing ->
           do eitherTyOrErr <- typeInfer (Let_Exp "x" (Const_Exp 1) expression)
              case eitherTyOrErr of
-              Left errMsg -> putStr "" -- putStrLn "Successfully type inferred." -- Is it the same error?
-              Right ty -> putStr "" -- putStrLn "Should not be typechecked."
+              Left errMsg -> errMsg `shouldBe` errMsg
+              Right (ty,_) -> show ty `shouldBe` "some type error"
+
+runTest tcname expression maybeResult =
+  do  -- do not typecheck, just run the program
+      case maybeResult of
+        Just resultStr -> do let result = value_of_program expression
+                             show result `shouldBe` resultStr
+        Nothing -> (return $ value_of_program expression) 
+                     `shouldThrow` anyException

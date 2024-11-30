@@ -6,15 +6,23 @@ import Expr(Type)
 type TestCaseName = String
 type ExprText = String
 
-data TypeDeclTestCase =
+data TestCase =
     -- e.g., TDTC "simple-let-1" "let x = 3 in x" (Just TyInt)
+    -- Will be deprecasted in the future
     TDTC TestCaseName ExprText (Maybe Type)
 
     -- e.g., TC "TYCHK_simple-let-1.checked"
-  | TYCK TestCaseName (Maybe Type)             
+  | TYCK TestCaseName (Maybe Type)
+
+    -- e.g., TC "simple-let-1" (Just "11")
+  | RUN TestCaseName (Maybe String)         
+
+tcname (TDTC tcname _ _) = tcname
+tcname (TYCK tcname _)   = tcname
+tcname (RUN tcname _)    = tcname            
 
 nameMaybeResult (TDTC tcname _ maybeResult) = (tcname, maybeResult)
 nameMaybeResult (TYCK tcname maybeResult)   = (tcname, maybeResult)
 
-data TypeDeclTestSuite =
-  TypeDeclTestSuite [ TypeDeclTestCase ]
+data TestSuite =
+  TestSuite [ TestCase ]
