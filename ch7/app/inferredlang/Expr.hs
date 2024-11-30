@@ -62,12 +62,4 @@ toASTType ty = ASTType ty
 toASTOptionalType optty = ASTOptionalType optty
 
 
--- for testing the type checker
-type TestCaseName = String
-type ExprText = String
-
-data TypeDeclTestCase = TDTC TestCaseName ExprText (Maybe Type)
-
-data TypeDeclTestSuite = TypeDeclTestSuite [ TypeDeclTestCase ]
-
 
