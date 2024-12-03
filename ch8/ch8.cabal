@@ -99,6 +99,7 @@ executable simplemodules-exe
       Lexer
       MainUtil
       Parser
+      Testcase
       Token
       TyEnv
       TypeCheck
@@ -187,6 +188,7 @@ test-suite simplemodules-test
       Main
       MainUtil
       Parser
+      Testcase
       Token
       TyEnv
       TypeCheck

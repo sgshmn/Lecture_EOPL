@@ -1,10 +1,11 @@
 module TypeCheckerTest where
 
-import Expr
+import Expr(Type(..))
+import Testcase
 
-typechecker_tests :: TypeDeclTestSuite
+typechecker_tests :: TestSuite
 typechecker_tests =
-  TypeDeclTestSuite
+  TestSuite
    [
      -- simple applications
      TDTC "apply-proc-in-rator-pos" "(proc(x : int) -(x,1)  30)" (Just TyInt),

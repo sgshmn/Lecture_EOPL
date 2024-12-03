@@ -81,12 +81,12 @@ toASTDefinition defn = ASTDefinition defn
 toASTDefinitionList defn = ASTDefinitionList defn
 
 
--- for testing the type checker
-type TestCaseName = String
-type ExprText = String
+-- -- for testing the type checker
+-- type TestCaseName = String
+-- type ExprText = String
 
-data TypeDeclTestCase = TDTC TestCaseName ExprText (Maybe Type)
+-- data TypeDeclTestCase = TDTC TestCaseName ExprText (Maybe Type)
 
-data TypeDeclTestSuite = TypeDeclTestSuite [ TypeDeclTestCase ]
+-- data TypeDeclTestSuite = TypeDeclTestSuite [ TypeDeclTestCase ]
 
 
