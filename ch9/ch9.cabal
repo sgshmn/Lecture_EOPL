@@ -49,6 +49,7 @@ executable classes-exe
       MainUtil
       Parser
       Ref
+      Testcase
       Token
       Paths_ch9
   autogen-modules:
@@ -74,6 +75,7 @@ executable typedoo-exe
       MainUtil
       Parser
       Ref
+      Testcase
       Token
       TyEnv
       TypeCheck
@@ -94,19 +96,6 @@ executable typedoo-exe
 test-suite classes-test
   type: exitcode-stdio-1.0
   main-is: Spec.hs
-  other-modules:
-      EnvStore
-      Expr
-      Interp
-      Lexer
-      Main
-      MainUtil
-      Parser
-      Ref
-      Token
-      Paths_ch9
-  autogen-modules:
-      Paths_ch9
   hs-source-dirs:
       test/classes
       app/classes
@@ -122,22 +111,6 @@ test-suite classes-test
 test-suite typedoo-test
   type: exitcode-stdio-1.0
   main-is: Spec.hs
-  other-modules:
-      TypeCheckerTest
-      EnvStore
-      Expr
-      Interp
-      Lexer
-      Main
-      MainUtil
-      Parser
-      Ref
-      Token
-      TyEnv
-      TypeCheck
-      Paths_ch9
-  autogen-modules:
-      Paths_ch9
   hs-source-dirs:
       test/typedoo
       app/typedoo

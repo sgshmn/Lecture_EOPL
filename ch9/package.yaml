@@ -42,7 +42,8 @@ library:
 executables:
   classes-exe:
     main:                Main.hs
-    source-dirs:         app/classes
+    source-dirs:         
+    - app/classes
     ghc-options:
     - -threaded
     - -rtsopts
@@ -51,7 +52,8 @@ executables:
     - ch9
   typedoo-exe:
     main:                Main.hs
-    source-dirs:         app/typedoo
+    source-dirs:         
+    - app/typedoo
     ghc-options:
     - -threaded
     - -rtsopts
@@ -62,6 +64,7 @@ executables:
 tests:
   classes-test:
     main:                Spec.hs
+    other-modules: []
     source-dirs:         
     - test/classes
     - app/classes
@@ -73,6 +76,7 @@ tests:
     - ch9
   typedoo-test:
     main:                Spec.hs
+    other-modules: []
     source-dirs:         
     - test/typedoo
     - app/typedoo

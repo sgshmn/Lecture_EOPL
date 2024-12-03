@@ -4,8 +4,7 @@ module Expr(Program(..),ClassDecl(..),MethodDecl(..),Exp(..),Identifier,
             fromExpList,fromIdExpList,fromTypeIdTypeIdListExpList,fromIdList,fromTypeList,fromTypeIdList,
             fromClassDecl,fromClassDeclList,fromMethodDecl,fromMethodDeclList,
             fromProgram,
-            LetRecBindings,
-            TypeDeclTestCase(..), TypeDeclTestSuite(..)) where
+            LetRecBindings) where
 
 -- Untyped class-based expression language
 
@@ -69,7 +68,7 @@ data Type =
   | TyFun [Type] Type
   | TyClass Identifier  -- class name or interface name
   | TyListOf Type -- listof(type)
-  deriving Show
+  deriving (Eq, Show)
 
 
 --- Parsed Expression Tree
@@ -108,9 +107,9 @@ fromProgram program         = PET_Program program
 
 
 -- for testing the type checker
-type TestCaseName = String
-type ExprText = String
+-- type TestCaseName = String
+-- type ExprText = String
 
-data TypeDeclTestCase = TDTC TestCaseName ExprText (Maybe Type)
+-- data TypeDeclTestCase = TDTC TestCaseName ExprText (Maybe Type)
 
-data TypeDeclTestSuite = TypeDeclTestSuite [ TypeDeclTestCase ]
+-- data TypeDeclTestSuite = TypeDeclTestSuite [ TypeDeclTestCase ]
