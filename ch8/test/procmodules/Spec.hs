@@ -3,57 +3,78 @@ module Main where
 import Expr
 import TypeCheck
 import TypeCheckerTest
-  
+import Testcase
+
 import CommonParserUtil
 import TokenInterface
 import Lexer
 import Parser
 
+import Interp (value_of_program)
+
+import Data.Either(isLeft)
 import Test.Hspec
-import Control.Exception(try, throw, SomeException)
 
 main :: IO ()
 main = 
   hspec $ do 
-    describe "exceptions" $ do
-      let atdir f = "SIMEPLE-MODULES:" ++ f
-      let TypeDeclTestSuite typechecker_tests' = typechecker_tests
+    describe "procmodules" $ do
+      let atdir f = "PROC-MODULES:" ++ f
+      let TestSuite typechecker_tests' = typechecker_tests
 
       mapM_ 
-       (\tdtcArg@(TDTC tcname _ maybeResult) -> 
-          (it(atdir(tcname)) $ do
-             result <- try (doTest tdtcArg) :: IO (Either SomeException ())
-             case result of
-               Left exn -> throw exn `shouldBe` maybeResult
-               Right () -> putStr ""
-          )
-       )
+       (\tdtcArg -> (it (atdir(tcname tdtcArg)) $ do doTest tdtcArg))
        typechecker_tests'
-  
-doTest (TDTC tcname expr_text maybeResult) =
-  do  -- putStr $ tcname ++ " : "
 
-      expressionAst <-
+fileNameToProgram :: String -> IO Program
+fileNameToProgram tcname =
+  do let atdir f = "./app/procmodules/examples/" ++ f
+     exprText <- readFile (atdir tcname)
+     textToProgram exprText
+
+textToProgram :: String -> IO Program
+textToProgram exprText =
+  do programAst <-
           parsing False
-              parserSpec ((), 1, 1, expr_text)
+              parserSpec ((), 1, 1, exprText)
               (aLexer lexerSpec)
               (fromToken (endOfToken lexerSpec))
 
-      let expression = fromASTExp expressionAst
+     return (fromASTProgram programAst)
 
-      -- Just to add the type of x!
-      case maybeResult of 
+doTest (TDTC tcname exprText maybeResult) =
+  do prog <- textToProgram exprText
+     typeTest tcname prog maybeResult
+
+doTest (TYCK tcname maybeResult) = 
+  do prog <- fileNameToProgram tcname
+     typeTest tcname prog maybeResult 
+
+doTest (RUN tcname maybeResult) =
+  do prog <- fileNameToProgram tcname
+     runTest tcname prog maybeResult 
+
+typeTest tcname prog maybeResult =
+  do  case maybeResult of 
         Just ty' ->
-          do eitherTyOrErr <- typeCheck (Let_Exp "x" (Const_Exp 1) expression)
+          do eitherTyOrErr <- typeCheck prog
              case eitherTyOrErr of
-              Left errMsg ->
-                putStrLn ("Expected " ++ show ty' ++ " but got " ++ errMsg ++ " in " ++ show expression)
+              Left errMsg -> Left errMsg `shouldBe`  Right ty'                   
               Right ty -> 
                 if equalType ty ty'
-                    then putStr "" -- putStrLn "Successfully typechecked."
-                    else putStrLn ("Expected " ++ show ty' ++ " but got " ++ show ty ++ " in " ++ show expression)
+                    then eitherTyOrErr `shouldBe` Right ty
+                    else eitherTyOrErr `shouldBe` Right ty'
         Nothing ->
-          do eitherTyOrErr <- typeCheck (Let_Exp "x" (Const_Exp 1) expression)
+          do eitherTyOrErr <- typeCheck prog
              case eitherTyOrErr of
-              Left errMsg -> putStr "" -- putStrLn "Successfully type-unchecked." -- Is it the same error?
-              Right ty -> putStr "" -- putStrLn "Should not be typechecked."
+              Left errMsg -> eitherTyOrErr `shouldBe` Left errMsg
+              Right ty -> eitherTyOrErr `shouldBe` Left "some type error message"
+
+runTest tcname prog maybeResult =
+  do  -- do not typecheck, just run the program
+      case maybeResult of
+        Just resultStr -> do let result = value_of_program prog
+                             show result `shouldBe` resultStr
+        Nothing -> (return $ value_of_program prog) 
+                     `shouldThrow` anyException
+

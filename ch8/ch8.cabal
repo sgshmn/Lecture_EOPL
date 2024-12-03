@@ -48,6 +48,7 @@ executable opaquetypes-exe
       Lexer
       MainUtil
       Parser
+      Testcase
       Token
       TyEnv
       TypeCheck
@@ -74,6 +75,7 @@ executable procmodules-exe
       Lexer
       MainUtil
       Parser
+      Testcase
       Token
       TyEnv
       TypeCheck
@@ -129,6 +131,7 @@ test-suite opaquetypes-test
       Main
       MainUtil
       Parser
+      Testcase
       Token
       TyEnv
       TypeCheck
@@ -159,6 +162,7 @@ test-suite procmodules-test
       Main
       MainUtil
       Parser
+      Testcase
       Token
       TyEnv
       TypeCheck

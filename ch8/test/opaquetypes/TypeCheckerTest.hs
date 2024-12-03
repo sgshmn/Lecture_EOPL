@@ -1,10 +1,11 @@
 module TypeCheckerTest where
 
-import Expr
+import Expr(Type(..))
+import Testcase
 
-typechecker_tests :: TypeDeclTestSuite
+typechecker_tests :: TestSuite
 typechecker_tests =
-  TypeDeclTestSuite
+  TestSuite
    [
      -- simple arithmetic
      
