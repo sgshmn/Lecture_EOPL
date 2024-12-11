@@ -11,10 +11,10 @@ data TestCase =
     -- Will be deprecasted in the future
     TDTC TestCaseName ExprText (Maybe Type)
 
-    -- e.g., TC "TYCHK_simple-let-1.checked"
+    -- e.g., TYCK "TYCHK_simple-let-1.checked" (Just TyInt)
   | TYCK TestCaseName (Maybe Type)
 
-    -- e.g., TC "simple-let-1" (Just "11")
+    -- e.g., RUN "simple-let-1" (Just "11")
   | RUN TestCaseName (Maybe String)         
 
 tcname (TDTC tcname _ _) = tcname
