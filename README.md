@@ -1,8 +1,11 @@
 # EOPL in Haskell
 
- - [발표자료: 직접 실행해보는 프로그래밍 언어 수업](https://docs.google.com/presentation/d/1lfnezkz8Yi_seoaCpannYkEit2ozsmLCDcFeyRlcWSU/edit?usp=sharing)
  - [Essentials of Programming Languages](https://github.com/mwand/eopl3) 
  - Rewritten in [Haskell](https://www.haskell.org/)
+
+### 발표 자료
+- [직접 실행해보는 프로그래밍 언어 수업](https://docs.google.com/presentation/d/1lfnezkz8Yi_seoaCpannYkEit2ozsmLCDcFeyRlcWSU/edit?usp=sharing)
+
 
 ### Preliminaries
 
