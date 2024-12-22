@@ -64,3 +64,8 @@
  - CLASSES: An untyped object-oriented language (based on IMPLICIT-REFS)
  - TYPED-OO: A typed object-oriented language (based on CLASSES)
 
+## Contributors
+- Kwanghoon Choi
+- Hyeonjin Lee
+- Youngwoong Lee
+
