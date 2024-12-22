@@ -75,6 +75,7 @@ executable inferredlang-exe
       MainUtil
       Parser
       Subst
+      Testcase
       Token
       TyEnv
       TypeCheck
@@ -136,6 +137,7 @@ test-suite inferredlang-test
       MainUtil
       Parser
       Subst
+      Testcase
       Token
       TyEnv
       TypeCheck
