@@ -1,3 +1,5 @@
+{-# OPTIONS_GHC -Wno-unrecognised-pragmas #-}
+{-# HLINT ignore "Use camelCase" #-}
 module TypeCheckerTest where
 
 import Expr(Type(..))
@@ -111,9 +113,11 @@ typechecker_tests =
  
       TYCK "modules_take_one_value.simpmod" (Just TyInt),
       RUN  "modules_take_one_value.simpmod" (Just "3"),  
+
       -- ?? : same with modules-take-one-value
       TYCK "modules_take_one_value_no_import.simpmod" (Just TyInt),
       RUN  "modules_take_one_value_no_import.simpmod" (Just "3"),  
+
       -- Parse error
       TYCK "modules_take_from_parameterized_module.simpmod" Nothing,
       RUN  "modules_take_from_parameterized_module.simpmod" Nothing,
@@ -127,6 +131,7 @@ typechecker_tests =
          Nothing,  
       TYCK "modules_check_iface_subtyping_1.simpmod" (Just TyInt),
       RUN  "modules_check_iface_subtyping_1.simpmod" (Just "3"),  
+      
       -- if the interpreter always called the typechecker, or put
       -- only declared variables in the module, this would raise an
       -- error.  Exercise: make this modification.
@@ -149,12 +154,15 @@ typechecker_tests =
       RUN  "modules_extra_vals_are_ok_2.simpmod" (Just "4"),
 
 
+      TYCK "modules_extra_types_are_ok_11.opaque" (Just TyInt),
+      RUN  "modules_extra_types_are_ok_11.opaque" (Just "4"),
 
+      TYCK "modules_extra_types_are_ok_12.opaque" (Just TyInt),
+      RUN  "modules_extra_types_are_ok_12.opaque" (Just "4"),
 
-
-
-
-
+      TYCK "modules_extra_types_are_ok_13.opaque" (Just TyInt),
+      RUN  "modules_extra_types_are_ok_13.opaque" (Just "4"),
+      
       TYCK "modules_two_vals_bad_interface_14.simpmod" Nothing,
       RUN  "modules_two_vals_bad_interface_14.simpmod" Nothing,
 
@@ -171,6 +179,115 @@ typechecker_tests =
       RUN  "modules_check_letstar_2_1.simpmod" (Just "11"),
 
       TYCK "modules_check_letstar_2_2.simpmod" Nothing,
-      RUN  "modules_check_letstar_2_2.simpmod" Nothing
+      RUN  "modules_check_letstar_2_2.simpmod" Nothing,
+
+      -- modules declaring types
+
+      TYCK "modules-export-abs-type-1" (Just TyInt),
+      RUN  "" (Just "33"),
+
+      TYCK "modules-take-from-ints-0.1" (Just TyInt),
+      RUN  "" (Just "33"),
+      
+      TYCK "modules-take-from-ints-0.1a" (Just TyInt),
+      RUN  "" (Just "0")
+
+      -- TYCK "modules-take-from-ints-0.1.91" (Just )
+      -- RUN  "" (Just )
+
+      -- TYCK "modules-take-from-ints-0.1.91a" (Just )
+      -- RUN  "" (Just )
+
+      -- TYCK "modules-take-from-ints-0.2" (Just )
+      -- RUN  "" (Just )
+
+      -- TYCK "modules-mybool-1" (Just )
+      -- RUN  "" (Just )
+
+      -- TYCK "modules-mybool-1a" (Just )
+      -- RUN  "" (Just )
+
+      -- TYCK "modules-mybool-1b" (Just )
+      -- RUN  "" (Just )
+
+      -- TYCK "modules-take-from-ints-1" (Just )
+      -- RUN  "" (Just )
+
+      -- TYCK "modules-take-from-ints-1a" (Just )
+      -- RUN  "" (Just )
+
+      -- TYCK "modules-take-from-ints-1b" (Just )
+      -- RUN  "" (Just )
+
+      -- TYCK "modules-take-from-ints-2" (Just )
+      -- RUN  "" (Just )
+
+      -- TYCK "modules-take-from-ints-2-bad-1" (Just )
+      -- RUN  "" (Just )
+
+      -- TYCK "modules-take-from-ints-3" (Just )
+      -- RUN  "" (Just )
+
+      -- TYCK "modules-check-polymorphism-1" (Just )
+      -- RUN  "" (Just )
+
+      -- TYCK "modules-check-polymorphism-1a" (Just )
+      -- RUN  "" (Just )
+
+      -- TYCK "modules-check-polymorphism-1b" (Just )
+      -- RUN  "" (Just )
+
+      -- TYCK "modules-check-shadowing-1" (Just )
+      -- RUN  "" (Just )
+
+      -- TYCK "modules-check-shadowing-1.8" (Just )
+      -- RUN  "" (Just )
+
+      -- TYCK "modules-check-shadowing-1.8a" (Just )
+      -- RUN  "" (Just )
+
+      -- TYCK "transparent-0" (Just )
+      -- RUN  "" (Just )
+
+      -- TYCK "transparent-1" (Just )
+      -- RUN  "" (Just )
+
+      -- TYCK "transparent-2" (Just )
+      -- RUN  "" (Just )
+
+      -- TYCK "modules-myints-0.1" (Just )
+      -- RUN  "" (Just )
+
+      -- TYCK "modules-myints-0.20" (Just )
+      -- RUN  "" (Just )
+
+      -- TYCK "modules-myints-0.2a" (Just )
+      -- RUN  "" (Just )
+
+      -- TYCK "lift-type-from-scope-0.01" (Just )
+      -- RUN  "" (Just )
+
+      -- TYCK "lift-type-from-scope-0.1" (Just )
+      -- RUN  "" (Just )
+
+      -- TYCK "lift-type-from-scope-1" (Just )
+      -- RUN  "" (Just )
+
+      -- TYCK "lift-type-from-scope-2" (Just )
+      -- RUN  "" (Just )
+
+      -- TYCK "lift-type-from-scope-3" (Just )
+      -- RUN  "" (Just )
+
+      -- TYCK "modules-14.1" (Just )
+      -- RUN  "" (Just )
+
+      -- TYCK "modules-14" (Just )
+      -- RUN  "" (Just )
+
+      -- TYCK "" (Just )
+      -- RUN  "modules-14b" (Just )
+
+      
    ] 
  
