@@ -8,7 +8,6 @@ typechecker_tests =
   TestSuite
    [
      -- simple arithmetic
-     
      TDTC "positive-const" "11" (Just TyInt),
      TDTC "negative-const" "-33" (Just TyInt),
      TDTC "simple-arith-1" "-(44,33)" (Just TyInt),
