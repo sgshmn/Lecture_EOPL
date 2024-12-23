@@ -8,31 +8,33 @@ typechecker_tests =
   TestSuite
    [
      -- simple applications
-     TDTC "apply-proc-in-rator-pos" "(proc(x : int) -(x,1)  30)" (Just TyInt),
+     TYCK "apply_proc_in_rator_pos.checked" (Just TyInt),
+     RUN  "apply_proc_in_rator_pos.checked" (Just "29"),
+     --
      TDTC "checker-doesnt-ignore-type-info-in-proc"
         "(proc(x : (int -> int)) -(x,1)  30)"
         Nothing,
-      
-     TDTC "apply-simple-proc" "let f = proc (x : int) -(x,1) in (f 30)" (Just TyInt),
-     TDTC "let-to-proc-1" "(proc(f : (int -> int))(f 30)  proc(x : int)-(x,1))" (Just TyInt),
 
+     TYCK "apply_simple_proc.checked" (Just TyInt),
+     RUN  "apply_simple_proc.checked" (Just "29"),      
+     TYCK "let_to_proc_1.checked" (Just TyInt),
+     RUN  "let_to_proc_1.checked" (Just "29"),
 
-     TDTC "nested-procs" "((proc (x : int) proc (y : int) -(x,y)  5) 6)" (Just TyInt),
-     TDTC "nested-procs2"
-        "let f = proc (x : int) proc (y : int) -(x,y) in ((f -(10,5)) 3)"
-        (Just TyInt),
+     TYCK "nested_procs_1.checked" (Just TyInt),
+     RUN  "nested_procs_1.checked" (Just "-1"),
+     TYCK "nested_procs_2.checked" (Just TyInt),
+     RUN  "nested_procs_2.checked" (Just "2"),
       
      -- simple letrecs
-     TDTC "simple-letrec-1" "letrec int f(x : int) = -(x,1) in (f 33)" (Just TyInt),
-     TDTC "simple-letrec-2"
-        "letrec int f(x : int) = if zero?(x) then 0 else -((f -(x,1)), -2) in (f 4)"
-        (Just TyInt),
+     TYCK "simple_letrec_1.checked" (Just TyInt),
+     RUN  "simple_letrec_1.checked" (Just "32"),
+     TYCK "simple_letrec_2.checked" (Just TyInt),
+     RUN  "simple_letrec_2.checked" (Just "8"),
 
-     TDTC "simple-letrec-3"
-        "let m = -5 \
-           \ in letrec int f(x : int) = if zero?(x) then -((f -(x,1)), m) else 0 in (f 4)"
-        (Just TyInt),
+     TYCK "simple_letrec_3.checked" (Just TyInt),
+     RUN  "simple_letrec_3.checked" (Just "20"),
 
+     --
      TDTC "double-it" "letrec int double (n : int) = if zero?(n) then 0 \
                                 \ else -( (double -(n,1)), -2) \
                                 \ in (double 3)"
@@ -42,7 +44,6 @@ typechecker_tests =
      TDTC "build-a-proc-typed" "proc (x : int) -(x,1)" (Just (TyFun TyInt TyInt)),
 
      TDTC "build-a-proc-typed-2" "proc (x : int) zero?(-(x,1))" (Just (TyFun TyInt TyBool)),
-      
      TDTC "bind-a-proc-typed"
         "let f = proc (x : int) -(x,1) in (f 4)"
         (Just TyInt),
@@ -91,7 +92,6 @@ typechecker_tests =
                    \ 1)"
         (Just TyInt),
 
-      
      TDTC "letrec-return-fact" " \
                \ let times = proc (x : int) proc (y : int) -(x,y) \   
                \ in letrec \
@@ -106,35 +106,19 @@ typechecker_tests =
           \   in (loop 4)"
         (Just TyInt),
 
-      TDTC "modules-declare-and-ignore" "\
-            \ module m \
-            \     interface \
-            \        [u : int] \
-            \     body \
-            \        [u = 3] \
-            \ 33"
-         (Just TyInt),
+      TYCK "modules_declare_and_ignore.simpmod" (Just TyInt),
+      RUN  "modules_declare_and_ignore.simpmod" (Just "33"),
 
-      TDTC "modules-take-one-value" "\
-            \ module m \
-            \     interface \
-            \        [u : int] \
-            \     body \
-            \        [u = 3] \
-            \ from m take u"
-         (Just TyInt),
+      TYCK "modules_take_one_value.simpmod" (Just TyInt),
+      RUN  "modules_take_one_value.simpmod" (Just "3"),
 
       -- ?? : same with modules-take-one-value
-      TDTC "modules-take-one-value-no-import" "\
-            \ module m \
-            \     interface \
-            \        [u : int] \
-            \     body \
-            \        [u = 3] \
-            \ from m take u"
-         (Just TyInt),
+      TYCK "modules_take_one_value_no_import.simpmod" (Just TyInt),
+      RUN  "modules_take_one_value_no_import.simpmod" (Just "3"),
 
       -- Parse error
+      TYCK "modules_take_from_parameterized_module.simpmod" Nothing,
+      RUN  "modules_take_from_parameterized_module.simpmod" Nothing,
       TDTC "modules-take-from-parameterized-module" "\
             \ module m \
             \     interface \
@@ -144,98 +128,45 @@ typechecker_tests =
             \ from m take u"
          Nothing,
 
-      TDTC "modules-check-iface-subtyping-1" "\
-            \ module m \
-            \     interface \
-            \        [u : int] \
-            \     body \
-            \        [u = 3 v = 4] \
-            \ from m take u"
-         (Just TyInt),
+      TYCK "modules_check_iface_subtyping_1.simpmod" (Just TyInt),
+      RUN  "modules_check_iface_subtyping_1.simpmod" (Just "3"),
 
       -- if the interpreter always called the typechecker, or put
       -- only declared variables in the module, this would raise an
       -- error.  Exercise: make this modification.
-      TDTC "modules-take-one-value-but-interface-bad" "\
-            \ module m interface []  body [u = 3] \
-            \ from m take u"
-         Nothing,
+      TYCK "modules_take_one_value_but_interface_bad.simpmod" Nothing,
+      RUN  "modules_take_one_value_but_interface_bad.simpmod" Nothing,
       
-      TDTC "modules-take-bad-value" "\
-            \ module m interface []  body [u = 3] \
-            \ from m take x"
-         Nothing,
+      TYCK "modules_take_bad_value.simpmod" Nothing,
+      RUN  "modules_take_bad_value.simpmod" Nothing,
 
-      TDTC "modules-two-vals" "\
-            \ module m \
-            \     interface \
-            \        [u : int \
-            \         v : int] \
-            \     body \
-            \        [u = 44 \
-            \         v = 33] \
-            \ -(from m take u, from m take v)"
-         (Just TyInt),
+      TYCK "modules_two_vals.simpmod" (Just TyInt),
+      RUN  "modules_two_vals.simpmod" (Just "11"),
 
-      TDTC "modules-two-vals-bad-interface-1" "\
-            \ module m interface [u : int v : bool]  \
-            \           body [u = 44 v = 33] \
-            \ -(from m take u, from m take v)"
-         Nothing,
+      TYCK "modules_two_vals_bad_interface_1.simpmod" Nothing,
+      RUN  "modules_two_vals_bad_interface_1.simpmod" Nothing,
 
-      TDTC "modules-extra-vals-are-ok-1" "\
-            \ module m interface [x : int] body [x = 3 y = 4] \
-            \ from m take x"
-         (Just TyInt),
+      TYCK "modules_extra_vals_are_ok_1.simpmod" (Just TyInt),
+      RUN  "modules_extra_vals_are_ok_1.simpmod" (Just "3"),
 
-      TDTC "module-extra-vals-are-ok-2" "\
-            \ module m interface [y : int] body [x = 3 y = 4] \
-            \ from m take y"
-         (Just TyInt),
+      TYCK "modules_extra_vals_are_ok_2.simpmod" (Just TyInt),
+      RUN  "modules_extra_vals_are_ok_2.simpmod" (Just "4"),
 
-      TDTC "modules-two-vals-bad-interface-14" "\
-            \ module m interface\
-            \        [v : int \
-            \         u : int] \
-            \     body \
-            \        [v = zero?(0) u = 33] \
-            \ -(from m take u, from m take v)"
-         Nothing,
+      TYCK "modules_two_vals_bad_interface_14.simpmod" Nothing,
+      RUN  "modules_two_vals_bad_interface_14.simpmod" Nothing,
 
-      TDTC "modules-check-let*-1" "\
-            \ module m interface      [u : int v : int] \
-            \          body [u = 44  v = -(u,11)] \
-            \ -(from m take u, from m take v)"
-         (Just TyInt),
+      TYCK "modules_check_letstar_1.simpmod" (Just TyInt),
+      RUN  "modules_check_letstar_1.simpmod" (Just "11"),
 
-      TDTC "modules-check-let*-2.0" "\
-            \ module m1 interface [u : int] body [u = 44] \
-            \ module m2 interface [v : int] \
-            \           body \
-            \              [v = -(from m1 take u,11)] \
-            \ -(from m1 take u, from m2 take v)"
-         (Just TyInt),
+      TYCK "modules_check_letstar_2_0.simpmod" (Just TyInt),
+      RUN  "modules_check_letstar_2_0.simpmod" (Just "11"),
 
-      TDTC "modules-check-let*-2.05" "\
-            \ module m1 interface [u : int] body [u = 44] \
-            \ module m2 interface [v : int] body [v = -(from m1 take u,11)] \
-            \ 33"
-         (Just TyInt),
+      TYCK "modules_check_letstar_2_05.simpmod" (Just TyInt),
+      RUN  "modules_check_letstar_2_05.simpmod" (Just "33"),
 
-      TDTC "modules-check-let*-2.1" "\
-            \ module m1 interface [u : int] body [u = 44] \
-            \ module m2  \
-            \     interface [v : int] \
-            \     body [v = -(from m1 take u,11)] \
-            \ -(from m1 take u, from m2 take v)"
-         (Just TyInt),
+      TYCK "modules_check_letstar_2_1.simpmod" (Just TyInt),
+      RUN  "modules_check_letstar_2_1.simpmod" (Just "11"),
 
-      TDTC "modules-check-let*-2.2" "\
-            \ module m2 \
-            \     interface [v : int]   \
-            \     body  \
-            \        [v = -(from m1 take u,11)] \
-            \ module m1 interface [u : int] body [u = 44] \
-            \ -(from m1 take u, from m2 take v)"
-         Nothing
+      TYCK "modules_check_letstar_2_2.simpmod" Nothing,
+      RUN  "modules_check_letstar_2_2.simpmod" Nothing
    ]
