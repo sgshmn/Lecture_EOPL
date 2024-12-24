@@ -183,110 +183,110 @@ typechecker_tests =
 
       -- modules declaring types
 
-      TYCK "modules-export-abs-type-1" (Just TyInt),
-      RUN  "" (Just "33"),
+      TYCK "modules_export_abs_type_1.opaque" (Just TyInt),
+      RUN  "modules_export_abs_type_1.opaque" (Just "33"),
 
-      TYCK "modules-take-from-ints-0.1" (Just TyInt),
-      RUN  "" (Just "33"),
+      TYCK "modules_take_from_ints_0_1.opaque" (Just TyInt),
+      RUN  "modules_take_from_ints_0_1.opaque" (Just "33"),
       
-      TYCK "modules-take-from-ints-0.1a" (Just TyInt),
-      RUN  "" (Just "0")
+      TYCK "modules_take_from_ints_0_1a.opaque" (Just (TyQualified "m1" "t")),
+      RUN  "modules_take_from_ints_0_1a.opaque" (Just "0"),
 
-      -- TYCK "modules-take-from-ints-0.1.91" (Just )
-      -- RUN  "" (Just )
+      TYCK "modules_take_from_ints_0_1_91.opaque" (Just TyBool),
+      RUN  "modules_take_from_ints_0_1_91.opaque" (Just "True"),
 
-      -- TYCK "modules-take-from-ints-0.1.91a" (Just )
-      -- RUN  "" (Just )
+      TYCK "modules_take_from_ints_0_1_91a.opaque" (Just (TyFun (TyQualified "m1" "t") (TyBool))),
+      RUN  "modules_take_from_ints_0_1_91a.opaque" (Just "\"<proc>\""),
 
-      -- TYCK "modules-take-from-ints-0.2" (Just )
-      -- RUN  "" (Just )
+      TYCK "modules_take_from_ints_0_2.opaque" (Just TyBool),
+      RUN  "modules_take_from_ints_0_2.opaque" (Just "True"),
 
-      -- TYCK "modules-mybool-1" (Just )
-      -- RUN  "" (Just )
+      TYCK "modules_mybool_1.opaque" (Just TyBool),
+      RUN  "modules_mybool_1.opaque" (Just "False"),
 
-      -- TYCK "modules-mybool-1a" (Just )
-      -- RUN  "" (Just )
+      TYCK "modules_mybool_1a.opaque" (Just (TyFun (TyQualified "mybool" "t") (TyBool))),
+      RUN  "modules_mybool_1a.opaque" (Just "\"<proc>\""),
 
-      -- TYCK "modules-mybool-1b" (Just )
-      -- RUN  "" (Just )
+      TYCK "modules_mybool_1b.opaque" (Just (TyQualified "mybool" "t")),
+      RUN  "modules_mybool_1b.opaque" (Just "1"),
 
-      -- TYCK "modules-take-from-ints-1" (Just )
-      -- RUN  "" (Just )
+      TYCK "modules_take_from_ints_1.opaque" (Just TyBool),
+      RUN  "modules_take_from_ints_1.opaque" (Just "True"),
 
-      -- TYCK "modules-take-from-ints-1a" (Just )
-      -- RUN  "" (Just )
+      TYCK "modules_take_from_ints_1a.opaque" (Just (TyFun (TyQualified "ints1" "t") (TyQualified "ints1" "t"))),
+      RUN  "modules_take_from_ints_1a.opaque" (Just "\"<proc>\""),
 
-      -- TYCK "modules-take-from-ints-1b" (Just )
-      -- RUN  "" (Just )
+      TYCK "modules_take_from_ints_1b.opaque" (Just (TyFun (TyQualified "ints1" "t") (TyBool))),
+      RUN  "modules_take_from_ints_1b.opaque" (Just "\"<proc>\""),
 
-      -- TYCK "modules-take-from-ints-2" (Just )
-      -- RUN  "" (Just )
+      TYCK "modules_take_from_ints_2.opaque" (Just TyInt),
+      RUN  "modules_take_from_ints_2.opaque" (Just "33"),
 
-      -- TYCK "modules-take-from-ints-2-bad-1" (Just )
-      -- RUN  "" (Just )
+      TYCK "modules_take_from_ints_2_bad_1.opaque" Nothing,
+      RUN  "modules_take_from_ints_2_bad_1.opaque" Nothing,
 
-      -- TYCK "modules-take-from-ints-3" (Just )
-      -- RUN  "" (Just )
+      TYCK "modules_take_from_ints_3.opaque" Nothing,
+      RUN  "modules_take_from_ints_3.opaque" Nothing,
 
-      -- TYCK "modules-check-polymorphism-1" (Just )
-      -- RUN  "" (Just )
+      TYCK "modules_check_polymorphism_1.opaque" (Just (TyFun (TyQualified "m" "t") (TyQualified "m" "t"))),
+      RUN  "modules_check_polymorphism_1.opaque" (Just "\"<proc>\""),
 
-      -- TYCK "modules-check-polymorphism-1a" (Just )
-      -- RUN  "" (Just )
+      TYCK "modules_check_polymorphism_1a.opaque" (Just (TyFun (TyQualified "m" "t") (TyQualified "m" "t"))),
+      RUN  "modules_check_polymorphism_1a.opaque" (Just "\"<proc>\""),
 
-      -- TYCK "modules-check-polymorphism-1b" (Just )
-      -- RUN  "" (Just )
+      TYCK "modules_check_polymorphism_1b.opaque" (Just (TyFun (TyQualified "m" "t") (TyQualified "m" "t"))),
+      RUN  "modules_check_polymorphism_1b.opaque" (Just "\"<proc>\""),
 
-      -- TYCK "modules-check-shadowing-1" (Just )
-      -- RUN  "" (Just )
+      TYCK "modules_check_shadowing_1.opaque" (Just TyBool),
+      RUN  "modules_check_shadowing_1.opaque" (Just "False"),
 
-      -- TYCK "modules-check-shadowing-1.8" (Just )
-      -- RUN  "" (Just )
+      TYCK "modules_check_shadowing_1_8.opaque" (Just TyInt),
+      RUN  "modules_check_shadowing_1_8.opaque" (Just "33"),
 
-      -- TYCK "modules-check-shadowing-1.8a" (Just )
-      -- RUN  "" (Just )
+      TYCK "modules_check_shadowing_1_8a.opaque" (Just (TyQualified "ints1" "t")),
+      RUN  "modules_check_shadowing_1_8a.opaque" (Just "0"),
 
-      -- TYCK "transparent-0" (Just )
-      -- RUN  "" (Just )
+      TYCK "transparent_0.opaque" (Just TyInt),
+      RUN  "transparent_0.opaque" (Just "-1"),
 
-      -- TYCK "transparent-1" (Just )
-      -- RUN  "" (Just )
+      TYCK "transparent_1.opaque" Nothing,
+      RUN  "transparent_1.opaque" Nothing,
 
-      -- TYCK "transparent-2" (Just )
-      -- RUN  "" (Just )
+      TYCK "transparent_2.opaque" (Just TyInt),
+      RUN  "transparent_2.opaque" (Just "1"),
 
-      -- TYCK "modules-myints-0.1" (Just )
-      -- RUN  "" (Just )
+      TYCK "modules_myints_0_1.opaque" (Just (TyQualified "ints1" "t")),
+      RUN  "modules_myints_0_1.opaque" (Just "4"),
 
-      -- TYCK "modules-myints-0.20" (Just )
-      -- RUN  "" (Just )
+      TYCK "modules_myints_0_20.opaque" Nothing,
+      RUN  "modules_myints_0_20.opaque" (Just "-4"),
 
-      -- TYCK "modules-myints-0.2a" (Just )
-      -- RUN  "" (Just )
+      TYCK "modules_myints_0_2a.opaque" (Just (TyQualified "ints1" "t")),
+      RUN  "modules_myints_0_2a.opaque" (Just "-4"),
 
-      -- TYCK "lift-type-from-scope-0.01" (Just )
-      -- RUN  "" (Just )
+      TYCK "lift_type_from_scope_0_01.opaque" (Just TyInt),
+      RUN  "lift_type_from_scope_0_01.opaque" (Just "33"),
 
-      -- TYCK "lift-type-from-scope-0.1" (Just )
-      -- RUN  "" (Just )
+      TYCK "lift_type_from_scope_0_1.opaque" (Just TyInt),
+      RUN  "lift_type_from_scope_0_1.opaque" (Just "33"),
 
-      -- TYCK "lift-type-from-scope-1" (Just )
-      -- RUN  "" (Just )
+      TYCK "lift_type_from_scope_1.opaque" Nothing,
+      RUN  "lift_type_from_scope_1.opaque" (Just "33"),
 
-      -- TYCK "lift-type-from-scope-2" (Just )
-      -- RUN  "" (Just )
+      TYCK "lift_type_from_scope_2.opaque" (Just (TyFun (TyQualified "m1" "t1") (TyQualified "m1" "t1"))),
+      RUN  "lift_type_from_scope_2.opaque" (Just "\"<proc>\""),
 
-      -- TYCK "lift-type-from-scope-3" (Just )
-      -- RUN  "" (Just )
+      TYCK "lift_type_from_scope_3.opaque" Nothing,
+      RUN  "lift_type_from_scope_3.opaque" Nothing,
 
-      -- TYCK "modules-14.1" (Just )
-      -- RUN  "" (Just )
+      TYCK "modules_14_1.opaque" (Just TyInt),
+      RUN  "modules_14_1.opaque" (Just "33"),
 
-      -- TYCK "modules-14" (Just )
-      -- RUN  "" (Just )
+      TYCK "modules_14.opaque" (Just (TyFun (TyInt) (TyInt))),
+      RUN  "modules_14.opaque" (Just "\"<proc>\""),
 
-      -- TYCK "" (Just )
-      -- RUN  "modules-14b" (Just )
+      TYCK "modules_14b.opaque" (Just TyInt),
+      RUN  "modules_14b.opaque" (Just "3")
 
       
    ] 
