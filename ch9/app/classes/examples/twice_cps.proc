@@ -1,0 +1,6 @@
+let twice = proc(f, x, k)
+              (f x proc (z) (f z k))
+in (twice 
+    proc (x, k) (k -(x,1))
+    11
+    proc(z) z)

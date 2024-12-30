@@ -1,3 +1,0 @@
-class c1 extends object  
- method initialize() 0 
-let o1 = new c1() in 11
