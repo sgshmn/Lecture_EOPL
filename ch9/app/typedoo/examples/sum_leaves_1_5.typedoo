@@ -1,19 +1,20 @@
 class tree extends object 
   method int initialize()1
+  method int sum () 17
   
-class interior_node extends tree
+class interior_node extends tree 
   field tree left
   field tree right
   method void initialize(l : tree, r : tree)
    begin
     set left = l; set right = r
    end
-  method int sum() +(send left sum(), send right sum())
+  method int sum () +(send left sum(), send right sum())
   
 class leaf_node extends tree 
   field int value
   method void initialize(v : int)set value = v
-  method int sum()value
+  method int sum () value
   
 let o1 = new interior_node (
           new interior_node (

@@ -1,0 +1,3 @@
+let f = proc (x) proc (y) -(x, y)
+    g = proc (z) -(z, 1)
+in ((f 27) (g 11))

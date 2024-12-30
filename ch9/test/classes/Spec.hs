@@ -28,7 +28,7 @@ main =
   
 fileNameToProgram :: String -> IO Program
 fileNameToProgram tcname =
-  do let atdir f = "./app/typedoo/examples/" ++ f
+  do let atdir f = "./app/classes/examples/" ++ f
      exprText <- readFile (atdir tcname)
      textToProgram exprText
 
