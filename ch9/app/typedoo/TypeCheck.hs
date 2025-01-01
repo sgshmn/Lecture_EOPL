@@ -71,7 +71,10 @@ type_of clzEnv (Letrec_Exp letrecBindings letrec_body) tyenv =
                      TyFun (map fst tyVarList) resTy) letrecBindings 
       tyenv1 = extend_tyenv_with vars tys tyenv  
   in do mapM_ (\(resTy, f, tyVarList, proc_body)-> 
-                  do procbodyTy <- type_of clzEnv proc_body tyenv1 
+                  do let argTys = map fst tyVarList 
+                     let argVars = map snd tyVarList
+                     let tyenv2 = extend_tyenv_with argVars argTys tyenv1
+                     procbodyTy <- type_of clzEnv proc_body tyenv2
                      if equalType resTy procbodyTy
                      then Right ()
                      else expectedButErr resTy procbodyTy proc_body) letrecBindings 
