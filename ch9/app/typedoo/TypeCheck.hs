@@ -314,11 +314,11 @@ check_method_decl clzEnv cname superName fieldNames fieldTypes (Method_Decl ty n
            Nothing -> Right () 
            Just (AStaticClass _ _ _ _ mtyenv) -> 
              case lookup name mtyenv of 
-               Just mty -> check_is_subtype clzEnv ty mty body
+               Just mty -> check_is_subtype clzEnv (TyFun varTys ty) mty body
                Nothing -> Right ()
            Just (AStaticInterface mtyenv) ->
              case lookup name mtyenv of 
-               Just mty -> check_is_subtype clzEnv ty mty body
+               Just mty -> check_is_subtype clzEnv (TyFun varTys ty) mty body
                Nothing -> Right ()
 
 check_method_decl clzEnv cname superName fieldNames fieldTypes (AbstractMethod_Decl ty name tyArgs) =
