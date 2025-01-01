@@ -13,9 +13,9 @@ typeCheck program = return (type_of_program program )
 --
 type_of_program :: Program -> Either String Type
 type_of_program (Program classDecls exp) =
-  let clzEnv = initializeStaticClassEnv classDecls
-  in  do check_class_decls clzEnv classDecls
-         type_of clzEnv exp initTyEnv
+  do clzEnv <- initializeStaticClassEnv classDecls
+     check_class_decls clzEnv classDecls
+     type_of clzEnv exp initTyEnv
 
 initTyEnv = extend_tyenv "x" TyInt empty_tyenv
 
@@ -221,26 +221,49 @@ statically_is_subclass clzEnv clzName1 clzName2 =
          -- Note: interfaces have no inheritance relationship in TYPED-OO.  
 
 -- Static Class Environment
-initializeStaticClassEnv :: [ClassDecl] -> StaticClassEnv
+initializeStaticClassEnv :: [ClassDecl] -> Either String StaticClassEnv
+initializeStaticClassEnv [] = Right []
 initializeStaticClassEnv classDecls =
-  foldl classDeclToStaticClass 
-     [("object", AStaticClass Nothing [] [] [] [])] classDecls 
+  init [("object", AStaticClass Nothing [] [] [] [])] classDecls 
+  where
+    init staticClzEnv [] = Right staticClzEnv
+    init staticClzEnv (classDecl:classDecls) = 
+      do newStaticClzEnv <- classDeclToStaticClass staticClzEnv classDecl 
+         init newStaticClzEnv classDecls 
 
-classDeclToStaticClass :: StaticClassEnv -> ClassDecl -> StaticClassEnv -- (Identifier, StaticClass)
+classDeclToStaticClass :: StaticClassEnv -> ClassDecl -> Either String StaticClassEnv -- (Identifier, StaticClass)
 classDeclToStaticClass clzEnv (Class_Decl cname superName ifaceNames fieldTypeNames methodDecls) =
-  clzEnv ++ [(cname, AStaticClass (Just superName) ifaceNames fNames fTypes methodTyEnv)]
-  where
-    fNames =
-      map snd (append_field_names fieldTypeNames
-                (case lookup_static_class clzEnv superName of
-                  Just clzInfo -> zip (fieldTypes clzInfo) (fieldNames clzInfo)
-                  Nothing -> []))
-    fTypes = map fst fieldTypeNames
-    methodTyEnv = map methodDeclToTyEnv methodDecls
+  case lookup_static_class clzEnv superName of 
+    (Just (AStaticClass superCName superIfaceNames superFieldNames superFieldTypes superMethodTyEnv)) ->
+        do check_no_dups allIfaceNames cname
+           check_no_dups fNames cname
+           check_no_dups (map idFromMethodDecl methodDecls) cname -- local method name
+           Right (clzEnv ++ [(cname, AStaticClass (Just superName) allIfaceNames fNames fTypes methodTyEnv)])
+            where
+              allIfaceNames = superIfaceNames ++ ifaceNames
+              fNames = superFieldNames ++ map snd fieldTypeNames
+              fTypes = superFieldTypes ++ map fst fieldTypeNames
+              methodTyEnv = merge_method_envs superMethodTyEnv (map methodDeclToTyEnv methodDecls)
+
+    (Just (AStaticInterface superIfaceMethodTyEnv)) ->
+        do check_no_dups allIfaceNames cname
+           check_no_dups fNames cname
+           check_no_dups (map idFromMethodDecl methodDecls) cname -- local method name
+           Right (clzEnv ++ [(cname, AStaticClass (Just superName) allIfaceNames fNames fTypes methodTyEnv)])
+            where
+              allIfaceNames = ifaceNames
+              fNames = map snd fieldTypeNames
+              fTypes = map fst fieldTypeNames
+              methodTyEnv = merge_method_envs superIfaceMethodTyEnv (map methodDeclToTyEnv methodDecls)
+
+    Nothing ->
+        Left ("No super class in " ++ cname) 
+  
 classDeclToStaticClass clzEnv (Interface_Decl ifaceName methodDecls) =
- clzEnv ++ [(ifaceName, AStaticInterface methodTyEnv)]
-  where
-    methodTyEnv = map methodDeclToTyEnv methodDecls
+  do check_no_dups (map fst methodTyEnv) ifaceName
+     Right (clzEnv ++ [(ifaceName, AStaticInterface methodTyEnv)])
+    where
+      methodTyEnv = map methodDeclToTyEnv methodDecls
 
 methodDeclToTyEnv :: MethodDecl -> (Identifier, Type)
 methodDeclToTyEnv (Method_Decl ty name tyArgs _) = (name, TyFun (map fst tyArgs) ty)
@@ -257,12 +280,18 @@ check_class_decl :: StaticClassEnv -> ClassDecl -> Either String ()
 check_class_decl clzEnv (Class_Decl cname superName ifaceNames fieldTypeNames methodDecls) =
   case lookup_static_class clzEnv cname of
     Nothing -> Left $ "Class " ++ cname ++ " is not found"
-    Just sc -> 
-      let fieldNames = map snd fieldTypeNames 
-          fieldTypes = map fst fieldTypeNames
-      in do check_method_decls clzEnv cname superName fieldNames fieldTypes methodDecls
-            check_if_implements clzEnv cname ifaceNames 
-check_class_decl clzEnv (Interface_Decl ifaceName methodDecls) = Right ()
+    Just (AStaticClass _superName _ifaceNames _fieldNames _fieldTypes mtyenv) -> 
+      let -- allIfaceNames = _ifaceNames ++ ifaceNames 
+          fieldNames = _fieldNames ++ map snd fieldTypeNames 
+          fieldTypes = _fieldTypes ++ map fst fieldTypeNames
+      in do -- check_no_dups allIfaceNames cname -- moved from classDeclToStaticClass
+            -- check_no_dups fieldNames cname -- moved from classDeclToStaticClass
+            check_method_decls clzEnv cname superName fieldNames fieldTypes methodDecls
+            check_if_implements clzEnv cname ifaceNames -- not allIfaceNames
+    Just (AStaticInterface mtyenv) -> Right ()
+check_class_decl clzEnv (Interface_Decl ifaceName methodDecls) = 
+  Right ()
+  -- check_no_dups (map idFromMethodDecl methodDecls) ifaceName  -- moved from classDeclToStaticClass
 
 check_method_decls :: StaticClassEnv -> Identifier -> Identifier -> [Identifier] -> [Type] -> [MethodDecl] -> Either String ()
 check_method_decls clzEnv cname superName fieldNames fieldTypes [] = Right ()
@@ -325,6 +354,12 @@ check_mth_impl clzEnv ((mname, iface_mty):iface_mtyenv) clz_mtyenv =
     Nothing -> 
       Left $ "class attempts to implement missing method " ++ mname
 
+check_no_dups :: [Identifier] -> Identifier -> Either String ()
+check_no_dups [] clzName = Right ()
+check_no_dups (x:xs) clzName = 
+ if x `elem` xs then 
+   Left $ "Duplicate names: " ++ x ++ " in the class or interface " ++ clzName
+ else check_no_dups xs clzName 
 
 -- Utilities
 expectedButErr expectedTy gotTy exp =

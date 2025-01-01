@@ -4,7 +4,7 @@ module Expr(Program(..),ClassDecl(..),MethodDecl(..),Exp(..),Identifier,
             fromExpList,fromIdExpList,fromTypeIdTypeIdListExpList,fromIdList,fromTypeList,fromTypeIdList,
             fromClassDecl,fromClassDeclList,fromMethodDecl,fromMethodDeclList,
             fromProgram,
-            LetRecBindings) where
+            LetRecBindings, idFromMethodDecl) where
 
 -- Untyped class-based expression language
 
@@ -22,6 +22,9 @@ data MethodDecl =
     Method_Decl Type Identifier [ (Type, Identifier) ] Exp  
   | AbstractMethod_Decl Type Identifier [ (Type, Identifier) ]  
   deriving Show
+
+idFromMethodDecl (Method_Decl _ mName _ _)        = mName
+idFromMethodDecl (AbstractMethod_Decl _ mName _) = mName
 
 data Exp =
     Const_Exp  Int

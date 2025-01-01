@@ -73,3 +73,6 @@ find_method_type clzEnv clzName mName =
       case lookup mName absmdecls of 
         Just ty -> Right ty
         Nothing -> Left $ "Method " ++ mName ++ " is not found in interface " ++ clzName
+
+merge_method_envs :: [(Identifier, Type)] -> [(Identifier, Type)] -> [(Identifier, Type)]
+merge_method_envs superMethodEnvs newMethodEnvs = newMethodEnvs ++ superMethodEnvs
