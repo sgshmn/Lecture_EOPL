@@ -14,7 +14,8 @@ typeCheck program = return (type_of_program program )
 type_of_program :: Program -> Either String Type
 type_of_program (Program classDecls exp) =
   let clzEnv = initializeStaticClassEnv classDecls
-  in  type_of clzEnv exp initTyEnv
+  in  do check_class_decls clzEnv classDecls
+         type_of clzEnv exp initTyEnv
 
 initTyEnv = extend_tyenv "x" TyInt empty_tyenv
 
@@ -246,6 +247,12 @@ methodDeclToTyEnv (Method_Decl ty name tyArgs _) = (name, TyFun (map fst tyArgs)
 methodDeclToTyEnv (AbstractMethod_Decl ty name tyArgs) = (name, TyFun (map fst tyArgs) ty)
 
 -- 
+check_class_decls :: StaticClassEnv -> [ClassDecl] -> Either String ()
+check_class_decls clzEnv [] = Right ()
+check_class_decls clzEnv (clzDecl:clzDecls) =
+  do check_class_decl clzEnv clzDecl 
+     check_class_decls clzEnv clzDecls
+
 check_class_decl :: StaticClassEnv -> ClassDecl -> Either String ()
 check_class_decl clzEnv (Class_Decl cname superName ifaceNames fieldTypeNames methodDecls) =
   case lookup_static_class clzEnv cname of

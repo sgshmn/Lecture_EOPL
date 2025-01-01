@@ -1,6 +1,6 @@
 module TyEnv where
 
-import Expr(Identifier, Type, ClassDecl)
+import Expr(Identifier, Type(..), ClassDecl)
 import Data.List(lookup)
 
 data TyEnv = 
@@ -28,6 +28,11 @@ apply_tyenv Empty_tyenv var = Left $ "Variable not found: " ++ var
 apply_tyenv (Extend_tyenv v ty tyenv) var
   | var == v = Right ty
   | otherwise = apply_tyenv tyenv var
+apply_tyenv (Extend_tyenv_with_self_and_super ty clzId tyenv) var =
+  case var of
+    "self" -> Right ty 
+    "super" -> Right (TyClass clzId)
+    _ -> apply_tyenv tyenv var 
 
 type StaticClassEnv = [(Identifier, StaticClass)]
 
