@@ -51,7 +51,7 @@ lookup_static_class ((clzName_,staticClz):clzEnv) clzName
 find_method_type :: StaticClassEnv -> Identifier -> Identifier -> Either String Type 
 find_method_type clzEnv clzName mName = 
   case lookup_static_class clzEnv clzName of
-    Nothing -> Left $ "Class " ++ clzName ++ " is not found"
+    Nothing -> Left $ "Method " ++ mName ++ " is not found"
     Just (AStaticClass (Just superClz) _ _ _ mtyenv) ->
       case lookup mName mtyenv of 
         Just ty -> Right ty 
