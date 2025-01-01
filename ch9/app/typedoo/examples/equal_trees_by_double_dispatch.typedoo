@@ -18,7 +18,7 @@ class interior_node extends object implements tree
      then send right equal(r)
      else zero?(1)  % false
      
-  method bool equal_leaf(v : int) false
+  method bool equal_leaf(v : int) zero?(1)  % false
   
 class leaf_node extends object  implements tree
   field int value
