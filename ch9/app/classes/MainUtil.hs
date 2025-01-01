@@ -21,6 +21,20 @@ parser text = do
      (aLexer lexerSpec)
      (fromToken (endOfToken lexerSpec))
 
+parseFile fileName = do
+  text <- readFile fileName
+  let debugFlag = False
+
+  tree <-
+    parsing debugFlag
+      parserSpec ((),1,1,text)
+      (aLexer lexerSpec)
+      (fromToken (endOfToken lexerSpec))
+
+  let program = programFrom tree
+
+  print program
+
 run :: String -> IO ()
 run text = do
   val <- runProg text True

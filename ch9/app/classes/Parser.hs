@@ -96,7 +96,7 @@ parserSpec = ParserSpec
 
       rule "ExpressionListSpace -> Expression ExpressionListSpace"
         (\rhs -> return $ fromExpList $ 
-                  (expFrom (get rhs 1) : expListFrom (get rhs 3))),
+                  (expFrom (get rhs 1) : expListFrom (get rhs 2))),
 
 
       {- Single expression -}
