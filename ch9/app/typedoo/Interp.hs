@@ -147,13 +147,14 @@ value_of_arg class_env env (vals,store) arg =
 --
 value_of_program :: Program -> ExpVal
 value_of_program (Program classDecls body) =
-  fst $ value_of init_class_Env body init_env initStore
+  fst $ value_of init_class_Env body initEnv initStore
   where
     init_class_Env = initialize_class_env classDecls
 
 
 --
-init_env = empty_env
+-- initEnv in EnvStore.hs
+--
 
 --
 -- initStore in EnvStore.hs

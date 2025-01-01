@@ -114,8 +114,13 @@ setref (next,s) loc v = (next,update s)
           | loc==loc' = (loc,v):s'
           | otherwise = (loc',w):update s'
 
+initEnv :: Env
+initEnv = extend_env ["i", "v", "x"] [1,2,3] empty_env
+
 initStore :: Store
-initStore = (1,[])
+initStore = (4,[(1, Num_Val 1)
+                , (2, Num_Val 5)
+                , (3, Num_Val 10)])
 
 -- Classes
 data Class = AClass 

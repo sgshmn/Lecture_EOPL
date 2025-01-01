@@ -138,7 +138,8 @@ value_of_program (Program classDecls body) =
 
 
 --
-initEnv = empty_env
+-- initEnv in EnvStore.hs
+--
 
 --
 -- initStore in EnvStore.hs
