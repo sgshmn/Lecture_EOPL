@@ -16,8 +16,8 @@ class interior_node extends object implements tree
     if instanceof t interior_node
      then if send left equal(send cast t interior_node getleft())
           then send right equal(send cast t interior_node getright())
-          else false
-     else false 
+          else zero?(1)  % false
+     else zero?(1)  % false 
      
   
 class leaf_node extends object  implements tree

@@ -154,7 +154,7 @@ type_of clzEnv Self_Exp tyenv = apply_tyenv tyenv self
 type_of clzEnv (Cast_Exp exp cname) tyenv =
   do objTy <- type_of clzEnv exp tyenv
      case objTy of 
-      TyClass _ -> Right objTy 
+      TyClass _ -> Right (TyClass cname) -- objTy 
       _ -> expectedButErr (TyClass "...") objTy exp
 
 type_of clzEnv (InstanceOf_Exp exp cname) tyenv =

@@ -216,7 +216,7 @@ typechecker_tests =
 
      -- with exercise 9.34, this should become an error
 
-     TYCK "bad_cast_1.typedoo" (Just (TyFun [TyClass "c1"] (TyClass "c1"))), --
+     TYCK "bad_cast_1.typedoo" (Just (TyFun [TyClass "c1"] (TyClass "c2"))), --
      TYCK "missing_initialize_method_1.typedoo" Nothing,
      TYCK "duplicate_methods_1.typedoo" Nothing,
      TYCK "incomparable_instanceof_2.typedoo" (Just TyInt),
