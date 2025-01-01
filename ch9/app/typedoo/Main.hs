@@ -42,6 +42,10 @@ doProcess verbose fileName = do
 
   print program
 
+  let Program clzDecls mainExp = program
+  let clzEnv = initializeStaticClassEnv clzDecls
+  print clzEnv
+  
   errOrType <- typeCheck program
 
   case errOrType of

@@ -9,6 +9,7 @@ import Parser
 import Expr
 import Interp
 import EnvStore(ExpVal)
+import TypeCheck
 
 import Control.Monad (when)
 import System.IO
@@ -35,3 +36,22 @@ runProg text bool = do
   
   let val = value_of_program program      -- interpreter
   return val 
+
+printClassEnvs :: String -> IO ()
+printClassEnvs fileName = do
+  text <- readFile fileName
+  let debugFlag = False
+
+  tree <-
+    parsing debugFlag
+      parserSpec ((),1,1,text)
+      (aLexer lexerSpec)
+      (fromToken (endOfToken lexerSpec))
+
+  let program = programFrom tree
+
+  -- print program
+
+  let Program clzDecls mainExp = program
+  let clzEnv = initializeStaticClassEnv clzDecls
+  print clzEnv

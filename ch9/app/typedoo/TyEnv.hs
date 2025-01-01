@@ -7,6 +7,7 @@ data TyEnv =
     Empty_tyenv
   | Extend_tyenv Identifier Type TyEnv
   | Extend_tyenv_with_self_and_super Type Identifier TyEnv 
+  deriving Show
 
 empty_tyenv :: TyEnv
 empty_tyenv = Empty_tyenv
@@ -41,6 +42,7 @@ data StaticClass =
   | AStaticInterface { 
       ifaceMethodTyEnv :: [(Identifier, Type)] 
     }
+  deriving Show
 
 lookup_static_class :: StaticClassEnv -> Identifier -> Maybe StaticClass
 lookup_static_class [] clzName = Nothing
