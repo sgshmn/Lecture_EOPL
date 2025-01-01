@@ -14,7 +14,9 @@ typeCheck program = return (type_of_program program )
 type_of_program :: Program -> Either String Type
 type_of_program (Program classDecls exp) =
   let clzEnv = initializeStaticClassEnv classDecls
-  in  type_of clzEnv exp empty_tyenv
+  in  type_of clzEnv exp initTyEnv
+
+initTyEnv = extend_tyenv "x" TyInt empty_tyenv
 
 --
 type_of :: StaticClassEnv -> Exp -> TyEnv -> Either String Type

@@ -225,9 +225,9 @@ parserSpec = ParserSpec
                     expFrom (get rhs 7)) : typeIdTypeIdListExpListFrom (get rhs 8))),
 
       {- Types -}
-      rule "ZeroMoreArgTypes -> " (\rhs -> return $ fromTypeList []),
+      -- rule "ZeroMoreArgTypes -> " (\rhs -> return $ fromTypeList []),
 
-      rule "ZeroMoreArgTypes -> OneMoreArgTypes" (\rhs -> return $ get rhs 1),
+      -- rule "ZeroMoreArgTypes -> OneMoreArgTypes" (\rhs -> return $ get rhs 1),
 
       rule "OneMoreArgTypes -> Type" (\rhs -> return $ fromTypeList [typeFrom (get rhs 1)]),
 
@@ -240,8 +240,8 @@ parserSpec = ParserSpec
 
       rule "Type -> void" (\rhs -> return $ fromType TyVoid),
 
-      rule "Type -> ( ZeroMoreArgTypes ) -> Type" 
-        (\rhs -> return $ fromType $ TyFun (tyListFrom (get rhs 2)) (typeFrom (get rhs 5))),
+      rule "Type -> ( OneMoreArgTypes -> Type )" 
+        (\rhs -> return $ fromType $ TyFun (tyListFrom (get rhs 2)) (typeFrom (get rhs 4))),
 
       rule "Type -> identifier" (\rhs -> return $ fromType $ TyClass (getText rhs 1)),
 

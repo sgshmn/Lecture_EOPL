@@ -23,6 +23,7 @@ lexerSpec = LexerSpec
         
         ("[0-9]+"  , mkFn INTEGER_NUMBER),
         
+        ("\\->"     , mkFn ARROW),
         ("\\-"     , mkFn SUB),
         ("\\+"     , mkFn PLUS),
         ("\\("     , mkFn OPEN_PAREN),

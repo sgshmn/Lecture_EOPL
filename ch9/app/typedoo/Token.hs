@@ -56,6 +56,7 @@ data Token =
 
   -- new tokens in types
 
+  | ARROW      -- -> (new)
   | INT_TYPE   -- int (new)
   | BOOL_TYPE  -- bool (new)
   | VOID_TYPE  -- void (new)
@@ -77,7 +78,9 @@ tokenStrList =
     (IDENTIFIER, "identifier"), 
     (EQ, "="),
     (SEMICOLON, ";"),
-    (COLON, ":")
+    (COLON, ":"),
+
+    (ARROW, "->")
   ] ++ keywords
 
 keywords :: [(Token, String)]
