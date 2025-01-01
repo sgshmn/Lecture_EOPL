@@ -366,6 +366,8 @@ subtypeFailure randTy argTy exp =
 equalType :: Type -> Type -> Bool
 equalType TyInt  TyInt  = True
 equalType TyBool TyBool = True
+equalType TyVoid TyVoid = True
+equalType (TyClass clzId1) (TyClass clzId2) = clzId1 == clzId2
 equalType (TyFun tyList1 ty1') (TyFun tyList2 ty2') =
   equalTypes tyList1 tyList2 && equalType ty1' ty2'
 equalType (TyListOf ty1) (TyListOf ty2) = equalType ty1 ty2
