@@ -22,6 +22,20 @@ parser text = do
      (fromToken (endOfToken lexerSpec))
   return (fromASTProgram astProg)
 
+parseFile fileName = do
+  text <- readFile fileName
+  let debugFlag = False
+        
+  programAst <-
+    parsing debugFlag
+       parserSpec ((), 1, 1, text)
+       (aLexer lexerSpec)
+       (fromToken (endOfToken lexerSpec))
+
+  let program = fromASTProgram programAst
+  
+  return program
+
 run text = do
   val <- runProg text True
   putStrLn (show val)

@@ -1,3 +1,5 @@
+{-# OPTIONS_GHC -Wno-unrecognised-pragmas #-}
+{-# HLINT ignore "Use camelCase" #-}
 module TypeCheckerTest where
 
 import Expr(Type(..))
@@ -116,17 +118,17 @@ typechecker_tests =
       TYCK "modules_take_one_value_no_import.simpmod" (Just TyInt),
       RUN  "modules_take_one_value_no_import.simpmod" (Just "3"),
 
-      -- Parse error
-      TYCK "modules_take_from_parameterized_module.simpmod" Nothing,
-      RUN  "modules_take_from_parameterized_module.simpmod" Nothing,
-      TDTC "modules-take-from-parameterized-module" "\
-            \ module m \
-            \     interface \
-            \        ((m1 : []) => [u : int]) \
-            \     body \
-            \        module-proc (m1 : []) [u = 3] \
-            \ from m take u"
-         Nothing,
+      -- Parse error: These examples are for PROCMODULES, not for SIMPLEMODULES.
+      -- TYCK "modules_take_from_parameterized_module.simpmod" Nothing,
+      -- RUN  "modules_take_from_parameterized_module.simpmod" Nothing,
+      -- TDTC "modules-take-from-parameterized-module" "\
+      --       \ module m \
+      --       \     interface \
+      --       \        ((m1 : []) => [u : int]) \
+      --       \     body \
+      --       \        module-proc (m1 : []) [u = 3] \
+      --       \ from m take u"
+      --    Nothing,
 
       TYCK "modules_check_iface_subtyping_1.simpmod" (Just TyInt),
       RUN  "modules_check_iface_subtyping_1.simpmod" (Just "3"),

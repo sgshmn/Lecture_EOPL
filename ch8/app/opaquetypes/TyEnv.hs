@@ -11,6 +11,7 @@ data TyEnv =
   | Extend_tyenv Identifier Type TyEnv
   | Extend_tyenv_with_module Identifier Interface TyEnv
   | Extend_tyenv_with_type Identifier Type TyEnv
+  deriving Show
 
 empty_tyenv :: TyEnv
 empty_tyenv = Empty_tyenv

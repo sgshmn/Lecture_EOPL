@@ -99,16 +99,15 @@ sub_decls (decl1:decls1) (decl2:decls2) tyenv =
       else 
         do tyenv' <- extend_tyenv_with_decl decl1 tyenv
            sub_decls decls1 (decl2:decls2) tyenv'
-  where
-    -- sub_decl is called only when x==y!
-    sub_decl :: Declaration -> Declaration -> TyEnv -> Either_ String Bool
-    sub_decl (ValDecl x ty1) (ValDecl y ty2) tyenv = equalExpandedType ty1 ty2 tyenv
-    sub_decl (TransparentTypeDecl x ty1) (TransparentTypeDecl y ty2) tyenv = 
-      equalExpandedType ty1 ty2 tyenv
-    sub_decl (TransparentTypeDecl x ty1) (OpaqueTypeDecl y) tyenv = _Right True
-    sub_decl (OpaqueTypeDecl x) (OpaqueTypeDecl y) tyenv = _Right True
-    sub_decl _ _ _ = _Right False
 
+-- sub_decl is called only when x==y! by sub_decls
+sub_decl :: Declaration -> Declaration -> TyEnv -> Either_ String Bool
+sub_decl (ValDecl x ty1) (ValDecl y ty2) tyenv = equalExpandedType ty1 ty2 tyenv
+sub_decl (TransparentTypeDecl x ty1) (TransparentTypeDecl y ty2) tyenv = 
+  equalExpandedType ty1 ty2 tyenv
+sub_decl (TransparentTypeDecl x ty1) (OpaqueTypeDecl y) tyenv = _Right True
+sub_decl (OpaqueTypeDecl x) (OpaqueTypeDecl y) tyenv = _Right True
+sub_decl _ _ _ = _Right False
 
 extend_tyenv_with_decl :: Declaration -> TyEnv -> Either_ String TyEnv
 extend_tyenv_with_decl (ValDecl var ty) tyenv = _Right tyenv 

@@ -64,15 +64,15 @@ sub_decls (decl1:decls1) (decl2:decls2) tyenv =
       else 
         do tyenv' <- extend_tyenv_with_decl decl1 tyenv
            sub_decls decls1 (decl2:decls2) tyenv'
-  where
-    -- sub_decl is called only when x==y!
-    sub_decl :: Declaration -> Declaration -> TyEnv -> Either_ String Bool
-    sub_decl (ValDecl x ty1) (ValDecl y ty2) tyenv = equalExpandedType ty1 ty2 tyenv
-    sub_decl (TransparentTypeDecl x ty1) (TransparentTypeDecl y ty2) tyenv = 
-      equalExpandedType ty1 ty2 tyenv
-    sub_decl (TransparentTypeDecl x ty1) (OpaqueTypeDecl y) tyenv = _Right True
-    sub_decl (OpaqueTypeDecl x) (OpaqueTypeDecl y) tyenv = _Right True
-    sub_decl _ _ _ = _Right False
+
+-- sub_decl is called only when x==y! by sub_decls
+sub_decl :: Declaration -> Declaration -> TyEnv -> Either_ String Bool
+sub_decl (ValDecl x ty1) (ValDecl y ty2) tyenv = equalExpandedType ty1 ty2 tyenv
+sub_decl (TransparentTypeDecl x ty1) (TransparentTypeDecl y ty2) tyenv = 
+  equalExpandedType ty1 ty2 tyenv
+sub_decl (TransparentTypeDecl x ty1) (OpaqueTypeDecl y) tyenv = _Right True
+sub_decl (OpaqueTypeDecl x) (OpaqueTypeDecl y) tyenv = _Right True
+sub_decl _ _ _ = _Right False
 
 
 extend_tyenv_with_decl :: Declaration -> TyEnv -> Either_ String TyEnv
@@ -172,7 +172,7 @@ expand_type TyBool tyenv = _Right TyBool
 expand_type (TyFun ty1 ty2) tyenv = 
   do ty1' <- expand_type ty1 tyenv
      ty2' <- expand_type ty2 tyenv
-     _Right $ TyFun ty1' ty2
+     _Right $ TyFun ty1' ty2'
 expand_type (TyName n) tyenv = lookup_type_name_in_tyenv n tyenv
 expand_type (TyQualified m t) tyenv = lookup_qualified_type_in_tyenv m t tyenv
 
@@ -229,5 +229,6 @@ equalType (TyFun ty1 ty1') (TyFun ty2 ty2') =
   equalType ty1 ty2 && equalType ty1' ty2'
 equalType (TyQualified m1 t1) (TyQualified m2 t2) =
   m1 == m2 && t1 == t2
+equalType (TyName id1) (TyName id2) = id1 == id2 -- Necessary?
 equalType _ _ = False
 
