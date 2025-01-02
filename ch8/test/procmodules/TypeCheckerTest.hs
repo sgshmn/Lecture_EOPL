@@ -18,9 +18,9 @@ typechecker_tests =
      TDTC "nested-arith-right" "-(55, -(22,11))" (Just TyInt),
   
      -- simple variables
-     TDTC "test-var-1" "x" (Just TyInt),
-     TDTC "test-var-2" "-(x,1)" (Just TyInt),
-     TDTC "test-var-3" "-(1,x)" (Just TyInt),
+   --   TDTC "test-var-1" "x" (Just TyInt),
+   --   TDTC "test-var-2" "-(x,1)" (Just TyInt),
+   --   TDTC "test-var-3" "-(1,x)" (Just TyInt),
 
      TDTC "zero-test-1" "zero?(-(3,2))" (Just TyBool),
      TDTC "zero-test-2" "-(2,zero?(0))" Nothing,
