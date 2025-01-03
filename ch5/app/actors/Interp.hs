@@ -44,7 +44,7 @@ apply_cont cont val store sched actors =
     let sched' = place_on_ready_queue
                    (apply_cont cont val)
                    sched
-    in  run_next_thread store sched' actors
+    in  run_next_actor store sched' actors  -- run_next_thread
     
   else
     let sched' = decrement_timer sched
@@ -53,7 +53,7 @@ apply_cont cont val store sched actors =
   where
     apply_cont' End_Main_Thread_Cont v store sched actors =
       let sched' = set_final_answer sched v in 
-        run_next_thread store sched' actors
+        run_next_actor store sched' actors -- run_next_thread
 
     apply_cont' (Zero1_Cont cont) num1 store sched actors =
       apply_cont cont
@@ -109,17 +109,29 @@ apply_cont cont val store sched actors =
         (apply_cont saved_cont (Num_Val 53)) store sched actors
 
     apply_cont' End_Subthread_Cont val store sched actors =
-      run_next_thread store sched actors
+      run_next_actor store sched actors  -- run_next_thread
 
     apply_cont' (Send1_Cont exp2 env cont) val1 store sched actors =
       value_of_k exp2 env (Send2_Cont val1 cont) store sched actors
 
-    apply_cont' (Send2_Cont val1 cont) val2 store sched actors = 
-      let actorName = expval_num val1 
-          
-      in  undefined
+    apply_cont' (Send2_Cont val1 saved_cont) val2 store sched actors = 
+      let actorName = expval_actor val1 
+          actors1 = sendmsg actorName val2 actors
+      in  apply_cont saved_cont (Num_Val 42) store sched actors1
 
-    apply_cont' (Ready_Cont saved_cont) val store sched actors = undefined
+    apply_cont' (Ready_Cont saved_cont) val store sched actors =
+      case readymsg actors of 
+        Just (msgVal, actors1) -> 
+          let Procedure x body env = expval_proc val 
+              (next, actorList) = actorSpace actors1 
+              (loc, store1) = newref store msgVal 
+              env1 = extend_env x loc env 
+          in value_of_k body env1 saved_cont store1 sched actors1 
+        Nothing ->
+          let sched1 = 
+                place_on_ready_queue
+                  (apply_cont' (Ready_Cont saved_cont) val) sched
+          in run_next_actor store sched1 actors      
 
     apply_cont' (New_Cont saved_cont) val store sched actors = 
       let Procedure x body env = expval_proc val
@@ -131,7 +143,7 @@ apply_cont cont val store sched actors =
                        (initialize_scheduler timeslice)
           actorList1 = actorList ++ [(next, empty_queue, store1, sched1)]
           actors1 = setActorSpace actors (next+1, actorList1)
-      in apply_cont saved_cont (Num_Val 42) store sched actors1
+      in apply_cont saved_cont (Actor_Val next) store sched actors1
 
 
 -- Todo: Introduce exceptions and define apply_handler to see how complex it is!
@@ -210,7 +222,7 @@ value_of_k Yield_Exp env cont store sched actors =
         place_on_ready_queue
           (apply_cont cont (Num_Val 99))
           sched
-  in  run_next_thread store yieldsched actors
+  in  run_next_actor store yieldsched actors  -- run_next_thread
 
 value_of_k Mutex_Exp env cont store sched actors =
   let (mutex, store') = new_mutex store in

@@ -45,3 +45,20 @@ decrement_timer :: SchedState -> SchedState
 decrement_timer scState = scState { the_time_remaining = the_time_remaining scState - 1 }
 
 -- Actors
+run_next_actor :: Store -> SchedState -> ActorState -> (FinalAnswer, Store) 
+run_next_actor store scState (current, q, actorSpace) =
+  run_next_actor' (current, q, store, scState) actorSpace
+
+run_next_actor' :: ActorInfo -> ActorSpace -> (FinalAnswer, Store)
+run_next_actor' (currActor, _, _, _) (next, []) = 
+  error ("Blocking: " ++ show currActor) -- Todo: better way to handle this?
+
+run_next_actor' currentActorInfo (next, actorList) = 
+  let actorList1 = actorList ++ [currentActorInfo]
+      (nextCurrent, nextQ, nextStore, nextScState) = head actorList1 
+      actorState1 = (nextCurrent, nextQ, (next, tail actorList1))
+  in if isempty (the_ready_queue nextScState)
+     then if null (tail actorList1)
+          then (fromJust (the_final_answer nextScState), nextStore)
+          else run_next_actor' currentActorInfo (next, tail actorList1)
+     else run_next_thread nextStore nextScState actorState1

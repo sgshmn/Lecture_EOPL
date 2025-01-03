@@ -111,7 +111,8 @@ initStore = (1,[])
 type ActorName = Integer
 
 -- (next actor name, actors)
-type ActorSpace = (ActorName, [ (ActorName, Queue ExpVal, Store, SchedState) ])
+type ActorSpace = (ActorName, [ ActorInfo ])
+type ActorInfo  = (ActorName, Queue ExpVal, Store, SchedState)
 
 -- (current actor name, message queue, actor space)
 type ActorState = (ActorName, Queue ExpVal, ActorSpace)
@@ -139,3 +140,20 @@ initialActorState = (0, empty_queue, (1, []))
 
 -- Actor별로 Store를 가지고 있음 Store
 -- Actor별로 메시지 큐를 가지고 있음 Queue ExpVal
+
+
+sendmsg :: ActorName -> ExpVal -> ActorState -> ActorState 
+sendmsg to v (current, q, (next, actorList))
+  | to == current = (current, enqueue q v, (next, actorList))
+  | otherwise = (current, q, (next, sendmsg' to v actorList))
+
+sendmsg' :: ActorName -> ExpVal -> [ActorInfo] -> [ActorInfo]
+sendmsg' to v [] = []
+sendmsg' to v ((name, q, store, sched):actorList)
+  | to == name = (name, enqueue q v, store, sched) : actorList
+  | otherwise = (name, q, store, sched) : sendmsg' to v actorList
+
+readymsg :: ActorState -> Maybe (ExpVal, ActorState)
+readymsg (current, q, actorSpace) 
+  | isempty q = Nothing 
+  | otherwise = let (v, q1) = dequeue q in Just (v, (current, q1, actorSpace))
