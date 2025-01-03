@@ -1,6 +1,8 @@
 
 -- The syntax is based on the implicitrefs language, and
 -- the semantics is based on the one for the continuation-based language.
+{-# OPTIONS_GHC -Wno-unrecognised-pragmas #-}
+{-# HLINT ignore "Use camelCase" #-}
 
 module Interp where
 
@@ -10,6 +12,7 @@ import Semaphores
 import Scheduler
 
 import Debug.Trace
+import Expr (Exp(Send_Exp))
 
 -- Continuation
 
@@ -165,14 +168,14 @@ value_of_k (Set_Exp x exp) env cont store sched=
 value_of_k (Spawn_Exp exp) env cont store sched =
   value_of_k exp env (Spawn_Cont cont) store sched
 
-value_of_k (Yield_Exp) env cont store sched =
+value_of_k Yield_Exp env cont store sched =
   let yieldsched =
         place_on_ready_queue
           (apply_cont cont (Num_Val 99))
           sched
   in  run_next_thread store yieldsched 
 
-value_of_k (Mutex_Exp) env cont store sched =
+value_of_k Mutex_Exp env cont store sched =
   let (mutex, store') = new_mutex store in
     apply_cont cont (Mutex_Val mutex) store' sched 
 
@@ -181,6 +184,13 @@ value_of_k (Wait_Exp exp) env cont store sched =
 
 value_of_k (Signal_Exp exp) env cont store sched =
   value_of_k exp env (Signal_Cont cont) store sched
+
+-- For actors
+value_of_k (Send_Exp exp1 exp2) env cont store sched = undefined
+
+value_of_k (Ready_Exp identifier exp) env cont store sched = undefined
+
+value_of_k (New_Exp identifier exp) env cont store sched = undefined
 
 
 --

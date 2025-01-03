@@ -1,3 +1,5 @@
+{-# OPTIONS_GHC -Wno-unrecognised-pragmas #-}
+{-# HLINT ignore "Use camelCase" #-}
 module Expr(Program,Exp(..),Identifier,UnaryOp(..)) where
 
 type Program = Exp
@@ -23,6 +25,11 @@ data Exp =
   | Unary_Exp  UnaryOp Exp                -- unop ( expression ) where unop is one of car, cdr, null?, zero? print
   -- | Try_Exp    Exp Identifier Exp         -- try exp catch exn exp
   -- | Raise_Exp  Exp                        -- raise exp
+
+  -- For Actors
+  | Send_Exp  Exp Exp                     -- send ( actor, value )
+  | Ready_Exp Identifier Exp              -- ready ( identifier, expression )
+  | New_Exp   Identifier Exp              -- new ( identifier, expression )
   deriving Show
 
 data UnaryOp = IsZero | IsNull | Car | Cdr | Print deriving Show
