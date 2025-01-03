@@ -148,7 +148,7 @@ sendmsg to v (current, q, (next, actorList))
   | otherwise = (current, q, (next, sendmsg' to v actorList))
 
 sendmsg' :: ActorName -> ExpVal -> [ActorInfo] -> [ActorInfo]
-sendmsg' to v [] = []
+sendmsg' to v [] = [] -- error ("Unknown actor for send: " ++ show to ++ ", " ++ show v)
 sendmsg' to v ((name, q, store, sched):actorList)
   | to == name = (name, enqueue q v, store, sched) : actorList
   | otherwise = (name, q, store, sched) : sendmsg' to v actorList

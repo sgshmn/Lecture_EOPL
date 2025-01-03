@@ -8,12 +8,12 @@ let pingServer =
             if zero? (-(msg, PingMsg))
             then ready ( proc (masterSelf)
                           begin
+                            print (300);
                             send (masterSelf, PongMsg);
-                            send (masterSelf, self);
-                            print (300)
+                            send (masterSelf, self)
                           end
                   )
-            else ready (pingServer_self)
+            else begin print (600); ready (pingServer_self) end
         in pingServer_self
 in            
 let master = 
@@ -26,9 +26,9 @@ let master =
             then
               let p = new(pingServer) in
                 begin
+                  print(200);
                   send (p, PingMsg);
                   send (p, self);
-                  print(200);
                   ready (master_self)
                 end
             else if zero? (-(msg, PongMsg))
@@ -39,7 +39,7 @@ let master =
                                   42
                             end)
               end 
-            else ready (master_self)
+            else begin print(500); ready (master_self) end
 
         in master_self
 in let StartMsg = 0 in
