@@ -121,6 +121,11 @@ apply_unop Cdr (List_Val (_:xs)) = List_Val xs
 apply_unop Print v = trace (show v) $ List_Val []  -- ???
 
 --
+-- For actor
+--   value_of_k :: Exp -> Env -> Cont -> Store -> SchedState 
+--                       -> ActorName -> Queue ExpVal -> ActorSpace -> (FinalAnswer, Store)
+--
+
 value_of_k :: Exp -> Env -> Cont -> Store -> SchedState -> (FinalAnswer, Store)
 
 value_of_k (Const_Exp n) env cont store sched =

@@ -107,16 +107,15 @@ initStore = (1,[])
 
 -- Actors
 
-type ActorIdentifier = Integer
+type ActorName = Integer
 
--- type Actor = ActorIdentifier -> Queue ExpVal 
---                 -> Store -> SchedState -> ActorState -> (FinalAnswer, Store)
+type ActorSpace = [ (ActorName, Queue ExpVal, Store, SchedState) ]
+
+-- For actor
+--   value_of_k :: Exp -> Env -> Cont -> Store -> SchedState 
+--                       -> ActorName -> Queue ExpVal -> ActorSpace -> (FinalAnswer, Store)
+
+
 -- Actor별로 Store를 가지고 있음 Store
 -- Actor별로 메시지 큐를 가지고 있음 Queue ExpVal
-
-data ActorState = ActorState {
-  the_actor_id :: ActorIdentifier, -- The current actor's id
-  the_actor_queue :: Queue Thread
-}
-
 
