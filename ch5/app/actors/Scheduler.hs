@@ -6,7 +6,7 @@ import EnvStore
 import Queue
 import Data.Maybe
 
---
+-- Threads
 timeslice = 20
 
 --
@@ -23,8 +23,8 @@ place_on_ready_queue :: Thread -> SchedState -> SchedState
 place_on_ready_queue th scState =
   scState { the_ready_queue = enqueue (the_ready_queue scState) th }
 
-run_next_thread :: Store -> SchedState -> (FinalAnswer, Store)
-run_next_thread store scState =
+run_next_thread :: Store -> SchedState -> ActorState -> (FinalAnswer, Store)
+run_next_thread store scState actors =
   if isempty (the_ready_queue scState)
   then (fromJust (the_final_answer scState), store)
   else
@@ -33,7 +33,7 @@ run_next_thread store scState =
         first_ready_thread
           store
           ( scState { the_ready_queue = other_ready_threads,
-                      the_time_remaining = the_max_time_slice scState } ) )
+                      the_time_remaining = the_max_time_slice scState } ) actors )
 
 set_final_answer :: SchedState -> ExpVal -> SchedState
 set_final_answer scState val = scState { the_final_answer = Just val }
@@ -43,3 +43,5 @@ time_expired scState = the_time_remaining scState==0
 
 decrement_timer :: SchedState -> SchedState
 decrement_timer scState = scState { the_time_remaining = the_time_remaining scState - 1 }
+
+-- Actors

@@ -42,6 +42,7 @@ data ExpVal =
   | List_Val  {expval_list :: [ExpVal]}
   | Mutex_Val {expval_mutex :: Mutex } -- Mutex {Loc to Bool, Loc to Queue Thread}
   | Queue_Val {expval_queue :: Queue Thread}  -- (newref queue); newref takes an Expval arg!
+  | Actor_Val {expval_actor :: Integer}
 
 instance Show ExpVal where
   show (Num_Val num)   = show num
@@ -50,6 +51,7 @@ instance Show ExpVal where
   show (List_Val nums) = show "[" ++ concat (intersperse "," (map show nums)) ++ show "]"
   show (Mutex_Val mutex) = show mutex
   show (Queue_Val queue) = show "queue"
+  show (Actor_Val actor) = "actor" ++ show actor
 
 type FinalAnswer = ExpVal 
 
@@ -70,7 +72,7 @@ data Mutex = Mutex Location Location -- binary semaphores: Loc to Bool, Loc to (
              deriving Show
 
 -- Threads
-type Thread = Store -> SchedState -> {- ActorState -> -} (FinalAnswer, Store)
+type Thread = Store -> SchedState -> ActorState -> (FinalAnswer, Store)
 
 -- Scheduler states
 data SchedState =
@@ -106,16 +108,34 @@ initStore :: Store
 initStore = (1,[])
 
 -- Actors
-
 type ActorName = Integer
 
-type ActorSpace = [ (ActorName, Queue ExpVal, Store, SchedState) ]
+-- (next actor name, actors)
+type ActorSpace = (ActorName, [ (ActorName, Queue ExpVal, Store, SchedState) ])
+
+-- (current actor name, message queue, actor space)
+type ActorState = (ActorName, Queue ExpVal, ActorSpace)
+
+currentActor :: ActorState -> ActorName
+currentActor (actor,_,_) = actor
+
+msgQueue :: ActorState -> Queue ExpVal
+msgQueue (_,queue,_) = queue
+
+actorSpace :: ActorState -> ActorSpace
+actorSpace (_,_,space) = space
+
+setActorSpace :: ActorState -> ActorSpace -> ActorState
+setActorSpace (actor,queue,_) space = (actor,queue,space)
+
+-- 0 for the main actor, 1 for the next actors to be created
+initialActorState :: ActorState
+initialActorState = (0, empty_queue, (1, []))
 
 -- For actor
 --   value_of_k :: Exp -> Env -> Cont -> Store -> SchedState 
---                       -> ActorName -> Queue ExpVal -> ActorSpace -> (FinalAnswer, Store)
+--                       -> ActorState -> (FinalAnswer, Store)
 
 
 -- Actor별로 Store를 가지고 있음 Store
 -- Actor별로 메시지 큐를 가지고 있음 Queue ExpVal
-
