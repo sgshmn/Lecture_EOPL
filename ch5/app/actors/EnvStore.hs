@@ -1,3 +1,5 @@
+{-# OPTIONS_GHC -Wno-unrecognised-pragmas #-}
+{-# HLINT ignore "Use camelCase" #-}
 module EnvStore where
 
 import Expr (Identifier,Exp)
@@ -47,6 +49,7 @@ instance Show ExpVal where
   show (Proc_Val proc) = show "<proc>"
   show (List_Val nums) = show "[" ++ concat (intersperse "," (map show nums)) ++ show "]"
   show (Mutex_Val mutex) = show mutex
+  show (Queue_Val queue) = show "queue"
 
 type FinalAnswer = ExpVal 
 
