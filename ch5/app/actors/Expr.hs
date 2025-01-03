@@ -28,8 +28,8 @@ data Exp =
 
   -- For Actors
   | Send_Exp  Exp Exp                     -- send ( actor, value )
-  | Ready_Exp Identifier Exp              -- ready ( identifier, expression )
-  | New_Exp   Identifier Exp              -- new ( identifier, expression )
+  | Ready_Exp Exp                         -- ready ( expression ) 
+  | New_Exp   Exp                         -- new ( expression )
   deriving Show
 
 data UnaryOp = IsZero | IsNull | Car | Cdr | Print deriving Show

@@ -113,7 +113,17 @@ parserSpec = ParserSpec
         (\rhs -> return $ Unary_Exp Cdr (get rhs 3)),
 
       rule "Expression -> print ( Expression )"
-        (\rhs -> return $ Unary_Exp Print (get rhs 3))
+        (\rhs -> return $ Unary_Exp Print (get rhs 3)),
+
+      -- Actors
+      rule "Expression -> send ( Expression , Expression )"
+        (\rhs -> return $ Send_Exp (get rhs 3) (get rhs 5)),
+
+      rule "Expression -> ready ( Expression )"
+        (\rhs -> return $ Ready_Exp (get rhs 3)),
+      
+      rule "Expression -> new ( Expression )"
+        (\rhs -> return $ New_Exp (get rhs 3))
     ],
     
     baseDir        = "./",

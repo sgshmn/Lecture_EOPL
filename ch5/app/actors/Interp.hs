@@ -188,9 +188,9 @@ value_of_k (Signal_Exp exp) env cont store sched =
 -- For actors
 value_of_k (Send_Exp exp1 exp2) env cont store sched = undefined
 
-value_of_k (Ready_Exp identifier exp) env cont store sched = undefined
+value_of_k (Ready_Exp exp) env cont store sched = undefined
 
-value_of_k (New_Exp identifier exp) env cont store sched = undefined
+value_of_k (New_Exp exp) env cont store sched = undefined
 
 
 --

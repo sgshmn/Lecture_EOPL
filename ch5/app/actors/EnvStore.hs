@@ -70,7 +70,7 @@ data Mutex = Mutex Location Location -- binary semaphores: Loc to Bool, Loc to (
              deriving Show
 
 -- Threads
-type Thread = Store -> SchedState -> (FinalAnswer, Store)
+type Thread = Store -> SchedState -> {- ActorState -> -} (FinalAnswer, Store)
 
 -- Scheduler states
 data SchedState =
@@ -104,4 +104,19 @@ setref store@(next,s) loc v = (next,update s)
 
 initStore :: Store
 initStore = (1,[])
+
+-- Actors
+
+type ActorIdentifier = Integer
+
+-- type Actor = ActorIdentifier -> Queue ExpVal 
+--                 -> Store -> SchedState -> ActorState -> (FinalAnswer, Store)
+-- Actor별로 Store를 가지고 있음 Store
+-- Actor별로 메시지 큐를 가지고 있음 Queue ExpVal
+
+data ActorState = ActorState {
+  the_actor_id :: ActorIdentifier, -- The current actor's id
+  the_actor_queue :: Queue Thread
+}
+
 

@@ -35,7 +35,7 @@ lexerSpec = LexerSpec
         ("zero\\?" , mkFn ISZERO),
         ("null\\?"   , mkFn ISNULL),
         
-        ("[a-zA-Z][a-zA-Z0-9]*"    , keywordOrIdentifier)
+        ("[_a-zA-Z][_a-zA-Z0-9]*"    , keywordOrIdentifier)
       ]
   } 
 
@@ -63,5 +63,8 @@ keywords =
   , ("cdr",    CDR)
   , ("print",  PRINT)
   , ("in",     IN)
+  , ("send",   SEND)
+  , ("ready",  READY)
+  , ("new",    NEW)
   ]
   

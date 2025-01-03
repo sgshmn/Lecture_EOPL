@@ -2,6 +2,7 @@ module Token(Token(..)) where
 
 import Prelude hiding(EQ)
 import TokenInterface
+import Expr (Exp(Send_Exp))
 
 data Token =
     END_OF_TOKEN
@@ -52,6 +53,10 @@ data Token =
   | TRY                         -- try
   | CATCH                       -- catch
   | RAISE                       -- raise
+
+  | SEND 
+  | READY 
+  | NEW
   deriving (Eq, Show)
 
 tokenStrList :: [(Token,String)]
@@ -102,7 +107,11 @@ tokenStrList =
 
     (TRY,    "try"),
     (CATCH,  "catch"),
-    (RAISE,  "raise")
+    (RAISE,  "raise"),
+
+    (SEND,   "send"),
+    (READY,  "ready"),
+    (NEW,    "new")
   ]
 
 findTok tok [] = Nothing
