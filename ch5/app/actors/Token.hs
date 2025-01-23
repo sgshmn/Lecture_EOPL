@@ -57,6 +57,8 @@ data Token =
   | SEND 
   | READY 
   | NEW
+  | EQACTOR
+
   deriving (Eq, Show)
 
 tokenStrList :: [(Token,String)]
@@ -111,7 +113,8 @@ tokenStrList =
 
     (SEND,   "send"),
     (READY,  "ready"),
-    (NEW,    "new")
+    (NEW,    "new"),
+    (EQACTOR, "actor?")
   ]
 
 findTok tok [] = Nothing

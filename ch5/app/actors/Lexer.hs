@@ -34,6 +34,7 @@ lexerSpec = LexerSpec
         -- identifiers ending with a symbol
         ("zero\\?" , mkFn ISZERO),
         ("null\\?"   , mkFn ISNULL),
+        ("actor\\?"  , mkFn EQACTOR),
         
         ("[_a-zA-Z][_a-zA-Z0-9]*"    , keywordOrIdentifier)
       ]

@@ -123,7 +123,11 @@ parserSpec = ParserSpec
         (\rhs -> return $ Ready_Exp (get rhs 3)),
       
       rule "Expression -> new ( Expression )"
-        (\rhs -> return $ New_Exp (get rhs 3))
+        (\rhs -> return $ New_Exp (get rhs 3)),
+
+      rule "Expression -> actor? ( Expression , Expression )"
+        (\rhs -> return $ Eq_Actor_Exp (get rhs 3) (get rhs 5))
+
     ],
     
     baseDir        = "./",

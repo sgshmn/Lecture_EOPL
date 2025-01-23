@@ -36,6 +36,8 @@ data Cont =
   | Send2_Cont ExpVal Cont
   | Ready_Cont Cont
   | New_Cont Cont
+  | Actor1_Cont Exp Env Cont
+  | Actor2_Cont ExpVal Cont
 
 apply_cont :: Cont -> ExpVal -> Store -> SchedState -> ActorState -> (FinalAnswer, Store)
 apply_cont cont val store sched actors =
@@ -145,6 +147,17 @@ apply_cont cont val store sched actors =
           actors1 = setActorSpace actors (next+1, actorList1)
       in apply_cont saved_cont (Actor_Val next) store sched actors1
 
+    apply_cont' (Actor1_Cont exp2 env cont) val1 store sched actors =
+      value_of_k exp2 env (Actor2_Cont val1 cont) store sched actors
+
+    apply_cont' (Actor2_Cont val1 cont) val2 store sched actors =
+      let id = expval_actor val1
+          id' = expval_actor val2
+      in  if (id == id')
+          then apply_cont cont (Bool_Val True) store sched actors
+          else apply_cont cont (Bool_Val False) store sched actors
+
+
 
 -- Todo: Introduce exceptions and define apply_handler to see how complex it is!
 -- Todo: Use the monadic style to hide as many global parameters as possible.
@@ -160,7 +173,6 @@ apply_unop Car (List_Val (x:_))  = x
 apply_unop Cdr (List_Val (_:xs)) = List_Val xs
 apply_unop Print v = trace (show v) $ List_Val []  -- ???
 apply_unop op rand = error ("Unknown unary operator: :" ++ show op ++ " " ++ show rand)
-
 --
 -- For actor
 --   value_of_k :: Exp -> Env -> Cont -> Store -> SchedState 
@@ -244,6 +256,8 @@ value_of_k (Ready_Exp exp) env cont store sched actors =
 value_of_k (New_Exp exp) env cont store sched actors =
   value_of_k exp env (New_Cont cont) store sched actors
 
+value_of_k (Eq_Actor_Exp exp1 exp2) env cont store sched actors =
+  value_of_k exp1 env (Actor1_Cont exp2 env cont) store sched actors 
 
 --
 value_of_program :: Exp -> Integer -> ExpVal

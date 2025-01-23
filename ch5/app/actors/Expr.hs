@@ -30,6 +30,7 @@ data Exp =
   | Send_Exp  Exp Exp                     -- send ( actor, value )
   | Ready_Exp Exp                         -- ready ( expression ) 
   | New_Exp   Exp                         -- new ( expression )
+  | Eq_Actor_Exp Exp Exp                   -- actor? ( actor, actor )
   deriving Show
 
 data UnaryOp = IsZero | IsNull | Car | Cdr | Print deriving Show
