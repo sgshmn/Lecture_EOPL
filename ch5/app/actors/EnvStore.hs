@@ -153,6 +153,12 @@ sendmsg' to v ((name, q, store, sched):actorList)
   | to == name = (name, enqueue q v, store, sched) : actorList
   | otherwise = (name, q, store, sched) : sendmsg' to v actorList
 
+sendAllmsg :: ActorName -> [ExpVal] -> ActorState -> ActorState
+sendAllmsg _ [] actors = actors
+sendAllmsg actorName (x:xs) actors =
+  let actors1 = sendmsg actorName x actors
+  in sendAllmsg actorName xs actors1
+
 readymsg :: ActorState -> Maybe (ExpVal, ActorState)
 readymsg (current, q, actorSpace) 
   | isempty q = Nothing 
