@@ -61,6 +61,17 @@ executables:
     - -with-rtsopts=-N
     dependencies:
     - ch3
+  
+  let7_8lang-exe:
+    main:                Main.lhs
+    source-dirs:         
+    - app/exercise/ex7_8
+    ghc-options:
+    - -threaded
+    - -rtsopts
+    - -with-rtsopts=-N
+    dependencies:
+    - ch3
 
 tests:
   letlang-test:
@@ -92,6 +103,18 @@ tests:
     source-dirs:         
     - test/letreclang
     - app/letreclang
+    ghc-options:
+    - -threaded
+    - -rtsopts
+    - -with-rtsopts=-N
+    dependencies:
+    - ch3
+  
+  let7_8lang-test:
+    main:                Spec.hs
+    source-dirs:         
+    - test/exercise/ex7_8
+    - app/exercise/ex7_8
     ghc-options:
     - -threaded
     - -rtsopts
