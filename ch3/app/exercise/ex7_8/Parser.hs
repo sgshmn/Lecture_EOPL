@@ -26,11 +26,29 @@ parserSpec = ParserSpec
       rule "Expression -> - integer_number"
         (\rhs -> return $ Const_Exp (-(read (getText rhs 2) :: Int))),
       
+      rule "Expression -> + ( Expression , Expression )"
+        (\rhs -> return $ Add_Exp (get rhs 3) (get rhs 5)),
+
       rule "Expression -> - ( Expression , Expression )"
         (\rhs -> return $ Diff_Exp (get rhs 3) (get rhs 5)),
 
+      rule "Expression -> * ( Expression , Expression )"
+        (\rhs -> return $ Mul_Exp (get rhs 3) (get rhs 5)),
+
+      rule "Expression -> / ( Expression , Expression )"
+        (\rhs -> return $ Quot_Exp (get rhs 3) (get rhs 5)),
+
       rule "Expression -> zero? ( Expression )"
         (\rhs -> return $ IsZero_Exp (get rhs 3)),
+
+      rule "Expression -> equal? ( Expression , Expression )"
+        (\rhs -> return $ IsEqual_Exp (get rhs 3) (get rhs 5)),
+
+      rule "Expression -> greater? ( Expression , Expression )"
+        (\rhs -> return $ IsGreater_Exp (get rhs 3) (get rhs 5)),
+
+      rule "Expression -> less? ( Expression , Expression )"
+        (\rhs -> return $ IsLess_Exp (get rhs 3) (get rhs 5)),
       
       rule "Expression -> if Expression then Expression else Expression"
         (\rhs -> return $ If_Exp (get rhs 2) (get rhs 4) (get rhs 6)),

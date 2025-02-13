@@ -3,12 +3,18 @@ module Expr where
 type Program = Exp
   
 data Exp =
-    Const_Exp  Int
-  | Diff_Exp   Exp Exp
-  | IsZero_Exp Exp
-  | If_Exp     Exp Exp Exp
-  | Var_Exp    Identifier
-  | Let_Exp    Identifier Exp Exp
+    Const_Exp     Int
+  | Add_Exp       Exp Exp
+  | Diff_Exp      Exp Exp
+  | Mul_Exp       Exp Exp
+  | Quot_Exp      Exp Exp              -- 몫
+  | IsZero_Exp    Exp
+  | IsEqual_Exp   Exp Exp
+  | IsGreater_Exp Exp Exp
+  | IsLess_Exp    Exp Exp
+  | If_Exp        Exp Exp Exp
+  | Var_Exp       Identifier
+  | Let_Exp       Identifier Exp Exp
   deriving Show
 
 type Identifier = String
