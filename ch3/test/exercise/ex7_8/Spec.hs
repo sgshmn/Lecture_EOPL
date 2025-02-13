@@ -8,8 +8,8 @@ import System.IO (readFile)
 import Control.Exception (evaluate)
 
 spec = hspec $ do
-  describe "letlang" $ do
-    let atdir f = "./app/letlang/examples/" ++ f
+  describe "let7_8lang" $ do
+    let atdir f = "./app/exercise/ex7_8/examples/" ++ f
 
     mapM_
       (\(name, maybeResStr) -> 
@@ -30,6 +30,9 @@ testcases =
     ("positive_const.let", Just "11"),
     ("negative_const.let", Just "-33"),
     ("simple_arith_1.let", Just "11"),
+    ("simple_arith_2.let7_8", Just "17"),
+    ("simple_arith_3.let7_8", Just "12"),
+    ("simple_arith_4.let7_8", Just "4"),
     ("simple_arith_var_1.let", Just "34"),
 
     -- nested arithmetic
@@ -72,5 +75,13 @@ testcases =
     -- check nested let and shadowing
     ("simple_nested_let.let", Just "-1"),
     ("check_shadowing_in_body.let", Just "4"),
-    ("check_shadowing_in_rhs.let", Just "2")
+    ("check_shadowing_in_rhs.let", Just "2"),
+
+    -- comparison
+    ("simple_equal_true.let7_8", Just "True"),
+    ("simple_equal_false.let7_8", Just "False"),
+    ("simple_greater.let7_8", Just "True"),
+    ("simple_less.let7_8", Just "False"),
+    ("complex_equal.let7_8", Just "True")
+
   ]
