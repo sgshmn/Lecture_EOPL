@@ -116,8 +116,16 @@ parserSpec = ParserSpec
         (\rhs -> return $ Unary_Exp Print (get rhs 3)),
 
       -- Actors
-      rule "Expression -> send ( Expression , Expression )"
+      rule "Expression -> send ( Expression , ExpressionArgsList )"
         (\rhs -> return $ Send_Exp (get rhs 3) (get rhs 5)),
+
+      rule "ExpressionArgsList -> Expression"
+        (\rhs -> return $ Args_Exp [get rhs 1]),
+
+      rule "ExpressionArgsList -> Expression , ExpressionArgsList"
+        (\rhs ->
+            case get rhs 3 of
+              Args_Exp exprs -> return $ Args_Exp (get rhs 1 : exprs)),
 
       rule "Expression -> ready ( Expression )"
         (\rhs -> return $ Ready_Exp (get rhs 3)),

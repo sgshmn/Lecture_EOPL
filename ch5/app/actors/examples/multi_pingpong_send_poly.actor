@@ -10,9 +10,8 @@ let master =
 		    if zero? (-(msg, PingMsg))
 		    then ready ( proc (masterSelf)
 				  begin
-				    send (masterSelf, PongMsg);
-            send (masterSelf, self);
-            print (300)
+				    send (masterSelf, PongMsg, self);
+                    print (300)
 				  end
 			  )
 		    else begin print (600); ready (pingServer_self) end
@@ -30,12 +29,10 @@ let master =
                     begin 
                         set id1 = p1;
                         set id2 = p2;
-                        send (p1, PingMsg);
-                        send (p1, self);
+                        send (p1, PingMsg, self);
                         print(201);
 
-                        send (p2, PingMsg);
-                        send (p2, self);
+                        send (p2, PingMsg, self);
                         print(202);
 
                         ready (master_self)

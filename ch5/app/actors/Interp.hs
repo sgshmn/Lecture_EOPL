@@ -118,7 +118,8 @@ apply_cont cont val store sched actors =
 
     apply_cont' (Send2_Cont val1 saved_cont) val2 store sched actors = 
       let actorName = expval_actor val1 
-          actors1 = sendmsg actorName val2 actors
+          args = expval_list val2
+          actors1 = sendAllmsg actorName args actors
       in  apply_cont saved_cont (Num_Val 42) store sched actors1
 
     apply_cont' (Ready_Cont saved_cont) val store sched actors =
@@ -259,6 +260,10 @@ value_of_k (New_Exp exp) env cont store sched actors =
 value_of_k (Eq_Actor_Exp exp1 exp2) env cont store sched actors =
   value_of_k exp1 env (Actor1_Cont exp2 env cont) store sched actors 
 
+value_of_k (Args_Exp exprs) env cont store sched actors =
+  let (vals, store') = value_of_args exprs env store
+  in apply_cont cont (List_Val vals) store' sched actors
+
 --
 value_of_program :: Exp -> Integer -> ExpVal
 
@@ -277,3 +282,16 @@ apply_procedure_k :: Proc -> ExpVal -> Cont -> Store -> SchedState -> ActorState
 apply_procedure_k proc arg cont store sched actors =
   let (loc,store') = newref store arg in
    value_of_k (body proc) (extend_env (var proc) loc (saved_env proc)) cont store' sched actors 
+
+--
+value_of_args :: [Exp] -> Env -> Store -> ([ExpVal], Store)
+value_of_args [] env store = ([], store)
+value_of_args (x:xs) env store =
+  let (v, store1) = value_of x env store
+      (vs, store2) = value_of_args xs env store1
+  in (v:vs, store2)
+
+value_of :: Exp -> Env -> Store -> (ExpVal, Store)
+value_of (Var_Exp var) env store =
+  let (loc, store') = apply_env env store var
+  in (deref store' loc, store')
