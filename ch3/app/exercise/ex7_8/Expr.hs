@@ -7,7 +7,7 @@ data Exp =
   | Add_Exp       Exp Exp
   | Diff_Exp      Exp Exp
   | Mul_Exp       Exp Exp
-  | Quot_Exp      Exp Exp              -- 몫
+  | Quot_Exp      Exp Exp
   | IsZero_Exp    Exp
   | IsEqual_Exp   Exp Exp
   | IsGreater_Exp Exp Exp
