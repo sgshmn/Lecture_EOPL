@@ -60,10 +60,10 @@ parserSpec = ParserSpec
     ],
     
     baseDir        = "./",
-    actionTblFile  = "action_table_letlang.txt",
-    gotoTblFile    = "goto_table_letlang.txt",
-    grammarFile    = "prod_rules_letlang.txt",
-    parserSpecFile = "mygrammar_letlang.grm",
+    actionTblFile  = "action_table_let7_8lang.txt",
+    gotoTblFile    = "goto_table_let7_8lang.txt",
+    grammarFile    = "prod_rules_let7_8lang.txt",
+    parserSpecFile = "mygrammar_let7_8lang.grm",
     genparserexe   = "yapb-exe"
   }
 

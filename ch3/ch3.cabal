@@ -42,7 +42,7 @@ executable let7_8lang-exe
       Env
       Expr
       Interp
-      LetLang
+      Let7_8Lang
       Lexer
       MainUtil
       Parser
@@ -130,7 +130,7 @@ test-suite let7_8lang-test
       Env
       Expr
       Interp
-      LetLang
+      Let7_8Lang
       Lexer
       Main
       MainUtil
