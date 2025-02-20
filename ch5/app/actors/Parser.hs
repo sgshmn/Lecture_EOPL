@@ -59,13 +59,13 @@ parserSpec = ParserSpec
       rule "Expression -> ( Expression Expression )"
         (\rhs -> return $ Call_Exp (get rhs 2) (get rhs 3)),
 
-      rule "Expression -> begin ExpressionList end"
+      rule "Expression -> begin BlockExpressionList end"
         (\rhs -> return $ get rhs 2),
 
-      rule "ExpressionList -> Expression"
+      rule "BlockExpressionList -> Expression"
         (\rhs -> return $ Block_Exp [ get rhs 1 ]),
 
-      rule "ExpressionList -> Expression ; ExpressionList"
+      rule "BlockExpressionList -> Expression ; BlockExpressionList"
         (\rhs -> return $
                    case get rhs 3 of
                      Block_Exp exprs -> Block_Exp (get rhs 1 : exprs)),
@@ -116,16 +116,16 @@ parserSpec = ParserSpec
         (\rhs -> return $ Unary_Exp Print (get rhs 3)),
 
       -- Actors
-      rule "Expression -> send ( Expression , ExpressionArgsList )"
-        (\rhs -> return $ Send_Exp (get rhs 3) (get rhs 5)),
+      rule "Expression -> send ( SendExpressionList )"
+        (\rhs -> return $ (get rhs 3)),
 
-      rule "ExpressionArgsList -> Expression"
-        (\rhs -> return $ Args_Exp [get rhs 1]),
+      rule "SendExpressionList -> Expression"
+        (\rhs -> return $ Send_Exp [ get rhs 1 ]),
 
-      rule "ExpressionArgsList -> Expression , ExpressionArgsList"
+      rule "SendExpressionList -> Expression , SendExpressionList"
         (\rhs ->
             case get rhs 3 of
-              Args_Exp exprs -> return $ Args_Exp (get rhs 1 : exprs)),
+              Send_Exp exprs -> return $ Send_Exp (get rhs 1 : exprs)),
 
       rule "Expression -> ready ( Expression )"
         (\rhs -> return $ Ready_Exp (get rhs 3)),

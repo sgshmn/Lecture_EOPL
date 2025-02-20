@@ -27,11 +27,10 @@ data Exp =
   -- | Raise_Exp  Exp                        -- raise exp
 
   -- For Actors
-  | Send_Exp  Exp Exp                     -- send ( actor, value )
+  | Send_Exp [ Exp ]                      -- send ( to , msgs ) -> send ( SendExpressionList )
   | Ready_Exp Exp                         -- ready ( expression ) 
   | New_Exp   Exp                         -- new ( expression )
   | Eq_Actor_Exp Exp Exp                  -- actor? ( actor, actor )
-  | Args_Exp [ Exp ]
   deriving Show
 
 data UnaryOp = IsZero | IsNull | Car | Cdr | Print deriving Show
