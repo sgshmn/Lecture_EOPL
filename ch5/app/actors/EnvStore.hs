@@ -155,9 +155,9 @@ sendmsg' to v ((name, q, store, sched):actorList)
 
 sendAllmsg :: ActorName -> [ExpVal] -> ActorState -> ActorState
 sendAllmsg _ [] actors = actors
-sendAllmsg actorName (x:xs) actors =
-  let actors1 = sendmsg actorName x actors
-  in sendAllmsg actorName xs actors1
+sendAllmsg to (v:vs) actors =
+  let actors1 = sendmsg to v actors
+  in sendAllmsg to vs actors1
 
 readymsg :: ActorState -> Maybe (ExpVal, ActorState)
 readymsg (current, q, actorSpace) 
