@@ -27,6 +27,12 @@ LET7_8은 LET의 확장이기 때문에 LET을 복제해서 일부를 수정하�
     - ch3/app/exercise/ex7_8/Spec.hs 파일에서 이름, 경로를 바꾼다
         - describe \"letlang\" \$ do -> describe \"let7_8lang\" \$ do
         - let atdir f = \"./app/let/examples/\" ++ f -> let atdir f = \"./app/exercise/ex7_8/examples/\" ++ f
+6. 실행  
+    - 쉘(window powershell, 명령 프롬프트 등)을 켜고 ch3 에서 다음을 실행해보자
+    - stack build
+    - stack test ch3:test:let7_8lang-test
+    - 이 두개를 실행했을 때 에러가 나오지 않아야 한다
+    - 아직까지는 LET 언어를 복제하고 이름만 바꿨기 때문이다
 
 
 ### step1 : 연습문제에서 요구하는 특징을 하나씩 또는 여러 개를 동시에 사용하는 테스트 프로그램들을 작성하기
@@ -60,8 +66,13 @@ lexerSpecList에 사칙연산, 비교연산을 추가한다
     - ("equal\\?" , mkFn ISEQUAL)
     - 이런 식으로
 
-3. Parser.hs  
-parserSpecList 에 사칙연산, 비교연산의 rule을 추가한다
+3. Expr.hs
+data Exp에 사칙연산, 비교연산 Exp를 추가한다  
+Add_Exp, Mul_Exp, Quot_Exp, IsEqual_Exp, IsGreater_Exp, IsLess_Exp  
+
+
+4. Parser.hs  
+parserSpecList 에 사칙연산, 비교연산의 rule을 추가한다  
     - rule "Expression -> + ( Expression , Expression )"
     -   (\rhs -> return $ Add_Exp (get rhs 3) (get rhs 5)),
     - \+ ( Expression , Expression ) 도 Expression이 될 수 있다는 생산규칙 추가
@@ -70,23 +81,16 @@ parserSpecList 에 사칙연산, 비교연산의 rule을 추가한다
     - 3번째 인자(get rhs 3, a) Expression,
     - 5번째 인자(get rhs 5, b) Expression을
     - Add_Exp에 넣어준다
-    - 여기서 Add_Exp는 새로운 Exp 이고 나중에 Expr.hs에 만들어야한다
     - 같은 방법으로 Mul_Exp, Quot_Exp, IsEqual_Exp, IsGreater_Exp, IsLess_Exp과 관련된 생산규칙을 만든다
 아래 letlang이 들어간 문자열을 let7_8lang으로 바꾼다
 
-4. Expr.hs  
-data Exp에 사칙연산, 비교연산 Exp를 추가한다  
-Add_Exp, Mul_Exp, Quot_Exp, IsEqual_Exp, IsGreater_Exp, IsLess_Exp  
-
-5. Interp.hs  
+5. Interp.hs, Env.hs  
 추가한 Exp의 value_of 함수를 만든다  
-
-6. Env.hs
 LET7_8 에서는 Env를 수정하지 않아도 된다  
 
 
 ### step3,4 : 기존 LET 테스트케이스가 모두 돌아가는 것 확인 (regression test), 새로 작성한 테스트프로그램 모두 돌아가는 것 확인
-ch3/ 에서 다음 명령어 입력  
+쉘을 켜고 ch3/ 에서 다음 명령어 입력  
 stack build     
 stack run let7_8lang-exe .\app\exercise\ex7_8\examples\테스트_프로그램   
 stack test ch3:test:let7_8lang-test  
