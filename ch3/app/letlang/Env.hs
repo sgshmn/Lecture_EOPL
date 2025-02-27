@@ -2,18 +2,21 @@ module Env where
 
 import Expr
 
-type Env = [(Identifier,ExpVal)]
+-- Environment
+data Env =
+    Empty_env
+  | Extend_env Identifier ExpVal Env
 
 empty_env :: Env
-empty_env = []
+empty_env = Empty_env
 
 apply_env :: Env -> Identifier -> ExpVal
-apply_env env x =
-  case [ v | (y,v) <- env, x==y ] of
-    []    -> error (x ++ " is not found.")
-    (v:_) -> v
+apply_env Empty_env search_var = error (search_var ++ " is not found.")
+apply_env (Extend_env saved_var saved_val saved_env) search_var
+  | search_var==saved_var = saved_val
+  | otherwise             = apply_env saved_env search_var
 
 extend_env :: Identifier -> ExpVal -> Env -> Env
-extend_env x v env = (x,v):env
+extend_env x v env = Extend_env x v env
 
 
