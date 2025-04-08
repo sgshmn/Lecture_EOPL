@@ -62,6 +62,17 @@ executables:
     dependencies:
     - ch3
 
+  rpclang-exe:
+    main:                Main.lhs
+    source-dirs:         
+    - app/rpclang
+    ghc-options:
+    - -threaded
+    - -rtsopts
+    - -with-rtsopts=-N
+    dependencies:
+    - ch3
+
 tests:
   letlang-test:
     main:                Spec.hs
@@ -92,6 +103,18 @@ tests:
     source-dirs:         
     - test/letreclang
     - app/letreclang
+    ghc-options:
+    - -threaded
+    - -rtsopts
+    - -with-rtsopts=-N
+    dependencies:
+    - ch3
+
+  rpclang-test:
+    main:                Spec.hs
+    source-dirs:         
+    - test/rpclang
+    - app/rpclang
     ghc-options:
     - -threaded
     - -rtsopts
