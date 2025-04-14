@@ -32,15 +32,15 @@ doProcess verbose fileName = do
   text <- readFile fileName
   let debugFlag = False
         
-  expression <-
+  pet <-
     parsing debugFlag
        parserSpec ((), 1, 1, text)
        (aLexer lexerSpec)
        (fromToken (endOfToken lexerSpec))
+
+  let expression = expFrom pet
   
   putStrLn (show expression)
 
   let val = value_of_program expression timeslice
   putStrLn (show val)
-
-
