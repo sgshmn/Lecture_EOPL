@@ -1,3 +1,6 @@
+// rpc program:
+//    let y = 1 in
+//        (proc (x) -(x,y) 2) 
 proc(main) 
     let behavior = 
         proc (self)
