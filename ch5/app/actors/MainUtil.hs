@@ -16,7 +16,7 @@ import System.Environment (getArgs, withArgs)
 
 
 parser text = do
-    parsing False                            -- parser converting a text-based program
+    parsing True                            -- parser converting a text-based program
        parserSpec ((), 1, 1, text)           -- into a program in abstract syntax tree (Expr)
        (aLexer lexerSpec)
        (fromToken (endOfToken lexerSpec))

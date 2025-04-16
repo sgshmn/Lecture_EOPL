@@ -4,6 +4,9 @@ import Prelude hiding (EQ)
 import CommonParserUtil
 import Token
 
+import qualified Control.Monad.Trans.State.Lazy as ST
+import Control.Monad.Trans.Class(lift)
+
 mkFn :: Token -> LexAction Token IO ()
 mkFn tok = \text -> return $ Just tok
 
@@ -16,7 +19,8 @@ lexerSpec = LexerSpec
     endOfToken    = END_OF_TOKEN,
     lexerSpecList = 
       [ ("[ \t\n]" , skip),
-        
+        ("//" ++ "([^\n])*" ++ "[\n]", skip),
+
         ("[0-9]+"  , mkFn INTEGER_NUMBER),
         
         ("\\-"     , mkFn SUB),
@@ -69,3 +73,21 @@ keywords =
   , ("new",    NEW)
   ]
   
+-- Invariant: text = "/*..."  
+multiLineCommentBegin :: LexAction Token IO ()          -- String -> Maybe Token
+multiLineCommentBegin = \text0 -> -- /*
+  --trace ("multiLineCommentBegin" ++ text0) $
+    do  (state_parm_, line, col, text) <- ST.get
+        let (newLine, newCol, newText) = mlc (tail (tail text)) line (col+2)
+        -- lift $ putStrLn text0
+        -- lift $ putStrLn (show line ++ ", " ++ show col ++ ", " ++ text)
+        -- lift $ putStrLn (show newLine ++ ", " ++ show newCol ++ ", " ++ newText)
+        ST.put (state_parm_, newLine, newCol, newText)
+        return Nothing
+
+  where
+    mlc [] line col = (line, col, [])
+    mlc ('*':'/':text) line col = (line, col+2, text)
+    mlc ('\n':text) line col = mlc text (line+1) col
+    mlc ('\r':text) line col = mlc text (line+1) col
+    mlc (_:text) line col = mlc text line (col+1)
