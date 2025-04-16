@@ -1,0 +1,24 @@
+let f0 = proc (x) -(x,y) in
+
+let behavior = 
+    proc (self)
+        letrec g (tuple_msg) =
+            let (clo, arg, sender) = tuple_msg in
+            let ret = clo (arg) in
+                begin
+                    send(sender, ret);
+                    ready(g)
+                end
+        in ready(g)
+
+let a = new (behavior) in
+let b = get_ActorId in
+
+let y = 1 in
+
+let clo0 = (f0, "y") in
+let z = 2 in
+begin
+    send(a, (clo, (y,z), b));
+    ready(proc(ret) ret)
+end
