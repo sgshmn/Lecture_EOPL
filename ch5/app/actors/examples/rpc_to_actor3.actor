@@ -1,3 +1,6 @@
+//  ( ( proc a (x)
+//          proc b (y)
+//              -(x,y) a 1 ) b 2 )
 proc(main) 
     let behavior = 
         proc (self)
