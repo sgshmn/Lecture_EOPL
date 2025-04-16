@@ -19,6 +19,7 @@ import Expr (Exp(Send_Exp))
 
 data Cont =
     End_Main_Thread_Cont
+  | Init_Main_Actor_Cont Cont
   | Zero1_Cont Cont
   | Let_Exp_Cont Identifier Exp Env Cont
   | If_Test_Cont Exp Exp Env Cont
@@ -58,6 +59,12 @@ apply_cont cont val store sched actors =
     apply_cont' End_Main_Thread_Cont v store sched actors =
       let sched' = set_final_answer sched v in 
         run_next_actor store sched' actors -- run_next_thread
+
+    apply_cont' (Init_Main_Actor_Cont cont) v store sched actors =
+      let p = expval_proc v
+          mainActorName = currentActor actors 
+          v1 = Actor_Val mainActorName
+      in apply_procedure_k p v1 cont store sched actors
 
     apply_cont' (Zero1_Cont cont) num1 store sched actors =
       apply_cont cont
@@ -283,6 +290,9 @@ value_of_k (Tuple_Exp (exp:exps)) env cont store sched actors =
 
 value_of_k (LetTuple_Exp vars exp1 exp2) env cont store sched actors =
   value_of_k exp1 env (Let_Tuple_Cont vars exp2 env cont) store sched actors
+
+value_of_k exp _ _ _ _ _ =
+  error $ "Unknown expression in value_of_k" ++ show exp
   
 
 --
@@ -290,7 +300,7 @@ value_of_program :: Exp -> Integer -> ExpVal
 
 value_of_program exp timeslice =
   let (finalVal, _) = 
-        value_of_k exp initEnv End_Main_Thread_Cont 
+        value_of_k exp initEnv (Init_Main_Actor_Cont End_Main_Thread_Cont)
            initStore (initialize_scheduler timeslice) initialActorState
   in finalVal
 
