@@ -64,7 +64,7 @@ executables:
     - ch3
 
   rpclang-exe:
-    main:                Main.lhs
+    main:                Main.hs
     source-dirs:         
     - app/rpclang
     - app/rpclang/actors

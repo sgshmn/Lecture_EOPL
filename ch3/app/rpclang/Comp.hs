@@ -30,7 +30,7 @@ comp (R.Proc_Exp locb x e) loc senv n tbl k =
         fName = "f" ++ show fnum
         fvs = Set.toList (Set.delete x (R.fv e))
         fvsName = "fvs" ++ show (n+1)
-        x1 = x1 ++ show (n+2)
+        x1 = x ++ show (n+2)
         cloName = "clo" ++ show (n+3)
         (body, n1, tbl1) = comp e locb (Map.insert x x1 senv) (n+4) tbl k 
         fclosed = mkProc fvsName fvs x1 body
@@ -70,28 +70,32 @@ comp (R.Call_Exp e1 locb e2) loc senv n tbl k =
                 in 
                 (A.Block_Exp [
                     A.Send_Exp [
-                        A.Var_Exp locb, A.Var_Exp constCALLCLO, 
-                            A.Tuple_Exp [
-                                clo,
-                                arg,
-                                A.Var_Exp loc
-                            ]
+                        A.Var_Exp locb, 
+                        A.Var_Exp constCALLCLO, 
+                        A.Tuple_Exp [
+                            clo,
+                            arg,
+                            A.Var_Exp loc
+                        ]
                     ],
                     A.Ready_Exp (A.Proc_Exp retName contExp) ], n3, tbl3) ))
     
 comp (R.Const_Exp i) loc senv n tbl k =
     k (A.Const_Exp i) n tbl
+
 comp (R.Diff_Exp e1 e2) loc senv n tbl k =
     comp e1 loc senv n tbl (\e1' n1 tbl1 ->
         comp e2 loc senv n1 tbl1 (\e2' n2 tbl2 ->
             k (A.Diff_Exp e1' e2') n2 tbl2))
+
 comp (R.IsZero_Exp e) loc senv n tbl k = undefined
 comp (R.If_Exp e1 e2 e3) loc senv n tbl k = undefined
+
 comp (R.Let_Exp x e1 e2) loc senv n tbl k =
     comp e1 loc senv n tbl (\e1' n1 tbl1 ->
         let y = x ++ show n1
-            senv' = Map.insert x (apply_senv senv y) senv in
-            comp e2 loc senv' (n1+1) tbl1 (\e2' n2 tbl2 ->
+            senv1 = Map.insert x y senv in
+            comp e2 loc senv1 (n1+1) tbl1 (\e2' n2 tbl2 ->
                 k (A.Let_Exp y e1' e2') n2 tbl2))
 
 compMain :: R.Exp -> A.Exp
@@ -114,17 +118,14 @@ actorTemplate tbl e =
         (threeDriverDecl e))) ))
 
 funDecls :: [(Integer, (Location, [A.Identifier], A.Identifier, A.Exp))] -> A.Exp -> A.Exp
-funDecls funDeclList e = funDecls' funDeclList e
-
-funDecls' :: [(Integer, (Location, [A.Identifier], A.Identifier, A.Exp))] -> A.Exp -> A.Exp
-funDecls' [] e = e
-funDecls' ((fnum, (loc, fvs, x, body)):funDeclList) e = 
+funDecls [] e = e
+funDecls ((fnum, (loc, fvs, x, body)):funDeclList) e = 
     A.Let_Exp ("F" ++ show fnum) (A.Const_Exp (fromInteger fnum))
     (A.Let_Exp ("f" ++ show fnum) 
         (A.Proc_Exp "fvs" 
             (A.LetTuple_Exp fvs (A.Var_Exp "fvs") 
                 (A.Proc_Exp x body)))
-        (funDecls' funDeclList e))
+        (funDecls funDeclList e))
 
 dispatchDecl :: [Integer] -> A.Exp -> A.Exp
 dispatchDecl fnumList e =
@@ -195,7 +196,10 @@ callCloDecl =
 
 createActors :: Table -> A.Exp -> A.Exp
 createActors tbl e = 
-    let locList = [loc | (_, (loc,_,_,_)) <- Map.toList tbl] in 
+    let locList = 
+            Set.toList 
+                (Set.fromList 
+                    [loc | (_, (loc,_,_,_)) <- Map.toList tbl]) in 
         createActors' locList tbl e
 
 createActors' :: [Location] -> Table -> A.Exp -> A.Exp
