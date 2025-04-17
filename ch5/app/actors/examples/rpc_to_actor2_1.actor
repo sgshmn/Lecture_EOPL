@@ -25,6 +25,11 @@ proc(main)
             //                 proc (x) ....
             // in
 
+            let dispatch = proc(fNo)
+                    if zero?(-(fNo, F1)) then f1
+                    // else if zero?(-(fNo, F2)) then f2
+                    else 0   // error!!
+            in
             letrec 
                 
               mainLoop(msg) =
@@ -36,29 +41,13 @@ proc(main)
 
               createClo (msg) =
                 let (fNo, fvs, sender) = msg in 
-
-                    // Copmpiling: proc b (x) -(x, y)
-
-                    if zero?(-(fNo, F1))
-                    then
-                        let (y) = fvs in 
-                        let clo = (f1, (y)) in 
-                        begin
-                            send(sender, clo);
-                            ready(mainLoop)
-                         end 
-                    // Compiling: proc ....
-
-                    // if zero?(-(fNo, F2))
-                    // then
-                    //     let (y1, ..., yk) = fvs in 
-                    //     let clo = (f2, (y1, ..., yk)) in 
-                    //     begin
-                    //         send(sender, clo);
-                    //         ready(mainLoop)
-                    //      end 
-
-                    else ready(mainLoop)
+                let f = (dispatch fNo) in 
+                let (y) = fvs in 
+                let clo = (f, (y)) in 
+                    begin
+                        send(sender, clo);
+                        ready(mainLoop)
+                    end
 
               callClo (tuple_msg) =
                 let (clo, arg, sender) = tuple_msg in
@@ -85,7 +74,7 @@ proc(main)
 
     begin
         send(b, CREATECLO, (F1, (y), main));
-        ready(proc(clo0)  K(clo0)
+        ready(proc(clo0)  // K(clo0)
 
 //  Compiling:  clo0 b 2 
 
