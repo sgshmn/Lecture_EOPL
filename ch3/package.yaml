@@ -67,6 +67,7 @@ executables:
     main:                Main.lhs
     source-dirs:         
     - app/rpclang
+    - app/rpclang/actors
     ghc-options:
     - -threaded
     - -rtsopts

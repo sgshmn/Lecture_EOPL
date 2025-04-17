@@ -1,7 +1,7 @@
 module Comp where 
 
 import qualified Expr as R 
-import qualified ActorExpr as A  
+import qualified Actors.Expr as A  
 
 import qualified Data.Map as Map
 

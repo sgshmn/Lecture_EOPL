@@ -1,6 +1,6 @@
 {-# OPTIONS_GHC -Wno-unrecognised-pragmas #-}
 {-# HLINT ignore "Use camelCase" #-}
-module ActorExpr(Program,Exp(..),Identifier,UnaryOp(..)) where
+module Actors.Expr(Program,Exp(..),Identifier,UnaryOp(..)) where
 
 type Program = Exp
   
@@ -31,12 +31,16 @@ data Exp =
   | Ready_Exp Exp                         -- ready ( expression ) 
   | New_Exp   Exp                         -- new ( expression )
   | Eq_Actor_Exp Exp Exp                  -- actor? ( actor, actor )
+
+  -- For Tuple
+  | Tuple_Exp [ Exp ]                     -- ( expression1, ..., expressionk )
+  | LetTuple_Exp [ Identifier ] Exp Exp   -- let x1, ..., xk = expression in expression
+  
   deriving Show
 
 data UnaryOp = IsZero | IsNull | Car | Cdr | Print deriving Show
 
 type Identifier = String
-
 
 pprint :: Exp -> String
 pprint = undefined
