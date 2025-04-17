@@ -28,7 +28,8 @@ comp (R.Var_Exp x) loc senv n tbl k =
 comp (R.Proc_Exp locb x e) loc senv n tbl k =
     let fnum = n
         fName = "f" ++ show fnum
-        fvs = Set.toList (Set.delete x (R.fv e))
+        fvs1 = Set.toList (Set.delete x (R.fv e))
+        fvs = map (apply_senv senv) fvs1
         fvsName = "fvs" ++ show (n+1)
         x1 = x ++ show (n+2)
         cloName = "clo" ++ show (n+3)
@@ -104,13 +105,13 @@ compMain e =
         n = 0
         tbl = Map.empty
         (e1,n1,tbl1) = comp e "main" senv n tbl (,,) -- Wow! (,,) = \e n tbl -> (e, n, tbl)) 
-    in actorTemplate tbl1 
+    in actorTemplate "main" tbl1 
         (createActors tbl1 e1)
 
-actorTemplate :: Table -> A.Exp -> A.Exp
-actorTemplate tbl e = 
+actorTemplate :: String -> Table -> A.Exp -> A.Exp
+actorTemplate actorName tbl e = 
     let funDeclList = Map.toList tbl in 
-    A.Proc_Exp "self"
+    A.Proc_Exp actorName
         (A.Let_Exp constCREATECLO (A.Const_Exp 1)
         (A.Let_Exp constCALLCLO (A.Const_Exp 2)
         (funDecls funDeclList 
@@ -206,7 +207,7 @@ createActors' :: [Location] -> Table -> A.Exp -> A.Exp
 createActors' [] tbl e = e
 createActors' (loc:locList) tbl e = 
     let e1 = createActors' locList tbl e 
-        p = actorTemplate tbl (A.Ready_Exp (A.Var_Exp "mainLoop"))
+        p = actorTemplate "self" tbl (A.Ready_Exp (A.Var_Exp "mainLoop"))
         bName = "behaviour" ++ loc
         aName = loc
     in A.Let_Exp bName p 
