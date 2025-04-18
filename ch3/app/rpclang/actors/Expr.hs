@@ -43,4 +43,23 @@ data UnaryOp = IsZero | IsNull | Car | Cdr | Print deriving Show
 type Identifier = String
 
 pprint :: Exp -> String
-pprint = undefined
+pprint (Const_Exp n) = show n
+pprint (Diff_Exp e1 e2) = "-" ++ "(" ++ pprint e1 ++ " , " ++ pprint e2 ++ ")"
+pprint (If_Exp e1 e2 e3) = "if " ++ pprint e1 ++ " then " ++ pprint e2 ++ " else " ++ pprint e3
+pprint (Var_Exp id) = id
+pprint (Let_Exp id e1 e2) = "let " ++ id ++ " = " ++ pprint e1 ++ " in " ++ pprint e2
+pprint (Letrec_Exp lst e) = "letrec " ++ concatMap (\(id1, id2, e) -> id1 ++ "(" ++ id2 ++ ") = " ++ pprint e ++ "; ") lst ++ "in " ++ pprint e
+pprint (Proc_Exp id e) = "proc " ++ "(" ++ id ++ ") " ++ pprint e
+pprint (Call_Exp e1 e2) = "(" ++ pprint e1 ++ " " ++ pprint e2 ++ ")"
+pprint (Block_Exp lst) = "begin " ++ concatMap (\e -> pprint e ++ "; ") lst ++ "end"
+pprint (Set_Exp id e) = "set " ++ id ++ " = " ++ pprint e
+pprint (Const_List_Exp lst) = "[" ++ concatMap (\n -> show n ++ ", ") lst ++ "]"
+pprint (Unary_Exp op e) = show op ++ "(" ++ pprint e ++ ")"
+
+pprint (Send_Exp lst) = "send (" ++ concatMap (\e -> pprint e ++ ", ") (init lst) ++ pprint (last lst) ++ ")"
+pprint (Ready_Exp e) = "ready (" ++ pprint e ++ ")"
+pprint (New_Exp e) = "new (" ++ pprint e ++ ")"
+pprint (Eq_Actor_Exp e1 e2) = "actor? (" ++ pprint e1 ++ ", " ++ pprint e2 ++ ")"
+
+pprint (Tuple_Exp lst) =  "(" ++ concatMap (\e -> pprint e ++ ", ") (init lst) ++ pprint (last lst) ++ ")"
+pprint (LetTuple_Exp lst e1 e2) =  "let (" ++ concatMap (++ ", ") (init lst) ++ (last lst) ++ ") = " ++ pprint e1 ++ " in " ++ pprint e2
